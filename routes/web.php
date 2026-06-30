@@ -15,6 +15,11 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TransactionRoomReservationController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -52,6 +57,14 @@ Route::group(['middleware' => ['auth', 'checkRole:Super,Admin']], function () {
     Route::resource('roomstatus', RoomStatusController::class);
     Route::resource('transaction', TransactionController::class);
     Route::resource('facility', FacilityController::class);
+    Route::resource('payment-account', \App\Http\Controllers\PaymentAccountController::class);
+    Route::resource('role', \App\Http\Controllers\RoleController::class)->except(['show']);
+    Route::post('/post/upload-image', [PostController::class, 'uploadImage'])->name('post.upload_image');
+    Route::resource('post', PostController::class);
+    Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+    
+    Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+    Route::post('/setting', [SettingController::class, 'update'])->name('setting.update');
 
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
     Route::get('/payment/{payment}/invoice', [PaymentController::class, 'invoice'])->name('payment.invoice');
@@ -79,6 +92,9 @@ Route::group(['middleware' => ['auth', 'checkRole:Super,Admin,Customer']], funct
     Route::get('/mark-all-as-read', [NotificationsController::class, 'markAllAsRead'])->name('notification.markAllAsRead');
 
     Route::get('/notification-to/{id}', [NotificationsController::class, 'routeTo'])->name('notification.routeTo');
+
+    Route::post('/transaction/{transaction}/cancel', [TransactionController::class, 'cancel'])->name('transaction.cancel');
+    Route::post('/transaction/{transaction}/upload-receipt', [TransactionController::class, 'uploadReceipt'])->name('transaction.uploadReceipt');
 });
 
 // Login routes
@@ -96,4 +112,13 @@ Route::group(['middleware' => 'guest'], function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 });
 
-Route::redirect('/', '/dashboard');
+Route::get('/', [PageController::class, 'home'])->name('public.home');
+Route::get('/rooms', [PageController::class, 'rooms'])->name('public.rooms');
+Route::get('/rooms/{room}', [PageController::class, 'room'])->name('public.room');
+Route::post('/subscribe', [PageController::class, 'subscribe'])->name('public.subscribe');
+
+Route::get('/checkout/{room}', [CheckoutController::class, 'index'])->name('public.checkout');
+Route::post('/checkout/{room}', [CheckoutController::class, 'process'])->name('public.checkout.process');
+
+Route::get('/blog', [PostController::class, 'publicIndex'])->name('public.blog.index');
+Route::get('/blog/{slug}', [PostController::class, 'publicShow'])->name('public.blog.show');

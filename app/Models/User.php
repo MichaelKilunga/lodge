@@ -57,8 +57,27 @@ class User extends Authenticatable
         return $this->hasOne(Customer::class);
     }
 
+    public function userRole()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
     public function isCustomer()
     {
-        return $this->role === 'Customer';
+        // Keep checking the string for legacy/hybrid compat, or check relationship
+        return $this->role === 'Customer' || ($this->role_id && $this->userRole->name === 'Customer');
+    }
+
+    public function hasPermission(string $permission)
+    {
+        if ($this->role === 'Super' || ($this->role_id && $this->userRole->name === 'Super')) {
+            return true;
+        }
+
+        if (!$this->role_id) {
+            return false;
+        }
+
+        return $this->userRole->hasPermission($permission);
     }
 }

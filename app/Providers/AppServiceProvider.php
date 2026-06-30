@@ -21,6 +21,7 @@ use App\Repositories\Interface\TransactionRepositoryInterface;
 use App\Repositories\Interface\TypeRepositoryInterface;
 use App\Repositories\Interface\UserRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,6 +50,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Paginator::useBootstrap();
+        
+        try {
+            $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
+            \Illuminate\Support\Facades\View::share('global_settings', $settings);
+        } catch (\Exception $e) {
+            // Ignore during initial migrations
+            \Illuminate\Support\Facades\View::share('global_settings', []);
+        }
     }
 }

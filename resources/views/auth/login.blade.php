@@ -199,6 +199,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -209,6 +210,7 @@
             from {
                 transform: translate(-50%, -50%) rotate(0deg);
             }
+
             to {
                 transform: translate(-50%, -50%) rotate(360deg);
             }
@@ -249,9 +251,12 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0px) rotate(0deg);
             }
+
             50% {
                 transform: translateY(-20px) rotate(10deg);
             }
@@ -290,7 +295,7 @@
                 <div class="logo-container">
                     <i class="fas fa-hotel"></i>
                 </div>
-                <h4 class="mb-2 fw-bold">Laravel Hotel</h4>
+                <h4 class="mb-2 fw-bold">Bella Vista Lodge</h4>
                 <p class="mb-0 opacity-75">Welcome back! Please sign in to continue.</p>
             </div>
 
@@ -300,8 +305,7 @@
 
                     <div class="form-floating">
                         <input type="email" id="email" name="email"
-                            class="form-control @error('email') is-invalid @enderror"
-                            placeholder="Enter your email"
+                            class="form-control @error('email') is-invalid @enderror" placeholder="Enter your email"
                             value="{{ old('email') }}" required autofocus>
                         <label for="email">
                             <i class="fas fa-envelope me-2"></i>Email Address
@@ -315,8 +319,8 @@
 
                     <div class="form-floating">
                         <input type="password" id="password" name="password"
-                            class="form-control @error('password') is-invalid @enderror"
-                            placeholder="Enter your password" required>
+                            class="form-control @error('password') is-invalid @enderror" placeholder="Enter your password"
+                            required>
                         <label for="password">
                             <i class="fas fa-lock me-2"></i>Password
                         </label>

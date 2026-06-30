@@ -1,16 +1,16 @@
-# Laravel Hotel
+# Bella Vista Lodge
 
-Laravel Hotel is an open-source web application built with laravel 8.0, enchanced with laravel reverb features to have realtime notification experience.
+Bella Vista Lodge is an open-source web application built with laravel 8.0, enchanced with laravel reverb features to have realtime notification experience.
 
 Its now compatible with laravel 12
 
 ## 🖼️ Screenshots
 
-<img width="1919" height="943" alt="image" src="https://github.com/user-attachments/assets/f14318c7-f8ee-4fa0-a2be-8e3dac36cf47" />
+<img width="1919" height="943" alt="image" src="" />
 
-<img width="1919" height="943" alt="image" src="https://github.com/user-attachments/assets/ffbb1092-49dd-4e71-bb67-049f17e4d40e" />
+<img width="1919" height="943" alt="image" src="" />
 
-<img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/7499816a-0a24-4866-9f15-70d0b335aa85" />
+<img width="1919" height="940" alt="image" src="" />
 
 
 
@@ -32,7 +32,7 @@ mysql -u root -p
 ```
 
 ```sql
-CREATE DATABASE hotel_app;
+CREATE DATABASE bellavista;
 EXIT;
 ```
 
@@ -41,8 +41,8 @@ EXIT;
 1. **Clone & Configure**
 
 ```bash
-git clone https://github.com/WailanTirajoh/Laravel-Hotel.git
-cd Laravel-Hotel
+git clone https://github.com/MichaelKilunga/lodge.git
+cd lodge
 cp .env.example .env
 ```
 
@@ -82,8 +82,8 @@ php artisan reverb:start
 
 Access the admin dashboard with seeded demo accounts:
 
-- **Email**: <demo@example.com>
-- **Password**: demo_pass
+- **Email**: <[EMAIL_ADDRESS]>
+- **Password**: password
 
 > **Note**: Use the database seeders to create demo accounts, or check your `.env` file for configured test credentials.
 
@@ -213,7 +213,7 @@ Access the admin dashboard with seeded demo accounts:
 
 ## 🗄️ Database Schema
 
-![ERD](https://github.com/WailanTirajoh/Laravel-Hotel/blob/main/erd.PNG?raw=true)
+![ERD]()
 
 ### Key Relationships
 
@@ -264,11 +264,11 @@ This project is open-sourced software licensed under the [MIT license](https://o
 
 ## 👨‍💻 Developer
 
-**Wailan Tirajoh**
+**Michael Kilunga**
 
-- GitHub: [@WailanTirajoh](https://github.com/WailanTirajoh)
-- Instagram: [@tirajoh](https://www.instagram.com/tirajoh/)
-- Facebook: [tirajohw](https://www.facebook.com/tirajohw/)
+- GitHub: [@michaelkilunga](https://github.com/michaelkilunga)
+- Instagram: [@michaelkilunga](https://www.instagram.com/michaelkilunga/)
+- Facebook: [michaelkilunga](https://www.facebook.com/michaelkilunga/)
 
 ---
 

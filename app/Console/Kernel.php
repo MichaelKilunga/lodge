@@ -23,7 +23,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Send daily report at 11:59 PM every day
+        $schedule->command('app:send-daily-report')->dailyAt('23:59');
     }
 
     /**

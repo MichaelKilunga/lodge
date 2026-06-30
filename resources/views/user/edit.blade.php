@@ -41,18 +41,14 @@
                             @enderror
                         </div>
                         <div class=" col-md-12">
-                            <label for="role" class="form-label">Role</label>
-                            <select id="role" name="role" class="form-select @error('password') is-invalid @enderror">
+                            <label for="role_id" class="form-label">Role</label>
+                            <select id="role_id" name="role_id" class="form-select @error('role_id') is-invalid @enderror">
                                 <option selected disabled hidden>Choose...</option>
-                                @if (in_array($user->role, ['Super', 'Admin']))
-                                    <option value="Super" @if ($user->role == 'Super') selected @endif>Super</option>
-                                    <option value="Admin" @if ($user->role == 'Admin') selected @endif>Admin</option>
-                                @endif
-                                @if ($user->role == 'Customer')
-                                    <option value="Customer" @if ($user->role == 'Customer') selected @endif>Customer</option>
-                                @endif
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role->id }}" @if ($user->role_id == $role->id || $user->role == $role->name) selected @endif>{{ $role->name }}</option>
+                                @endforeach
                             </select>
-                            @error('role')
+                            @error('role_id')
                                 <div class="text-danger mt-1">
                                     {{ $message }}
                                 </div>

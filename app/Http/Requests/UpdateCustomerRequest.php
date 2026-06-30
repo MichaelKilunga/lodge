@@ -27,14 +27,13 @@ class UpdateCustomerRequest extends FormRequest
             return [
                 'name' => 'required',
                 'email' => 'required|unique:users,email,'.$this->user->id,
-                'role' => 'required|in:Customer',
             ];
         }
 
         return [
             'name' => 'required',
             'email' => 'required|unique:users,email,'.$this->user->id,
-            'role' => 'required|in:Super,Admin',
+            'role_id' => 'required|exists:roles,id',
         ];
     }
 }
