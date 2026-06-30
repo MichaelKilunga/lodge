@@ -1,8 +1,8 @@
 # Bella Vista Lodge
 
-Bella Vista Lodge is an open-source web application built with laravel 8.0, enchanced with laravel reverb features to have realtime notification experience.
+Bella Vista Lodge is a web application built with laravel 8.0, enhanced with laravel reverb features to have realtime notification experience.
 
-Its now compatible with laravel 12
+It is now compatible with laravel 12
 
 ## 🖼️ Screenshots
 
