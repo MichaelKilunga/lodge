@@ -82,7 +82,7 @@ php artisan reverb:start
 
 Access the admin dashboard with seeded demo accounts:
 
-- **Email**: <[EMAIL_ADDRESS]>
+- **Email**: michaelkilunga@gmail.com
 - **Password**: password
 
 > **Note**: Use the database seeders to create demo accounts, or check your `.env` file for configured test credentials.

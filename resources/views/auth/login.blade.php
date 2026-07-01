@@ -360,8 +360,8 @@
 
                 <div class="demo-info">
                     <h6><i class="fas fa-info-circle me-2"></i>Demo Account</h6>
-                    <p><strong>Email:</strong> wailantirajoh@gmail.com</p>
-                    <p><strong>Password:</strong> wailan</p>
+                    <p><strong>Email:</strong> micksimon30@gmail.com</p>
+                    <p><strong>Password:</strong> password</p>
                 </div>
             </div>
         </div>
