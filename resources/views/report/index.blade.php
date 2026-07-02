@@ -49,7 +49,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-muted small text-uppercase fw-bold mb-1">Total Revenue</div>
-                        <div class="fs-2 fw-bold">${{ number_format($totalRevenue, 2) }}</div>
+                        <div class="fs-2 fw-bold">TZS {{ number_format($totalRevenue, 2) }}</div>
                     </div>
                     <div class="rounded-circle bg-success bg-opacity-10 p-3">
                         <i class="fas fa-dollar-sign fa-2x text-success"></i>
@@ -108,7 +108,7 @@
                                         {{ $t->status }}
                                     </span>
                                 </td>
-                                <td>${{ number_format(optional($t->payment)->total ?? 0, 2) }}</td>
+                                <td>TZS {{ number_format(optional($t->payment)->total ?? 0, 2) }}</td>
                             </tr>
                             @empty
                             <tr>

@@ -49,7 +49,7 @@
                     <div class="card-body p-4">
                         <h2 class="fw-bold mb-3">{{ $room->type->name }}</h2>
                         <div class="d-flex align-items-center mb-4">
-                            <h3 class="fw-bold text-hotel-primary mb-0">${{ number_format($room->price, 2) }}</h3>
+                            <h3 class="fw-bold text-hotel-primary mb-0">TZS {{ number_format($room->price, 2) }}</h3>
                             <span class="text-muted ms-2">/ night</span>
                         </div>
 

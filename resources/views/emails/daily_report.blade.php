@@ -18,7 +18,7 @@
                 </tr>
                 <tr>
                     <td style="padding:14px 16px; font-weight:bold;">💰 Total Revenue</td>
-                    <td style="padding:14px 16px; font-size:1.3rem; font-weight:bold; color:#22c55e;">${{ number_format($totalRevenue, 2) }}</td>
+                    <td style="padding:14px 16px; font-size:1.3rem; font-weight:bold; color:#22c55e;">TZS {{ number_format($totalRevenue, 2) }}</td>
                 </tr>
                 <tr style="background:#f1f5f9;">
                     <td style="padding:14px 16px; font-weight:bold; border-radius:6px 0 0 6px;">🏨 Occupancy Rate</td>

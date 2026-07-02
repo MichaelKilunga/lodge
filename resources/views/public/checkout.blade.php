@@ -36,7 +36,7 @@
                             <div>
                                 <h4 class="fw-bold mb-1">{{ $room->type->name }}</h4>
                                 <p class="text-muted mb-0">Room {{ $room->number }} &bull; Up to {{ $room->capacity }} Guests</p>
-                                <p class="text-hotel-primary fw-bold mb-0">${{ number_format($room->price, 2) }} / night</p>
+                                <p class="text-hotel-primary fw-bold mb-0">TZS {{ number_format($room->price, 2) }} / night</p>
                             </div>
                         </div>
 

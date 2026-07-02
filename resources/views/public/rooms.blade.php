@@ -34,7 +34,7 @@
                                     <i class="fas fa-eye me-2"></i> View: {{ $room->view ?? 'City View' }}
                                 </p>
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
-                                    <span class="fs-5 fw-bold text-hotel-primary">${{ number_format($room->price, 2) }} <small class="text-muted fs-6">/ night</small></span>
+                                    <span class="fs-5 fw-bold text-hotel-primary">TZS {{ number_format($room->price, 2) }} <small class="text-muted fs-6">/ night</small></span>
                                     <a href="{{ route('public.room', $room->id) }}" class="btn btn-outline-primary">Details</a>
                                 </div>
                             </div>
