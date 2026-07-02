@@ -25,6 +25,18 @@
             </form>
         </div>
     </div>
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if(session('failed'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('failed') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <div class="row my-2 mt-4 ms-1">
         <div class="col-lg-12">
             <h5>Active Guests: </h5>
@@ -48,6 +60,7 @@
                                     <th>Total Price</th>
                                     <th>Paid Off</th>
                                     <th>Debt</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -71,11 +84,38 @@
                                         <td>{{ $transaction->getTotalPrice() - $transaction->getTotalPayment() <= 0 ? '-' : Helper::convertToRupiah($transaction->getTotalPrice() - $transaction->getTotalPayment()) }}
                                         </td>
                                         <td>
+                                            <span class="badge {{ $transaction->status == 'Reservation' ? 'bg-warning text-dark' : ($transaction->status == 'Canceled' ? 'bg-danger' : 'bg-success') }}">
+                                                {{ $transaction->status }}
+                                            </span>
+                                        </td>
+                                        <td class="d-flex gap-1">
                                             <a class="btn btn-light btn-sm rounded shadow-sm border p-1 m-0 {{$transaction->getTotalPrice() - $transaction->getTotalPayment() <= 0 ? 'disabled' : ''}}"
                                                 href="{{ route('transaction.payment.create', ['transaction' => $transaction->id]) }}"
                                                 data-bs-toggle="tooltip" data-bs-placement="top" title="Pay">
                                                 <i class="fas fa-money-bill-wave-alt"></i>
                                             </a>
+                                            @if(auth()->user()->isSuperAdmin())
+                                                <a class="btn btn-primary btn-sm rounded shadow-sm border p-1 m-0 text-white"
+                                                    href="{{ route('transaction.edit', $transaction->id) }}"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Booking">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                @if($transaction->status != 'Canceled')
+                                                    <form action="{{ route('transaction.cancel', $transaction->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel booking #{{ $transaction->id }}?');">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-warning btn-sm rounded shadow-sm border p-1 m-0 text-dark" title="Cancel Booking">
+                                                            <i class="fas fa-ban"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                                <form action="{{ route('transaction.destroy', $transaction->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete booking #{{ $transaction->id }}?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm rounded shadow-sm border p-1 m-0 text-white" title="Delete Booking">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -116,6 +156,7 @@
                                     <th>Total Price</th>
                                     <th>Paid Off</th>
                                     <th>Debt</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -136,14 +177,41 @@
                                     <td>
                                         {{ Helper::convertToRupiah($transaction->getTotalPayment()) }}
                                     </td>
-                                    <td>{{ $transaction->getTotalPrice() - $transaction->getTotalPayment() <= 0 ? '-' : Helper::convertToRupiah($transaction->getTotalPrice($transaction->room->price, $transaction->check_in, $transaction->check_out) - $transaction->getTotalPayment()) }}
+                                    <td>{{ $transaction->getTotalPrice() - $transaction->getTotalPayment() <= 0 ? '-' : Helper::convertToRupiah($transaction->getTotalPrice() - $transaction->getTotalPayment()) }}
                                     </td>
                                     <td>
-                                        <a class="btn btn-light btn-sm rounded shadow-sm border p-1 m-0 {{$transaction->getTotalPrice($transaction->room->price, $transaction->check_in, $transaction->check_out) - $transaction->getTotalPayment() <= 0 ? 'disabled' : ''}}"
+                                        <span class="badge {{ $transaction->status == 'Reservation' ? 'bg-warning text-dark' : ($transaction->status == 'Canceled' ? 'bg-danger' : 'bg-success') }}">
+                                            {{ $transaction->status }}
+                                        </span>
+                                    </td>
+                                    <td class="d-flex gap-1">
+                                        <a class="btn btn-light btn-sm rounded shadow-sm border p-1 m-0 {{$transaction->getTotalPrice() - $transaction->getTotalPayment() <= 0 ? 'disabled' : ''}}"
                                             href="{{ route('transaction.payment.create', ['transaction' => $transaction->id]) }}"
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Pay">
                                             <i class="fas fa-money-bill-wave-alt"></i>
                                         </a>
+                                        @if(auth()->user()->isSuperAdmin())
+                                            <a class="btn btn-primary btn-sm rounded shadow-sm border p-1 m-0 text-white"
+                                                href="{{ route('transaction.edit', $transaction->id) }}"
+                                                data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Booking">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @if($transaction->status != 'Canceled')
+                                                <form action="{{ route('transaction.cancel', $transaction->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel booking #{{ $transaction->id }}?');">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-warning btn-sm rounded shadow-sm border p-1 m-0 text-dark" title="Cancel Booking">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            <form action="{{ route('transaction.destroy', $transaction->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete booking #{{ $transaction->id }}?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm rounded shadow-sm border p-1 m-0 text-white" title="Delete Booking">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

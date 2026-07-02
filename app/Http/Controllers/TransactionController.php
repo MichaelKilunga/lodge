@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
+use App\Models\Room;
+use App\Models\Transaction;
 use App\Repositories\Interface\TransactionRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -22,17 +25,78 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function cancel(\App\Models\Transaction $transaction)
+    public function cancel(Transaction $transaction)
     {
-        if ($transaction->status == 'Reservation') {
+        if (auth()->user()->isSuperAdmin() || $transaction->status == 'Reservation') {
             $transaction->status = 'Canceled';
             $transaction->save();
+            activity()->causedBy(auth()->user())->log("Booking #{$transaction->id} canceled");
             return redirect()->back()->with('success', 'Booking canceled successfully.');
         }
-        return redirect()->back()->with('error', 'Cannot cancel this booking.');
+        return redirect()->back()->with('failed', 'Cannot cancel this booking.');
     }
 
-    public function uploadReceipt(Request $request, \App\Models\Transaction $transaction)
+    public function edit(Transaction $transaction)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Only Super Admin can edit bookings.');
+        }
+
+        $customers = Customer::orderBy('name')->get();
+        $rooms = Room::orderBy('number')->get();
+
+        return view('transaction.edit', compact('transaction', 'customers', 'rooms'));
+    }
+
+    public function update(Request $request, Transaction $transaction)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Only Super Admin can update bookings.');
+        }
+
+        $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'room_id' => 'required|exists:rooms,id',
+            'check_in' => 'required|date',
+            'check_out' => 'required|date|after:check_in',
+            'status' => 'required|string',
+        ]);
+
+        $transaction->update([
+            'customer_id' => $request->customer_id,
+            'room_id' => $request->room_id,
+            'check_in' => $request->check_in,
+            'check_out' => $request->check_out,
+            'status' => $request->status,
+        ]);
+
+        activity()->causedBy(auth()->user())->log("Booking #{$transaction->id} updated by Super Admin");
+
+        return redirect()->route('transaction.index')->with('success', "Booking #{$transaction->id} updated successfully.");
+    }
+
+    public function destroy(Transaction $transaction)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Only Super Admin can delete bookings.');
+        }
+
+        $id = $transaction->id;
+
+        foreach ($transaction->payment as $payment) {
+            if ($payment->receipt_image && file_exists(public_path($payment->receipt_image))) {
+                @unlink(public_path($payment->receipt_image));
+            }
+        }
+        $transaction->payment()->delete();
+        $transaction->delete();
+
+        activity()->causedBy(auth()->user())->log("Booking #{$id} deleted by Super Admin");
+
+        return redirect()->route('transaction.index')->with('success', "Booking #{$id} deleted permanently.");
+    }
+
+    public function uploadReceipt(Request $request, Transaction $transaction)
     {
         $request->validate([
             'receipt_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5000',

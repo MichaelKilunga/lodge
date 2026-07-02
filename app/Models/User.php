@@ -91,4 +91,10 @@ class User extends Authenticatable
 
         return $this->userRole->hasPermission($permission);
     }
+
+    public function isSuperAdmin(): bool
+    {
+        return strcasecmp((string) $this->role, 'Super') === 0 || 
+               ($this->role_id && $this->userRole && strcasecmp((string) $this->userRole->name, 'Super') === 0);
+    }
 }
