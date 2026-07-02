@@ -1,4 +1,4 @@
-<form id="form-save-room" class="row g-3" method="POST" action="{{ route('room.store') }}">
+<form id="form-save-room" class="row g-3" method="POST" action="{{ route('room.store') }}" enctype="multipart/form-data">
     @csrf
     <div class="col-md-12">
         <label for="type_id" class="form-label">Type</label>
@@ -41,5 +41,10 @@
         <label for="view" class="form-label">View</label>
         <textarea class="form-control" id="view" name="view" rows="3" placeholder="ex: window see beach">{{ old('view') }}</textarea>
         <div id="error_view" class="text-danger error"></div>
+    </div>
+    <div class="col-md-12">
+        <label for="images" class="form-label">Room Images (optional)</label>
+        <input type="file" class="form-control" id="images" name="images[]" multiple accept="image/*">
+        <div id="error_images" class="text-danger error"></div>
     </div>
 </form>

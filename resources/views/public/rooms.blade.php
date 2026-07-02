@@ -4,11 +4,18 @@
 @section('meta_description', 'Browse our wide selection of luxury rooms and suites. Find the perfect accommodation for your stay.')
 
 @section('content')
+    @php
+        $roomsHeroImage = !empty($global_settings['rooms_hero_image_path'])
+                            ? asset($global_settings['rooms_hero_image_path'])
+                            : (!empty($global_settings['hero_image_path'])
+                                ? asset($global_settings['hero_image_path'])
+                                : asset('img/default/default-room.png'));
+    @endphp
     <!-- Header -->
-    <section class="bg-dark text-white py-5 text-center" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('{{ asset('img/default/default-room.png') }}') center/cover;">
+    <section class="bg-dark text-white py-5 text-center" style="background: linear-gradient(rgba(15,23,42,0.7), rgba(15,23,42,0.7)), url('{{ $roomsHeroImage }}') center/cover fixed; padding: 120px 0 !important;">
         <div class="container">
-            <h1 class="display-4 fw-bold">Our Rooms & Suites</h1>
-            <p class="lead">Find your perfect sanctuary.</p>
+            <h1 class="display-4 fw-bold">{{ $global_settings['rooms_hero_title'] ?? 'Our Rooms & Suites' }}</h1>
+            <p class="lead">{{ $global_settings['rooms_hero_subtitle'] ?? 'Find your perfect sanctuary.' }}</p>
         </div>
     </section>
 

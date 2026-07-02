@@ -186,6 +186,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="{{ route('public.home') }}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('public.rooms') }}">Rooms &amp; Suites</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('public.location') }}">Location &amp; Directions</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('public.blog.index') }}">Blog</a></li>
                     @auth
                         <li class="nav-item ms-lg-3">

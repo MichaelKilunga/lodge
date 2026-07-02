@@ -167,7 +167,7 @@
 @section('footer')
 <script>
     $('#downPayment').keyup(function() {
-        $('#showPaymentType').text('Rp. ' + parseFloat($(this).val(), 10).toFixed(2).replace(
+        $('#showPaymentType').text('TZS ' + parseFloat($(this).val(), 10).toFixed(2).replace(
                 /(\d)(?=(\d{3})+\.)/g, "$1.")
             .toString());
     });

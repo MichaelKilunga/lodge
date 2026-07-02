@@ -13,6 +13,7 @@ use App\Repositories\Interface\RoomStatusRepositoryInterface;
 use App\Repositories\Interface\TypeRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
@@ -51,9 +52,11 @@ class RoomController extends Controller
         ]);
     }
 
-    public function store(StoreRoomRequest $request)
+    public function store(StoreRoomRequest $request, ImageRepositoryInterface $imageRepository)
     {
         $room = Room::create($request->all());
+
+        $this->handleImageUploads($request, $room, $imageRepository);
 
         return response()->json([
             'message' => 'Room '.$room->number.' created',
@@ -89,19 +92,43 @@ class RoomController extends Controller
         ]);
     }
 
-    public function update(Room $room, StoreRoomRequest $request)
+    public function update(Room $room, StoreRoomRequest $request, ImageRepositoryInterface $imageRepository)
     {
+        $oldNumber = $room->number;
         $room->update($request->all());
 
+        if ($oldNumber !== $room->number) {
+            $oldPath = public_path('img/room/'.$oldNumber);
+            $newPath = public_path('img/room/'.$room->number);
+            if (is_dir($oldPath)) {
+                rename($oldPath, $newPath);
+            }
+        }
+
+        if ($request->boolean('replace_images') || $request->input('replace_images') == '1') {
+            foreach ($room->image as $img) {
+                $imgPath = public_path('img/room/'.$room->number.'/'.$img->url);
+                if (file_exists($imgPath)) {
+                    @unlink($imgPath);
+                }
+                $img->delete();
+            }
+        }
+
+        $this->handleImageUploads($request, $room, $imageRepository);
+
         return response()->json([
-            'message' => 'Room '.$room->number.' udpated!',
+            'message' => 'Room '.$room->number.' updated!',
         ]);
     }
 
     public function destroy(Room $room, ImageRepositoryInterface $imageRepository)
     {
         try {
-            $room->delete();
+            DB::transaction(function () use ($room) {
+                DB::table('facility_room')->where('room_id', $room->id)->delete();
+                $room->delete();
+            });
 
             $path = 'img/room/'.$room->number;
             $path = public_path($path);
@@ -114,9 +141,47 @@ class RoomController extends Controller
                 'message' => 'Room number '.$room->number.' deleted!',
             ]);
         } catch (\Exception $e) {
+            $errorCode = isset($e->errorInfo[1]) ? $e->errorInfo[1] : $e->getCode();
+            $errorMessage = 'Error Code: '.$errorCode;
+
+            if ($errorCode == 1451 || (isset($e->errorInfo[0]) && $e->errorInfo[0] == '23000')) {
+                $errorMessage = 'It is still linked to existing booking transactions.';
+            }
+
             return response()->json([
-                'message' => 'Customer '.$room->number.' cannot be deleted! Error Code:'.$e->errorInfo[1],
+                'message' => 'Room number '.$room->number.' cannot be deleted! '.$errorMessage,
             ], 500);
+        }
+    }
+
+    private function handleImageUploads(Request $request, Room $room, ImageRepositoryInterface $imageRepository)
+    {
+        $files = [];
+        foreach ($request->allFiles() as $uploaded) {
+            if (is_array($uploaded)) {
+                foreach ($uploaded as $file) {
+                    $files[] = $file;
+                }
+            } else {
+                $files[] = $uploaded;
+            }
+        }
+
+        if (! empty($files)) {
+            $path = public_path('img/room/'.$room->number);
+            foreach ($files as $file) {
+                if ($file instanceof \Illuminate\Http\UploadedFile) {
+                    if ($file->isValid()) {
+                        $lastFileName = $imageRepository->uploadImage($path, $file);
+                        \App\Models\Image::create([
+                            'room_id' => $room->id,
+                            'url' => $lastFileName,
+                        ]);
+                    } else {
+                        \Illuminate\Support\Facades\Log::error('Room image upload failed for room '.$room->number.': '.$file->getErrorMessage());
+                    }
+                }
+            }
         }
     }
 }

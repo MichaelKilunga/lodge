@@ -53,6 +53,7 @@ $(function () {
                         <form class="btn btn-sm delete-room" method="POST"
                             id="delete-room-form-${roomId}"
                             action="/room/${roomId}">
+                            <input type="hidden" name="_method" value="DELETE">
                             <a class="btn btn-light btn-sm rounded shadow-sm border delete"
                                 href="#" room-id="${roomId}" room-role="room" data-bs-toggle="tooltip"
                                 data-bs-placement="top" title="Delete room">
@@ -127,10 +128,14 @@ $(function () {
             CustomHelper.clearError();
             $("#btn-modal-save").attr("disabled", true);
             try {
+                const formElement = document.getElementById("form-save-room") || this;
+                const formData = new FormData(formElement);
                 const response = await $.ajax({
-                    url: $(this).attr("action"),
-                    data: $(this).serialize(),
-                    method: $(this).attr("method"),
+                    url: $(formElement).attr("action"),
+                    data: formData,
+                    method: $(formElement).attr("method"),
+                    processData: false,
+                    contentType: false,
                     headers: {
                         "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
                             "content"
@@ -151,14 +156,20 @@ $(function () {
                 modal.hide();
                 datatable.ajax.reload();
             } catch (e) {
-                if (e.status === 422) {
-                    console.log(e);
+                console.log(e);
+                if (e.status === 422 && e.responseJSON) {
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
                         text: e.responseJSON.message,
                     });
                     CustomHelper.errorHandlerForm(e);
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: (e.responseJSON && e.responseJSON.message) ? e.responseJSON.message : "An error occurred while saving the room.",
+                    });
                 }
             } finally {
                 $("#btn-modal-save").attr("disabled", false);
@@ -177,6 +188,44 @@ $(function () {
             $("#main-modal .modal-title").text("Edit room");
             $("#main-modal .modal-body").html(response.view);
             $(".select2").select2();
+        })
+        .on("click", ".delete-room-image-btn", async function (e) {
+            e.preventDefault();
+            const btn = $(this);
+            const url = btn.data("url");
+
+            const result = await Swal.fire({
+                title: "Are you sure?",
+                text: "Delete this room image?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    btn.attr("disabled", true);
+                    const response = await $.ajax({
+                        url: url,
+                        method: "DELETE",
+                        headers: {
+                            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+                        }
+                    });
+                    btn.closest(".room-image-item").fadeOut(300, function() { $(this).remove(); });
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: response.message || "Image deleted!",
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                } catch (err) {
+                    Swal.fire("Error", "Could not delete image.", "error");
+                    btn.attr("disabled", false);
+                }
+            }
         })
         .on("submit", ".delete-room", async function (e) {
             e.preventDefault();
@@ -204,7 +253,17 @@ $(function () {
                 });
 
                 datatable.ajax.reload();
-            } catch (e) {}
+            } catch (e) {
+                if (e && e.responseJSON && e.responseJSON.message) {
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "error",
+                        title: e.responseJSON.message,
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }
+            }
         })
         .on("change", "#status", function () {
             datatable.ajax.reload();

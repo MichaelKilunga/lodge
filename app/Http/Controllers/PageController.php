@@ -27,6 +27,11 @@ class PageController extends Controller
         return view('public.room_details', compact('room'));
     }
 
+    public function location()
+    {
+        return view('public.location');
+    }
+
     public function subscribe(Request $request)
     {
         $request->validate([

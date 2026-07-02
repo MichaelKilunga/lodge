@@ -16,7 +16,7 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         // Handle file uploads separately
-        $fileFields = ['logo_path', 'favicon_path', 'hero_image_path'];
+        $fileFields = ['logo_path', 'favicon_path', 'hero_image_path', 'rooms_hero_image_path'];
 
         foreach ($fileFields as $field) {
             if ($request->hasFile($field)) {

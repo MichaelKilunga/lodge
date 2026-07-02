@@ -130,6 +130,137 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Landing Page Content Display Settings --}}
+                    <div class="card shadow-sm border-0 rounded-3 mb-4">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-desktop text-primary me-2"></i>Landing Page Display Content</h5>
+                            <small class="text-muted">Manage headings and descriptions shown on the main public landing page</small>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Hero Section Title</label>
+                                    <input type="text" class="form-control" name="home_hero_title" value="{{ $settings['home_hero_title'] ?? 'Welcome to Bella Vista Lodge' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Hero Section Subtitle</label>
+                                    <input type="text" class="form-control" name="home_hero_subtitle" value="{{ $settings['home_hero_subtitle'] ?? 'Experience luxury, comfort, and exceptional service.' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Featured Rooms Heading</label>
+                                    <input type="text" class="form-control" name="home_featured_title" value="{{ $settings['home_featured_title'] ?? 'Our Featured Rooms' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Featured Rooms Subtitle</label>
+                                    <input type="text" class="form-control" name="home_featured_subtitle" value="{{ $settings['home_featured_subtitle'] ?? 'Handpicked accommodations for your perfect stay.' }}">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold">Facilities Section Heading</label>
+                                    <input type="text" class="form-control" name="home_features_title" value="{{ $settings['home_features_title'] ?? 'Why Choose Us?' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Rooms Page Content Display Settings --}}
+                    <div class="card shadow-sm border-0 rounded-3 mb-4">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-bed text-primary me-2"></i>Rooms Guest Page Display Content</h5>
+                            <small class="text-muted">Customize the banner title and subtitle shown on the public Rooms & Suites page</small>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Rooms Hero Title</label>
+                                    <input type="text" class="form-control" name="rooms_hero_title" value="{{ $settings['rooms_hero_title'] ?? 'Our Rooms & Suites' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Rooms Hero Subtitle</label>
+                                    <input type="text" class="form-control" name="rooms_hero_subtitle" value="{{ $settings['rooms_hero_subtitle'] ?? 'Find your perfect sanctuary.' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Location & Interactive Map Settings --}}
+                    <div class="card shadow-sm border-0 rounded-3 mb-4">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt text-primary me-2"></i>Location & Interactive Map Settings</h5>
+                            <small class="text-muted">Manage all text descriptions, maps, and Google Earth direction videos</small>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Top Badge Text</label>
+                                    <input type="text" class="form-control" name="location_badge" value="{{ $settings['location_badge'] ?? 'Prime Accessibility' }}">
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label fw-semibold">Location Page Heading</label>
+                                    <input type="text" class="form-control" name="location_heading" value="{{ $settings['location_heading'] ?? 'Discover Our Prime Luxury Location' }}">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold">Main Location Description</label>
+                                    <textarea class="form-control" name="location_description" rows="2">{{ $settings['location_description'] ?? 'Nestled amidst breathtaking natural vistas, Bella Vista Lodge offers tranquil seclusion with effortless accessibility from international airports and scenic transport hubs.' }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Google Maps Embed URL / iFrame Src</label>
+                                    <input type="text" class="form-control" name="location_map_iframe" value="{{ $settings['location_map_iframe'] ?? 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d101408.21722940251!2d-122.08554284488975!3d37.42199990176881!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb7495bec0189%3A0x7c17d44a466baf9b!2sMountain%20View%2C%20CA!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Google Earth Direction Video (YouTube Embed URL)</label>
+                                    <input type="text" class="form-control" name="location_youtube_video" value="{{ $settings['location_youtube_video'] ?? 'https://www.youtube.com/embed/ScMzIvxBSi4' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Map Card Title</label>
+                                    <input type="text" class="form-control" name="location_map_card_title" value="{{ $settings['location_map_card_title'] ?? 'Interactive Satellite Map' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Video Card Title</label>
+                                    <input type="text" class="form-control" name="location_video_card_title" value="{{ $settings['location_video_card_title'] ?? 'Google Earth 3D Animated Route' }}">
+                                </div>
+                                <div class="col-md-12 border-top pt-3">
+                                    <h6 class="fw-bold text-primary mb-2">Transport & Arrival Descriptions</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Arrival Section Heading</label>
+                                    <input type="text" class="form-control" name="location_info_title" value="{{ $settings['location_info_title'] ?? 'Effortless Arrival & Connections' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Arrival Section Subtitle</label>
+                                    <input type="text" class="form-control" name="location_info_subtitle" value="{{ $settings['location_info_subtitle'] ?? 'Whether arriving by private transfer, helicopter, or scenic drive, reaching our sanctuary is part of your unforgettable journey.' }}">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold">Driving Route Description</label>
+                                    <textarea class="form-control" name="location_directions" rows="2">{{ $settings['location_directions'] ?? 'From International Airport: Take Highway 101 North for 35 miles, follow scenic Route 9 directly to private lodge gates. Valet and private helicopter transfer available upon reservation.' }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Private Helipad Card Title</label>
+                                    <input type="text" class="form-control" name="location_helipad_title" value="{{ $settings['location_helipad_title'] ?? 'Private Helipad & Transfers' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Valet Parking Card Title</label>
+                                    <input type="text" class="form-control" name="location_parking_title" value="{{ $settings['location_parking_title'] ?? 'Valet Parking & EV Charging' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Private Helipad Description</label>
+                                    <textarea class="form-control" name="location_helipad_text" rows="3">{{ $settings['location_helipad_text'] ?? 'We maintain an on-site private helipad for chartered arrivals. VIP luxury SUV transfers from major airports can also be arranged directly through our concierge team 24 hours prior to arrival.' }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Valet Parking Description</label>
+                                    <textarea class="form-control" name="location_parking_text" rows="3">{{ $settings['location_parking_text'] ?? 'Complimentary 24/7 secure valet parking is extended to all registered lodge guests. Fast Level-2 and DC universal electric vehicle charging stations are available upon arrival at our main lodge portico.' }}</textarea>
+                                </div>
+                                <div class="col-md-6 border-top pt-3">
+                                    <label class="form-label fw-semibold">Call to Action Heading</label>
+                                    <input type="text" class="form-control" name="location_cta_title" value="{{ $settings['location_cta_title'] ?? 'Ready to Experience Our Sanctuary?' }}">
+                                </div>
+                                <div class="col-md-6 border-top pt-3">
+                                    <label class="form-label fw-semibold">Call to Action Subtitle</label>
+                                    <input type="text" class="form-control" name="location_cta_subtitle" value="{{ $settings['location_cta_subtitle'] ?? 'Secure your preferred dates and let our concierge prepare your customized arrival itinerary.' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- ========= RIGHT COLUMN ========= --}}
@@ -195,8 +326,8 @@
                             </div>
 
                             {{-- Hero Background --}}
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Hero Background Image</label>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Homepage Hero Background</label>
                                 @if(!empty($settings['hero_image_path']))
                                     <div class="mb-2 rounded overflow-hidden" style="height: 80px;">
                                         <img src="{{ asset($settings['hero_image_path']) }}" alt="Hero" style="width: 100%; height: 80px; object-fit: cover;">
@@ -204,6 +335,18 @@
                                 @endif
                                 <input type="file" class="form-control" name="hero_image_path" accept="image/*">
                                 <small class="text-muted">Large landscape image for the homepage banner.</small>
+                            </div>
+
+                            {{-- Rooms Page Hero Background --}}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Rooms Guest Page Banner</label>
+                                @if(!empty($settings['rooms_hero_image_path']))
+                                    <div class="mb-2 rounded overflow-hidden" style="height: 80px;">
+                                        <img src="{{ asset($settings['rooms_hero_image_path']) }}" alt="Rooms Hero" style="width: 100%; height: 80px; object-fit: cover;">
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control" name="rooms_hero_image_path" accept="image/*">
+                                <small class="text-muted">Large banner image for the public Rooms & Suites page.</small>
                             </div>
                         </div>
                     </div>

@@ -31,6 +31,7 @@ class RoomStatusController extends Controller
 
     public function store(StoreRoomStatusRequest $request)
     {
+        // dd($request->all());
         $roomstatus = RoomStatus::create($request->all());
 
         return response()->json([

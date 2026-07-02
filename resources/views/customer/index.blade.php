@@ -47,7 +47,7 @@
             </div>
             <div class="row">
                 @forelse ($customers as $customer)
-                    <div class="col-lg-2 col-md-4 col-sm-6 my-1">
+                    <div class="col-lg-2# col-md-4 col-sm-6 my-1">
                         <div class="card shadow-sm justify-content-start p-0 rounded" style="min-height:350px; ">
                             <div class="row w-100" style="position:absolute;">
                                 <div class="d-flex">

@@ -115,6 +115,7 @@ Route::group(['middleware' => 'guest'], function () {
 Route::get('/', [PageController::class, 'home'])->name('public.home');
 Route::get('/rooms', [PageController::class, 'rooms'])->name('public.rooms');
 Route::get('/rooms/{room}', [PageController::class, 'room'])->name('public.room');
+Route::get('/location', [PageController::class, 'location'])->name('public.location');
 Route::post('/subscribe', [PageController::class, 'subscribe'])->name('public.subscribe');
 
 Route::get('/checkout/{room}', [CheckoutController::class, 'index'])->name('public.checkout');

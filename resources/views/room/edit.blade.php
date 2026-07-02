@@ -1,4 +1,4 @@
-<form id="form-save-room" class="row g-3" method="POST" action="{{ route('room.update', ['room' => $room->id]) }}">
+<form id="form-save-room" class="row g-3" method="POST" action="{{ route('room.update', ['room' => $room->id]) }}" enctype="multipart/form-data">
     @method('PUT')
     @csrf
     <div class="col-md-12">
@@ -44,4 +44,32 @@
         <textarea class="form-control" id="view" name="view" rows="3" placeholder="ex: window see beach">{{ $room->view }}</textarea>
         <div id="error_view" class="text-danger error"></div>
     </div>
+    <div class="col-md-12">
+        <label for="images" class="form-label">Upload Room Images (optional)</label>
+        <input type="file" class="form-control mb-2" id="images" name="images[]" multiple accept="image/*">
+        @if ($room->image->count() > 0)
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="1" id="replace_images" name="replace_images">
+                <label class="form-check-label text-danger" for="replace_images">
+                    Replace all existing images with newly uploaded images
+                </label>
+            </div>
+        @endif
+        <div id="error_images" class="text-danger error"></div>
+    </div>
+    @if ($room->image->count() > 0)
+        <div class="col-md-12">
+            <label class="form-label d-block">Current Images (click X to delete instantly)</label>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach ($room->image as $image)
+                    <div class="position-relative border rounded p-1 shadow-sm room-image-item" style="width: 80px; height: 80px;">
+                        <img src="{{ $image->getRoomImage() }}" class="w-100 h-100 rounded" style="object-fit: cover;">
+                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 delete-room-image-btn" style="padding: 0 5px; font-size: 11px; line-height: 1.4; border-radius: 50%; transform: translate(30%, -30%);" data-url="{{ route('image.destroy', ['image' => $image->id]) }}" title="Remove Image">
+                            &times;
+                        </button>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </form>

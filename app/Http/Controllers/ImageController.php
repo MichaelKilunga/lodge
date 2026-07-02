@@ -36,6 +36,10 @@ class ImageController extends Controller
         }
         $image->delete();
 
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['message' => 'Image deleted successfully!']);
+        }
+
         return redirect()->back()->with('success', 'Image '.$image->url.' has been deleted!');
     }
 }

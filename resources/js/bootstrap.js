@@ -64,7 +64,17 @@ import axios from "axios";
             for (const error in e.responseJSON.errors) {
                 const errorLabel = error;
                 const errorList = e.responseJSON.errors[error];
-                $(`#error_${errorLabel}`).text(errorList.join(", "));
+                if ($(`#error_${errorLabel}`).length) {
+                    $(`#error_${errorLabel}`).text(errorList.join(", "));
+                } else if (errorLabel.includes('.')) {
+                    const baseLabel = errorLabel.split('.')[0];
+                    if ($(`#error_${baseLabel}`).length) {
+                        const current = $(`#error_${baseLabel}`).text();
+                        $(`#error_${baseLabel}`).text(
+                            (current ? current + " " : "") + errorList.join(", ")
+                        );
+                    }
+                }
             }
         },
         clearError() {
@@ -79,6 +89,7 @@ import axios from "axios";
         import("./pages/room-status"),
         import("./pages/type"),
         import("./pages/room"),
+        import("./pages/facility"),
         import("./pages/dashboard"),
         import("./pages/login"),
         import("./pages/global"),
