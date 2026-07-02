@@ -14,8 +14,21 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (in_array($request->user()->role, $roles)) {
-            return $next($request);
+        $user = $request->user();
+        if (!$user) {
+            return redirect()->route('login.index');
+        }
+
+        foreach ($roles as $role) {
+            if (strcasecmp((string) $role, 'Customer') === 0 && $user->isCustomer()) {
+                return $next($request);
+            }
+            if ($user->role && strcasecmp((string) $user->role, (string) $role) === 0) {
+                return $next($request);
+            }
+            if ($user->role_id && $user->userRole && strcasecmp((string) $user->userRole->name, (string) $role) === 0) {
+                return $next($request);
+            }
         }
 
         return redirect()->back()->with('failed', 'You are not authorized');

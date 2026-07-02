@@ -19,6 +19,7 @@ class User extends Authenticatable
         'name',
         'email',
         'role',
+        'role_id',
         'avatar',
         'password',
         'random_key',
@@ -64,17 +65,27 @@ class User extends Authenticatable
 
     public function isCustomer()
     {
-        // Keep checking the string for legacy/hybrid compat, or check relationship
-        return $this->role === 'Customer' || ($this->role_id && $this->userRole->name === 'Customer');
+        // Check exact role string or role relationship
+        if (strcasecmp((string) $this->role, 'Customer') === 0 || 
+            ($this->role_id && $this->userRole && strcasecmp((string) $this->userRole->name, 'Customer') === 0)) {
+            return true;
+        }
+
+        // Fallback: If user has a customer record and is not Super/Admin/Front Desk, treat as customer
+        if ($this->customer()->exists() && !in_array(strtolower((string) $this->role), ['super', 'admin', 'front desk'])) {
+            return true;
+        }
+
+        return false;
     }
 
     public function hasPermission(string $permission)
     {
-        if ($this->role === 'Super' || ($this->role_id && $this->userRole->name === 'Super')) {
+        if (strcasecmp((string) $this->role, 'Super') === 0 || ($this->role_id && $this->userRole && strcasecmp((string) $this->userRole->name, 'Super') === 0)) {
             return true;
         }
 
-        if (!$this->role_id) {
+        if (!$this->role_id || !$this->userRole) {
             return false;
         }
 

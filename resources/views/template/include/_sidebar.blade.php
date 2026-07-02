@@ -31,7 +31,7 @@
                         <i class="fas fa-ellipsis-v"></i>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="{{ route('user.show', ['user' => auth()->user()->id]) }}"><i class="fas fa-user me-2"></i>Profile</a></li>
                         <li><a class="dropdown-item" href="{{ route('setting.index') }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
                         <li>
                             <hr class="dropdown-divider">
@@ -217,6 +217,16 @@
                         <div class="nav-content">
                             <div class="nav-title">Reports</div>
                             <div class="nav-subtitle">Financial & Analytics</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('marketing.index') }}" class="nav-item {{ in_array(Route::currentRouteName(), ['marketing.index', 'marketing.report.save']) ? 'active' : '' }}">
+                        <div class="nav-icon">
+                            <i class="fas fa-bullhorn" style="color: #4facfe;"></i>
+                        </div>
+                        <div class="nav-content">
+                            <div class="nav-title">Marketing & Traffic</div>
+                            <div class="nav-subtitle">Growth Trends & Strategy</div>
                         </div>
                     </a>
                     @endif

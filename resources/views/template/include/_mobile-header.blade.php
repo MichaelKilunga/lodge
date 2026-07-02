@@ -112,19 +112,19 @@
                     </li>
 
                     <li>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="{{ route('user.show', ['user' => auth()->user()->id]) }}">
                             <i class="fas fa-user me-2 text-primary"></i>
                             View Profile
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="{{ route('setting.index') }}">
                             <i class="fas fa-cog me-2 text-secondary"></i>
                             Account Settings
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="{{ route('setting.index') }}">
                             <i class="fas fa-bell me-2 text-info"></i>
                             Notification Settings
                         </a>
@@ -182,9 +182,9 @@
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a>
+                            <li><a class="dropdown-item" href="{{ route('user.show', ['user' => auth()->user()->id]) }}"><i class="fas fa-user me-2"></i>Profile</a>
                             </li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a>
+                            <li><a class="dropdown-item" href="{{ route('setting.index') }}"><i class="fas fa-cog me-2"></i>Settings</a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">

@@ -45,6 +45,18 @@
                     </form>
                 </div>
             </div>
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            @if (session('failed'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i> {{ session('failed') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             <div class="row">
                 @forelse ($customers as $customer)
                     <div class="col-lg-2# col-md-4 col-sm-6 my-1">
@@ -160,34 +172,34 @@
 
 @section('footer')
 <script>
-    $('.delete').click(function() {
-        var customer_id = $(this).attr('customer-id');
-        var customer_name = $(this).attr('customer-name');
-        var customer_url = $(this).attr('customer-url');
-        const swalWithBootstrapButtons = Swal.mixin({
-            customClass: {
-                confirmButton: 'btn btn-success',
-                cancelButton: 'btn btn-danger'
-            },
-            buttonsStyling: false
-        })
+    document.addEventListener('DOMContentLoaded', function() {
+        $(document).on('click', '.delete', function(e) {
+            e.preventDefault();
+            var customer_id = $(this).attr('customer-id');
+            var customer_name = $(this).attr('customer-name');
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success me-2',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            });
 
-        swalWithBootstrapButtons.fire({
-            title: 'Are you sure?',
-            text: customer_name + " will be deleted, You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel! ',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                id = "#delete-customer-form-" + customer_id
-                console.log(id)
-                $(id).submit();
-            }
-        })
+            swalWithBootstrapButtons.fire({
+                title: 'Are you sure?',
+                text: customer_name + " will be deleted along with their user profile. You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var id = "#delete-customer-form-" + customer_id;
+                    $(id).submit();
+                }
+            });
+        });
     });
-
 </script>
 @endsection

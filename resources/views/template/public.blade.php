@@ -310,13 +310,46 @@
 
     <!-- Floating WhatsApp Widget -->
     @if(!empty($global_settings['whatsapp_number']))
-    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $global_settings['whatsapp_number']) }}" target="_blank" class="whatsapp-float">
+    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $global_settings['whatsapp_number']) }}" target="_blank" class="whatsapp-float track-whatsapp">
         <i class="fab fa-whatsapp"></i>
     </a>
     @endif
 
     @vite('resources/js/app.js')
     @yield('footer')
-</body>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function trackEvent(eventType) {
+            fetch('{{ route('marketing.track') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    event_type: eventType,
+                    url: window.location.href,
+                    page_type: document.title || 'Public Page'
+                })
+            }).catch(e => {});
+        }
+
+        document.querySelectorAll('a[href*="wa.me"], .whatsapp-float, .track-whatsapp').forEach(el => {
+            el.addEventListener('click', () => trackEvent('whatsapp_click'));
+        });
+        document.querySelectorAll('a[href^="tel:"]').forEach(el => {
+            el.addEventListener('click', () => trackEvent('phone_click'));
+        });
+        document.querySelectorAll('form[action*="subscribe"], form[action*="contact"]').forEach(el => {
+            el.addEventListener('submit', () => trackEvent('contact_form_submit'));
+        });
+        document.querySelectorAll('a[href*="checkout"], button[type="submit"]').forEach(el => {
+            if (el.innerText.toLowerCase().includes('book')) {
+                el.addEventListener('click', () => trackEvent('booking_click'));
+            }
+        });
+    });
+    </script>
+</body>
 </html>

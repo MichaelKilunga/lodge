@@ -50,8 +50,20 @@ class UserController extends Controller
     public function show(User $user)
     {
         activity()->causedBy(auth()->user())->log('User '.$user->name.' viewed');
-        if ($user->role === 'Customer') {
+        if ($user->isCustomer()) {
             $customer = Customer::where('user_id', $user->id)->first();
+            if (!$customer) {
+                $customer = new Customer([
+                    'user_id' => $user->id,
+                    'name' => $user->name,
+                    'address' => '',
+                    'job' => '',
+                    'birthdate' => null,
+                    'gender' => 'Male'
+                ]);
+            }
+            // Bind user relation manually if transient
+            $customer->setRelation('user', $user);
 
             return view('customer.show', [
                 'customer' => $customer,
@@ -61,6 +73,57 @@ class UserController extends Controller
         return view('user.show', [
             'user' => $user,
         ]);
+    }
+
+    public function updateProfile(Request $request, User $user)
+    {
+        if (auth()->id() !== $user->id && !auth()->user()->hasPermission('Super')) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
+            'password' => 'nullable|string|min:6|confirmed',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'address' => 'nullable|string|max:255',
+            'job' => 'nullable|string|max:255',
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+
+        if ($request->hasFile('avatar')) {
+            $avatar = $request->file('avatar');
+            $filename = time() . '_' . $avatar->getClientOriginalName();
+            $path = public_path('img/user/' . $user->name . '-' . $user->id);
+            if (!is_dir($path)) {
+                mkdir($path, 0777, true);
+            }
+            $avatar->move($path, $filename);
+            $user->avatar = $filename;
+        }
+
+        $user->save();
+
+        if ($user->isCustomer()) {
+            $customer = $user->customer ?: new Customer(['user_id' => $user->id]);
+            $customer->name = $request->name;
+            $customer->address = $request->address ?? $customer->address ?? '';
+            $customer->job = $request->job ?? $customer->job ?? '';
+            if ($request->filled('birthdate')) {
+                $customer->birthdate = $request->birthdate;
+            }
+            if ($request->filled('gender')) {
+                $customer->gender = $request->gender;
+            }
+            $customer->save();
+        }
+
+        return redirect()->back()->with('success', 'Profile updated successfully!');
     }
 
     public function edit(User $user)

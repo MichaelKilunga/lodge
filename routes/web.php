@@ -20,6 +20,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\MarketingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -63,6 +64,10 @@ Route::group(['middleware' => ['auth', 'checkRole:Super,Admin']], function () {
     Route::resource('post', PostController::class);
     Route::get('/report', [ReportController::class, 'index'])->name('report.index');
     
+    Route::get('/marketing', [MarketingController::class, 'index'])->name('marketing.index');
+    Route::post('/marketing/report/save', [MarketingController::class, 'saveReport'])->name('marketing.report.save');
+    Route::post('/marketing/strategy/{item}/update', [MarketingController::class, 'updateStrategyItem'])->name('marketing.strategy.update');
+    
     Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
     Route::post('/setting', [SettingController::class, 'update'])->name('setting.update');
 
@@ -82,6 +87,7 @@ Route::group(['middleware' => ['auth', 'checkRole:Super,Admin,Customer']], funct
     Route::resource('user', UserController::class)->only([
         'show',
     ]);
+    Route::post('/user/{user}/profile-update', [UserController::class, 'updateProfile'])->name('user.updateProfile');
 
     Route::view('/notification', 'notification.index')->name('notification.index');
 
@@ -123,3 +129,5 @@ Route::post('/checkout/{room}', [CheckoutController::class, 'process'])->name('p
 
 Route::get('/blog', [PostController::class, 'publicIndex'])->name('public.blog.index');
 Route::get('/blog/{slug}', [PostController::class, 'publicShow'])->name('public.blog.show');
+
+Route::post('/marketing/track-interaction', [MarketingController::class, 'trackInteraction'])->name('marketing.track');

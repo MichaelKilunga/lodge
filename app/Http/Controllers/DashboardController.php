@@ -9,7 +9,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->role === 'Customer') {
+        if (auth()->user()->isCustomer()) {
             $customer = auth()->user()->customer;
             $transactions = [];
             if ($customer) {

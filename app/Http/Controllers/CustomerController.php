@@ -54,21 +54,29 @@ class CustomerController extends Controller
     public function destroy(Customer $customer, ImageRepositoryInterface $imageRepository)
     {
         try {
-            $user = User::find($customer->user->id);
-            $avatar_path = public_path('img/user/'.$user->name.'-'.$user->id);
+            if ($customer->transactions()->count() > 0) {
+                return redirect('customer')->with('failed', 'Customer '.$customer->name.' cannot be deleted because they have existing booking transactions.');
+            }
+
+            $user = $customer->user ? User::find($customer->user->id) : null;
+            $avatar_path = $user ? public_path('img/user/'.$user->name.'-'.$user->id) : null;
 
             $customer->delete();
-            $user->delete();
+            if ($user) {
+                $user->delete();
+            }
 
-            if (is_dir($avatar_path)) {
+            if ($avatar_path && is_dir($avatar_path)) {
                 $imageRepository->destroy($avatar_path);
             }
 
-            return redirect('customer')->with('success', 'Customer '.$customer->name.' deleted!');
+            return redirect('customer')->with('success', 'Customer '.$customer->name.' deleted successfully!');
         } catch (\Exception $e) {
             $errorMessage = '';
-            if ($e->errorInfo[0] == '23000') {
-                $errorMessage = 'Data still connected to other tables';
+            if (isset($e->errorInfo[0]) && $e->errorInfo[0] == '23000') {
+                $errorMessage = 'Data still connected to other tables.';
+            } else {
+                $errorMessage = $e->getMessage();
             }
 
             return redirect('customer')->with('failed', 'Customer '.$customer->name.' cannot be deleted! '.$errorMessage);

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Room;
 use App\Models\User;
 use App\Models\Customer;
+use App\Models\Role;
 use App\Models\Transaction;
 use App\Models\PaymentAccount;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingConfirmationMail;
+use App\Models\MarketingTrafficLog;
 
 class CheckoutController extends Controller
 {
@@ -52,6 +54,8 @@ class CheckoutController extends Controller
         // Generate a readable temporary password for new users
         $tempPassword = $isNewUser ? Str::password(10, true, true, false) : null;
 
+        $customerRole = Role::where('name', 'Customer')->first();
+
         // Create or get user
         $user = User::firstOrCreate(
             ['email' => $request->email],
@@ -59,14 +63,26 @@ class CheckoutController extends Controller
                 'name'       => $request->name,
                 'password'   => Hash::make($tempPassword ?? Str::random(12)),
                 'role'       => 'Customer',
+                'role_id'    => $customerRole?->id,
                 'random_key' => Str::random(60),
             ]
         );
 
-        // If returning user, generate a fresh temp password and update it
-        if (!$isNewUser) {
-            $tempPassword = Str::password(10, true, true, false);
-            $user->password = Hash::make($tempPassword);
+        // Ensure returning users or users missing role attributes have them updated
+        if (!$isNewUser || !$user->role_id || !$user->role) {
+            if (!$isNewUser) {
+                $tempPassword = Str::password(10, true, true, false);
+                $user->password = Hash::make($tempPassword);
+            }
+            if (!$user->role && !$user->role_id) {
+                $user->role = 'Customer';
+                $user->role_id = $customerRole?->id;
+            } elseif (strcasecmp((string) $user->role, 'Customer') === 0 && !$user->role_id) {
+                $user->role = 'Customer';
+                $user->role_id = $customerRole?->id;
+            } elseif ($user->role_id && !$user->role && $user->userRole) {
+                $user->role = $user->userRole->name;
+            }
             $user->save();
         }
 
@@ -91,6 +107,19 @@ class CheckoutController extends Controller
             'check_out'   => $request->check_out,
             'status'      => 'Reservation',
         ]);
+
+        try {
+            MarketingTrafficLog::create([
+                'session_id'  => $request->session()->getId() ?: md5($request->ip() . '_' . date('Y-m-d')),
+                'ip_address'  => $request->ip(),
+                'url'         => substr($request->fullUrl(), 0, 255),
+                'page_type'   => 'Checkout',
+                'referrer'    => substr((string)$request->headers->get('referer'), 0, 500),
+                'source'      => $request->get('utm_source') ? ucfirst((string)$request->get('utm_source')) : 'Website Direct',
+                'device_type' => 'Desktop',
+                'event_type'  => 'booking_completed',
+            ]);
+        } catch (\Exception $e) { }
 
         // Load relationships for the email
         $transaction->load('room.type', 'customer.user');
