@@ -20,7 +20,7 @@
 }
 
 /* ─── Page wrapper ──────────────────────────────────────── */
-.cd-wrap { background: var(--cd-bg); min-height: 100vh; padding: 2rem 0 4rem; }
+.cd-wrap { background: var(--cd-bg); min-height: 100vh; padding: 1.25rem 0 4rem; }
 
 /* ─── Hero / greeting ───────────────────────────────────── */
 .cd-hero {
@@ -49,11 +49,12 @@
     border-radius: 50%;
 }
 .cd-hero-avatar {
-    width: 64px; height: 64px;
+    width: 56px; height: 56px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid rgba(255,255,255,.4);
     box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    flex-shrink: 0;
 }
 .cd-hero h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -.5px; margin: 0; }
 .cd-hero p  { font-size: .9rem; opacity: .85; margin: .25rem 0 0; }
@@ -66,21 +67,22 @@
     background: var(--cd-surface);
     border-radius: var(--cd-radius);
     box-shadow: var(--cd-shadow);
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.1rem;
     display: flex;
     align-items: center;
-    gap: 1.1rem;
+    gap: .85rem;
     transition: transform var(--cd-transition), box-shadow var(--cd-transition);
     height: 100%;
     border: 1px solid var(--cd-border);
+    min-width: 0;
 }
 .cd-stat:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(79,70,229,.13); }
 
 .cd-stat-icon {
-    width: 50px; height: 50px;
+    width: 44px; height: 44px;
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
 }
 .cd-stat-icon.indigo  { background: #ede9fe; color: var(--cd-primary); }
@@ -88,8 +90,8 @@
 .cd-stat-icon.amber   { background: #fef3c7; color: var(--cd-warning); }
 .cd-stat-icon.red     { background: #fee2e2; color: var(--cd-danger); }
 
-.cd-stat-num  { font-size: 1.6rem; font-weight: 800; line-height: 1.1; color: #111827; }
-.cd-stat-lbl  { font-size: .78rem; color: var(--cd-muted); font-weight: 500; margin-top: 2px; }
+.cd-stat-num  { font-size: 1.5rem; font-weight: 800; line-height: 1.1; color: #111827; word-break: break-all; }
+.cd-stat-lbl  { font-size: .75rem; color: var(--cd-muted); font-weight: 500; margin-top: 2px; line-height: 1.3; }
 
 /* ─── Generic card shell ────────────────────────────────── */
 .cd-card {
@@ -100,12 +102,14 @@
     overflow: hidden;
 }
 .cd-card-header {
-    padding: 1.1rem 1.5rem;
+    padding: .9rem 1.25rem;
     border-bottom: 1px solid var(--cd-border);
     display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
 }
-.cd-card-header h5 { font-size: 1rem; font-weight: 700; color: #111827; margin: 0; }
-.cd-card-body { padding: 1.25rem 1.5rem; }
+.cd-card-header h5 { font-size: .95rem; font-weight: 700; color: #111827; margin: 0; }
+.cd-card-body { padding: 1rem 1.25rem; }
 
 /* ─── Upcoming booking banner ───────────────────────────── */
 .cd-upcoming {
@@ -142,28 +146,28 @@
 /* ─── Steps guide ───────────────────────────────────────── */
 .cd-step {
     display: flex; align-items: flex-start; gap: .75rem;
-    padding: .85rem 1rem;
+    padding: .75rem .75rem;
     border-radius: 10px;
     transition: background var(--cd-transition);
 }
 .cd-step:hover { background: #f9fafb; }
 .cd-step-num {
-    width: 32px; height: 32px;
+    width: 28px; height: 28px;
     border-radius: 50%;
     background: var(--cd-primary);
     color: #fff;
-    font-size: .8rem; font-weight: 700;
+    font-size: .75rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
 }
-.cd-step-title { font-weight: 700; font-size: .85rem; color: #111827; }
-.cd-step-desc  { font-size: .78rem; color: var(--cd-muted); margin-top: 1px; }
+.cd-step-title { font-weight: 700; font-size: .82rem; color: #111827; }
+.cd-step-desc  { font-size: .75rem; color: var(--cd-muted); margin-top: 1px; }
 
 /* ─── Booking cards ─────────────────────────────────────── */
 .cd-booking-card {
     border: 1px solid var(--cd-border);
     border-radius: 12px;
-    padding: 1.1rem 1.25rem;
+    padding: 1rem 1rem;
     transition: box-shadow var(--cd-transition), transform var(--cd-transition);
     background: #fff;
     position: relative;
@@ -185,7 +189,7 @@
     letter-spacing: .5px;
 }
 .cd-booking-card .booking-room {
-    font-size: 1rem; font-weight: 700; color: #111827;
+    font-size: .95rem; font-weight: 700; color: #111827;
 }
 .cd-booking-card .booking-type { font-size: .78rem; color: var(--cd-muted); }
 
@@ -193,11 +197,12 @@
 .cd-progress-bar { height: 100%; border-radius: 999px; transition: width .5s ease; }
 
 .status-pill {
-    display: inline-flex; align-items: center; gap: .35rem;
-    padding: .25rem .75rem;
+    display: inline-flex; align-items: center; gap: .3rem;
+    padding: .2rem .6rem;
     border-radius: 999px;
-    font-size: .72rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .5px;
+    font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .4px;
+    white-space: nowrap;
 }
 .status-reservation { background: #fef3c7; color: #92400e; }
 .status-done        { background: #d1fae5; color: #065f46; }
@@ -205,17 +210,26 @@
 .status-active      { background: #dbeafe; color: #1e40af; }
 
 /* ─── Filter tabs ───────────────────────────────────────── */
+.cd-filter-tab-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    max-width: 100%;
+    flex-shrink: 0;
+}
+.cd-filter-tab-wrap::-webkit-scrollbar { display: none; }
 .cd-filter-tab {
-    display: inline-flex; gap: .35rem;
-    padding: .3rem .35rem;
+    display: inline-flex; gap: .3rem;
+    padding: .25rem .3rem;
     background: #f3f4f6;
     border-radius: 999px;
+    white-space: nowrap;
 }
 .cd-filter-tab button {
     border: none; background: transparent;
-    padding: .35rem .9rem;
+    padding: .3rem .75rem;
     border-radius: 999px;
-    font-size: .78rem; font-weight: 600; color: var(--cd-muted);
+    font-size: .75rem; font-weight: 600; color: var(--cd-muted);
     cursor: pointer; transition: all var(--cd-transition);
     white-space: nowrap;
 }
@@ -228,7 +242,7 @@
 /* ─── Timeline / payment history ────────────────────────── */
 .cd-timeline { list-style: none; padding: 0; margin: 0; }
 .cd-timeline li {
-    display: flex; gap: 1rem; align-items: flex-start;
+    display: flex; gap: .75rem; align-items: flex-start;
     padding: .75rem 0;
     border-bottom: 1px solid #f3f4f6;
 }
@@ -244,18 +258,19 @@
 /* ─── Quick-action buttons ──────────────────────────────── */
 .cd-qa-btn {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: .5rem;
-    padding: 1.25rem .75rem;
+    gap: .4rem;
+    padding: 1rem .5rem;
     border-radius: 14px;
     border: 1.5px solid var(--cd-border);
     text-align: center;
     color: #374151;
-    font-weight: 600; font-size: .8rem;
+    font-weight: 600; font-size: .78rem;
     transition: all var(--cd-transition);
     cursor: pointer; text-decoration: none;
     background: #fff;
+    width: 100%;
 }
-.cd-qa-btn i { font-size: 1.4rem; }
+.cd-qa-btn i { font-size: 1.3rem; }
 .cd-qa-btn:hover {
     border-color: var(--cd-primary);
     color: var(--cd-primary);
@@ -270,15 +285,15 @@
     background: linear-gradient(135deg, #f8fafc, #f1f5f9);
     border: 1px solid var(--cd-border);
     border-radius: 12px;
-    padding: 1rem 1.25rem;
+    padding: .9rem 1.1rem;
     cursor: pointer;
     transition: all var(--cd-transition);
     user-select: all;
 }
 .cd-bank-chip:hover { border-color: var(--cd-primary); background: #ede9fe; }
-.cd-bank-chip .bank-name { font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: var(--cd-muted); font-weight: 700; }
-.cd-bank-chip .acc-num { font-size: 1.05rem; font-weight: 800; letter-spacing: 2px; color: #111827; font-family: 'Courier New', monospace; }
-.cd-bank-chip .acc-holder { font-size: .78rem; color: var(--cd-muted); }
+.cd-bank-chip .bank-name { font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; color: var(--cd-muted); font-weight: 700; }
+.cd-bank-chip .acc-num { font-size: .95rem; font-weight: 800; letter-spacing: 1.5px; color: #111827; font-family: 'Courier New', monospace; word-break: break-all; }
+.cd-bank-chip .acc-holder { font-size: .75rem; color: var(--cd-muted); }
 
 /* ─── Modal improvements ────────────────────────────────── */
 .cd-modal .modal-content { border-radius: var(--cd-radius); border: none; box-shadow: 0 20px 60px rgba(0,0,0,.15); }
@@ -320,16 +335,115 @@
 
 /* ─── Empty state ───────────────────────────────────────── */
 .cd-empty {
-    text-align: center; padding: 3rem 1rem; color: var(--cd-muted);
+    text-align: center; padding: 2.5rem 1rem; color: var(--cd-muted);
 }
-.cd-empty-icon { font-size: 3.5rem; opacity: .25; margin-bottom: 1rem; }
-.cd-empty-title { font-size: 1.05rem; font-weight: 700; color: #374151; }
+.cd-empty-icon { font-size: 3rem; opacity: .25; margin-bottom: 1rem; }
+.cd-empty-title { font-size: 1rem; font-weight: 700; color: #374151; }
 .cd-empty-sub   { font-size: .85rem; margin-top: .3rem; }
 
-/* ─── Responsive tweaks ─────────────────────────────────── */
+/* ────────────────────────────────────────────────────────── */
+/* ─── Mobile-first responsive overrides                  ─── */
+/* ────────────────────────────────────────────────────────── */
+
+/* Extra-small – phones < 480 px */
+@media (max-width: 479px) {
+    .cd-wrap { padding: .75rem 0 3rem; }
+
+    /* Hero */
+    .cd-hero {
+        padding: 1.25rem 1rem 2.75rem;
+        border-radius: 12px;
+        margin-bottom: -1.5rem;
+    }
+    .cd-hero h1 { font-size: 1.15rem; }
+    .cd-hero p  { font-size: .8rem; }
+    .cd-hero-avatar { width: 44px; height: 44px; }
+    .cd-hero-date { font-size: .72rem; }
+
+    /* Upcoming teaser inside hero – stack vertically */
+    .cd-hero .ms-auto { margin-left: 0 !important; margin-top: .5rem; }
+
+    /* Stats – 2 cols already, tighten further */
+    .cd-stat { padding: .75rem .75rem; gap: .6rem; }
+    .cd-stat-icon { width: 36px; height: 36px; font-size: .9rem; border-radius: 9px; }
+    .cd-stat-num  { font-size: 1.1rem; }
+    .cd-stat-lbl  { font-size: .68rem; }
+
+    /* Cards */
+    .cd-card-header { padding: .75rem 1rem; }
+    .cd-card-body   { padding: .75rem 1rem; }
+
+    /* Booking card */
+    .cd-booking-card { padding: .85rem .85rem; }
+    .cd-booking-card .room-img { width: 56px; height: 56px; }
+
+    /* Action buttons – full width stack */
+    .cd-booking-card .d-flex.gap-2.flex-wrap > * { width: 100%; }
+    .cd-booking-card .d-flex.gap-2.flex-wrap .btn { width: 100%; text-align: center; }
+
+    /* Modal summary strip – stack */
+    .cd-modal .modal-body .d-flex.justify-content-between { flex-direction: column; gap: .5rem; }
+
+    /* Payment accounts */
+    .cd-bank-chip .acc-num { font-size: .85rem; letter-spacing: 1px; }
+
+    /* Quick actions */
+    .cd-qa-btn { padding: .75rem .4rem; font-size: .72rem; }
+    .cd-qa-btn i { font-size: 1.1rem; }
+}
+
+/* Small phones 480–767 px */
+@media (min-width: 480px) and (max-width: 767px) {
+    .cd-wrap { padding: 1rem 0 3.5rem; }
+
+    .cd-hero { padding: 1.5rem 1.25rem 3rem; border-radius: 14px; }
+    .cd-hero h1 { font-size: 1.3rem; }
+    .cd-hero-avatar { width: 50px; height: 50px; }
+
+    .cd-stat { padding: .9rem .9rem; gap: .7rem; }
+    .cd-stat-icon { width: 40px; height: 40px; font-size: 1rem; }
+    .cd-stat-num  { font-size: 1.25rem; }
+
+    .cd-card-header { padding: .85rem 1.1rem; }
+    .cd-card-body   { padding: .9rem 1.1rem; }
+
+    /* Action buttons stack nicely */
+    .cd-booking-card .d-flex.gap-2.flex-wrap .btn { flex: 1 1 auto; }
+}
+
+/* All mobiles shared – < 768 px */
 @media (max-width: 767px) {
-    .cd-hero { padding: 1.5rem 1.25rem 3rem; }
-    .cd-stat-num { font-size: 1.3rem; }
+    /* Stats number for currency – shrink */
+    .cd-stat-num[style*="font-size:1.1rem"] { font-size: .95rem !important; }
+
+    /* Hero upcoming teaser – allow badge to break */
+    .cd-hero .flex-wrap .ms-auto { margin-left: 0 !important; align-self: flex-start; }
+
+    /* Dates row in booking card – allow wrapping with tighter gaps */
+    .cd-booking-card .d-flex.flex-wrap.gap-3 { gap: .5rem !important; }
+
+    /* Payment history timeline – tighten */
+    .cd-timeline li { gap: .5rem; }
+
+    /* Filter tab scrollable wrapper */
+    .cd-card-header .cd-filter-tab-wrap { max-width: calc(100vw - 140px); }
+
+    /* Steps guide – always single column on mobile */
+    .cd-card .row.g-2 .col-md-4 { flex: 0 0 100%; max-width: 100%; }
+
+    /* Quick actions: keep 2-col but tighter */
+    .cd-qa-btn { gap: .35rem; }
+
+    /* Modal: ensure dialog doesn't overflow viewport */
+    .cd-modal .modal-dialog { margin: .75rem; }
+    .cd-modal .modal-body { padding: 1rem; }
+}
+
+/* Tablets 768–991px – minor polish */
+@media (min-width: 768px) and (max-width: 991px) {
+    .cd-stat { padding: 1rem 1rem; gap: .75rem; }
+    .cd-stat-icon { width: 42px; height: 42px; }
+    .cd-stat-num  { font-size: 1.35rem; }
 }
 
 /* ─── Animations ────────────────────────────────────────── */
@@ -392,7 +506,7 @@
         {{-- ── Upcoming booking inline teaser ── --}}
         @if($upcomingBooking ?? null)
         @php $ub = $upcomingBooking; $daysToCheckIn = \App\Helpers\Helper::getDateDifference(now(), $ub->check_in); @endphp
-        <div class="d-flex align-items-center gap-3 flex-wrap mt-1" style="background:rgba(255,255,255,.12); border-radius:10px; padding:.75rem 1rem;">
+        <div class="d-flex align-items-start align-items-sm-center gap-3 flex-wrap mt-1" style="background:rgba(255,255,255,.12); border-radius:10px; padding:.75rem 1rem;">
             <i class="fas fa-bed" style="font-size:1.4rem; opacity:.7;"></i>
             <div>
                 <div style="font-size:.72rem; opacity:.75; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Next Check-In</div>
@@ -467,7 +581,7 @@
                 </div>
                 <div class="cd-card-body p-3">
                     <div class="row g-2">
-                        <div class="col-md-4">
+                        <div class="col-12 col-md-4">
                             <div class="cd-step">
                                 <div class="cd-step-num">1</div>
                                 <div>
@@ -476,7 +590,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12 col-md-4">
                             <div class="cd-step">
                                 <div class="cd-step-num">2</div>
                                 <div>
@@ -485,7 +599,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12 col-md-4">
                             <div class="cd-step">
                                 <div class="cd-step-num">3</div>
                                 <div>
@@ -503,11 +617,13 @@
             <div class="cd-card cd-animate cd-animate-d2">
                 <div class="cd-card-header flex-wrap gap-2">
                     <h5><i class="fas fa-suitcase-rolling text-primary me-2"></i>My Bookings</h5>
-                    <div class="cd-filter-tab">
-                        <button class="active" data-filter="all">All</button>
-                        <button data-filter="Reservation">Pending</button>
-                        <button data-filter="Done">Completed</button>
-                        <button data-filter="Canceled">Canceled</button>
+                    <div class="cd-filter-tab-wrap">
+                        <div class="cd-filter-tab">
+                            <button class="active" data-filter="all">All</button>
+                            <button data-filter="Reservation">Pending</button>
+                            <button data-filter="Done">Completed</button>
+                            <button data-filter="Canceled">Canceled</button>
+                        </div>
                     </div>
                 </div>
                 <div class="cd-card-body">

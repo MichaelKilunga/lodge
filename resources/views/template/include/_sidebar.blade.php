@@ -51,43 +51,52 @@
         </div>
 
         <!-- Notifications Section -->
+        @php $sidebarUnread = auth()->user()->unreadNotifications()->count(); @endphp
         <div class="sidebar-notifications">
-            <div class="notifications-header">
-                <div class="notifications-title">
+            <button class="notifications-header notif-toggle-btn w-100"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#sidebarNotifCollapse"
+                    aria-expanded="{{ $sidebarUnread > 0 ? 'true' : 'false' }}"
+                    aria-controls="sidebarNotifCollapse">
+                <span class="notifications-title">
                     <i class="fas fa-bell me-2"></i>
                     Notifications
-                    @if (auth()->user()->unreadNotifications()->count() > 0)
-                        <span class="notification-badge">{{ auth()->user()->unreadNotifications()->count() }}</span>
+                    @if ($sidebarUnread > 0)
+                        <span class="notification-badge">{{ $sidebarUnread }}</span>
+                    @endif
+                </span>
+                <i class="fas fa-chevron-down notif-chevron {{ $sidebarUnread > 0 ? 'rotated' : '' }}"></i>
+            </button>
+            <div class="collapse {{ $sidebarUnread > 0 ? 'show' : '' }}" id="sidebarNotifCollapse">
+                <div class="notifications-content">
+                    @forelse (auth()->user()->unreadNotifications()->latest()->limit(3)->get() as $notification)
+                        <a href="{{ route('notification.routeTo', ['id' => $notification->id]) }}"
+                            class="notification-item">
+                            <div class="notification-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="notification-text">
+                                <div class="notification-message">
+                                    {{ Str::limit($notification->data['message'] ?? 'New notification', 40) }}</div>
+                                <div class="notification-time">{{ $notification->created_at->diffForHumans() }}</div>
+                            </div>
+                        </a>
+                    @empty
+                        <div class="notification-empty">
+                            <i class="fas fa-bell-slash"></i>
+                            <span>No new notifications</span>
+                        </div>
+                    @endforelse
+
+                    @if ($sidebarUnread > 3)
+                        <div class="notifications-footer">
+                            <a href="{{ route('notification.index') }}" class="view-all-notifications">
+                                View all ({{ $sidebarUnread }})
+                            </a>
+                        </div>
                     @endif
                 </div>
-            </div>
-            <div class="notifications-content">
-                @forelse (auth()->user()->unreadNotifications()->latest()->limit(3)->get() as $notification)
-                    <a href="{{ route('notification.routeTo', ['id' => $notification->id]) }}"
-                        class="notification-item">
-                        <div class="notification-icon">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        <div class="notification-text">
-                            <div class="notification-message">
-                                {{ Str::limit($notification->data['message'] ?? 'New notification', 40) }}</div>
-                            <div class="notification-time">{{ $notification->created_at->diffForHumans() }}</div>
-                        </div>
-                    </a>
-                @empty
-                    <div class="notification-empty">
-                        <i class="fas fa-bell-slash"></i>
-                        <span>No new notifications</span>
-                    </div>
-                @endforelse
-
-                @if (auth()->user()->unreadNotifications()->count() > 3)
-                    <div class="notifications-footer">
-                        <a href="{{ route('notification.index') }}" class="view-all-notifications">
-                            View all ({{ auth()->user()->unreadNotifications()->count() }})
-                        </a>
-                    </div>
-                @endif
             </div>
         </div>
 
@@ -410,8 +419,30 @@
         background: rgba(255, 255, 255, 0.02);
     }
 
+    /* Notification toggle button — resets all button defaults */
+    .notif-toggle-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        padding: 0;
+        outline: none;
+        box-shadow: none;
+        transition: background 0.2s ease;
+    }
+    .notif-toggle-btn:hover,
+    .notif-toggle-btn:focus {
+        background: rgba(255, 255, 255, 0.04);
+        outline: none;
+        box-shadow: none;
+    }
+
     .notifications-header {
-        padding: 1rem 1.25rem 0.5rem;
+        padding: 0.85rem 1.25rem;
     }
 
     .notifications-title {
@@ -420,6 +451,46 @@
         font-weight: 600;
         display: flex;
         align-items: center;
+        flex: 1;
+    }
+
+    /* Chevron that rotates when panel is open */
+    .notif-chevron {
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 0.72rem;
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+    }
+    .notif-chevron.rotated,
+    .notif-toggle-btn[aria-expanded="true"] .notif-chevron {
+        transform: rotate(180deg);
+    }
+
+    /* Offcanvas close button — always visible ×
+       (must NOT use Bootstrap's btn-close which adds a background-image) */
+    .offcanvas-close-btn {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 10;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease;
+        line-height: 1;
+        padding: 0;
+    }
+    .offcanvas-close-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        color: #fff;
     }
 
     .notification-badge {
@@ -430,6 +501,7 @@
         padding: 0.125rem 0.375rem;
         border-radius: 10px;
         margin-left: auto;
+        margin-right: 0.5rem;
     }
 
     .notifications-content {
