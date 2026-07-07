@@ -6,6 +6,7 @@ use App\Mail\DailyReportMail;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\Room;
+use App\Services\SmsService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -52,6 +53,15 @@ class SendDailyReport extends Command
             $occupancyRate,
             $today->format('l, F d, Y')
         ));
+
+        // Send daily summary SMS in parallel to the configured admin recipient
+        $adminPhone = Setting::where('key', 'admin_sms_recipient')->value('value');
+        if ($adminPhone) {
+            $hotelName = Setting::where('key', 'hotel_name')->value('value') ?? config('app.name');
+            $smsText   = "[{$hotelName}] Daily Report – {$today->format('d M Y')}:\n"
+                       . "Bookings: {$totalBookings} | Occupancy: {$occupancyRate}% | Revenue: " . number_format((float)$totalRevenue, 0, '.', ',');
+            SmsService::send($adminPhone, $smsText);
+        }
 
         $this->info("Daily report for {$today->format('Y-m-d')} sent to {$ownerEmail}.");
         return 0;

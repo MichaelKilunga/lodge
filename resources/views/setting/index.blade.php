@@ -78,6 +78,48 @@
                         </div>
                     </div>
 
+                    {{-- SMS Notifications --}}
+                    <div class="card shadow-sm border-0 rounded-3 mb-4">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-sms text-success me-2"></i>SMS Notifications</h5>
+                            <small class="text-muted">Configure the Skypush Push SMS gateway. Values set here override <code>.env</code> variables.</small>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold">API Key <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="sms_api_key"
+                                           value="{{ $settings['sms_api_key'] ?? '' }}"
+                                           placeholder="Leave blank to use PUSHSMS_API_KEY from .env"
+                                           autocomplete="new-password">
+                                    <small class="text-muted">Your secret Skypush <code>X-API-KEY</code>. Contact your SMS gateway administrator to obtain this.</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Sender ID</label>
+                                    <input type="text" class="form-control" name="sms_sender_id"
+                                           value="{{ $settings['sms_sender_id'] ?? '' }}"
+                                           placeholder="e.g. BELLA (max 11 chars)"
+                                           maxlength="11">
+                                    <small class="text-muted">The name or number shown on recipients' phones. Max 11 characters.</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Client App Name</label>
+                                    <input type="text" class="form-control" name="sms_client_app"
+                                           value="{{ $settings['sms_client_app'] ?? 'HMS' }}"
+                                           placeholder="e.g. HMS">
+                                    <small class="text-muted">Identifier sent to the SMS gateway to track which app sent the message.</small>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold"><i class="fas fa-phone-alt text-success me-1"></i>Admin SMS Recipient</label>
+                                    <input type="text" class="form-control" name="admin_sms_recipient"
+                                           value="{{ $settings['admin_sms_recipient'] ?? '' }}"
+                                           placeholder="255712345678">
+                                    <small class="text-muted">Phone number(s) to receive reservation &amp; daily report SMS alerts. Include country code (e.g. <code>255xxxxxxxxx</code>). Comma-separate for multiple numbers.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Social Media --}}
                     <div class="card shadow-sm border-0 rounded-3 mb-4">
                         <div class="card-header bg-white py-3 border-bottom">

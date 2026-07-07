@@ -14,8 +14,10 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use App\Mail\BookingConfirmationMail;
 use App\Models\MarketingTrafficLog;
+use App\Services\SmsService;
 
 class CheckoutController extends Controller
 {
@@ -61,12 +63,19 @@ class CheckoutController extends Controller
             ['email' => $request->email],
             [
                 'name'       => $request->name,
+                'phone'      => $request->phone,
                 'password'   => Hash::make($tempPassword ?? Str::random(12)),
                 'role'       => 'Customer',
                 'role_id'    => $customerRole?->id,
                 'random_key' => Str::random(60),
             ]
         );
+
+        // Always keep the phone number up-to-date for returning guests
+        if (!$user->phone && $request->phone) {
+            $user->phone = $request->phone;
+            $user->save();
+        }
 
         // Ensure returning users or users missing role attributes have them updated
         if (!$isNewUser || !$user->role_id || !$user->role) {
@@ -133,7 +142,19 @@ class CheckoutController extends Controller
                 new BookingConfirmationMail($transaction, $tempPassword, $paymentAccounts)
             );
         } catch (\Exception $e) {
-            \Log::error('Booking email failed: ' . $e->getMessage());
+            Log::error('Booking email failed: ' . $e->getMessage());
+        }
+
+        // Send booking confirmation SMS in parallel
+        if ($user->phone) {
+            $settings      = \App\Models\Setting::all()->pluck('value', 'key');
+            $hotelName     = $settings['hotel_name'] ?? config('app.name');
+            $checkIn       = \Carbon\Carbon::parse($transaction->check_in)->format('d M Y');
+            $checkOut      = \Carbon\Carbon::parse($transaction->check_out)->format('d M Y');
+            $smsMessage    = "Dear {$user->name}, your room booking at {$hotelName} is confirmed.\n"
+                           . "Room: {$transaction->room->number} | Check-in: {$checkIn} | Check-out: {$checkOut}.\n"
+                           . "Please upload your payment receipt to activate your booking. Thank you!";
+            SmsService::send($user->phone, $smsMessage);
         }
 
         // Auto-login the customer

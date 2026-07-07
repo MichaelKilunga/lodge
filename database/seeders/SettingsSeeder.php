@@ -39,8 +39,14 @@ class SettingsSeeder extends Seeder
             'footer_copyright'    => '',       // blank = auto generated from hotel_name + year
 
             // Booking / Operational
-            'receipt_verify_time' => '1-2 hours',
-            'booking_email_note'  => '',       // extra note added to booking emails
+            'receipt_verify_time'   => '1-2 hours',
+            'booking_email_note'    => '',       // extra note added to booking emails
+
+            // SMS Notifications
+            'admin_sms_recipient'   => '',       // phone number(s) to receive admin SMS alerts (comma-separated)
+            'sms_api_key'           => '',       // Skypush API key (overrides PUSHSMS_API_KEY env var)
+            'sms_sender_id'         => '',       // Sender ID shown on the SMS (max 11 chars, e.g. BELLA)
+            'sms_client_app'        => 'HMS',    // Client app identifier sent to the SMS gateway
         ];
 
         foreach ($defaults as $key => $value) {

@@ -30,4 +30,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'pushsms' => [
+        'url'        => env('PUSHSMS_URL', 'https://pushsms.rehospace.com'),
+        'api_key'    => env('PUSHSMS_API_KEY', ''),
+        'sender'     => env('PUSHSMS_SENDER', 'BELLA'),
+        'client_app' => env('PUSHSMS_CLIENT_APP', 'HMS'),
+    ],
+
 ];

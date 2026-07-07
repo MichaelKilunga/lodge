@@ -4,7 +4,7 @@ This document outlines how to integrate SMS sending functionality into your appl
 
 ## Overview
 
-**Base URL**: `https://skypush.skylinksolutions.co.tz`  
+**Base URL**: `https://pushsms.rehospace.com`  
 **Endpoint**: `/api/v1/send`  
 **Method**: `POST`
 
@@ -39,7 +39,7 @@ All API requests require an API Key to be passed in the headers.
 ### Example Request (cURL)
 
 ```bash
-curl -X POST https://skypush.skylinksolutions.co.tz/api/v1/send \
+curl -X POST https://pushsms.rehospace.com/api/v1/send \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -H "X-API-KEY: your_super_secret_key" \
@@ -55,7 +55,7 @@ curl -X POST https://skypush.skylinksolutions.co.tz/api/v1/send \
 
 ```php
 $client = new \GuzzleHttp\Client();
-$response = $client->post('https://skypush.skylinksolutions.co.tz/api/v1/send', [
+$response = $client->post('https://pushsms.rehospace.com/api/v1/send', [
     'headers' => [
         'X-API-KEY' => 'your_super_secret_key',
         'Accept'    => 'application/json',

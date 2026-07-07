@@ -16,6 +16,7 @@ use App\Repositories\Interface\CustomerRepositoryInterface;
 use App\Repositories\Interface\PaymentRepositoryInterface;
 use App\Repositories\Interface\ReservationRepositoryInterface;
 use App\Repositories\Interface\TransactionRepositoryInterface;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 
 class TransactionRoomReservationController extends Controller
@@ -122,6 +123,18 @@ class TransactionRoomReservationController extends Controller
             $message = 'Reservation added by '.$customer->name;
             event(new NewReservationEvent($message, $superAdmin));
             $superAdmin->notify(new NewRoomReservationDownPayment($transaction, $payment));
+        }
+
+        // Send SMS to admin recipient in parallel with the in-app notification
+        $adminPhone = \App\Models\Setting::where('key', 'admin_sms_recipient')->value('value');
+        if ($adminPhone) {
+            $hotelName  = \App\Models\Setting::where('key', 'hotel_name')->value('value') ?? config('app.name');
+            $checkIn    = \Carbon\Carbon::parse($transaction->check_in)->format('d M Y');
+            $checkOut   = \Carbon\Carbon::parse($transaction->check_out)->format('d M Y');
+            $smsText    = "[{$hotelName}] New reservation by {$customer->name}.\n"
+                        . "Room: {$room->number} | Check-in: {$checkIn} | Check-out: {$checkOut}.\n"
+                        . 'Down payment recorded. Please review.';
+            SmsService::send($adminPhone, $smsText);
         }
 
         event(new RefreshDashboardEvent('Someone reserved a room'));
