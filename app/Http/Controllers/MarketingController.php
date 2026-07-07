@@ -5,11 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\MarketingTrafficLog;
 use App\Models\MarketingReport;
 use App\Models\MarketingStrategyItem;
+use App\Models\MarketingCampaign;
+use App\Models\NewsletterSubscriber;
 use App\Models\Transaction;
 use App\Models\Customer;
+use App\Models\User;
+use App\Mail\MarketingCampaignMail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class MarketingController extends Controller
 {
@@ -17,6 +23,7 @@ class MarketingController extends Controller
     {
         $tab = $request->get('tab', 'trends');
         $period = $request->get('period', '30days');
+        $reportId = $request->get('report_id');
 
         // Date range filtering
         $now = Carbon::now();
@@ -47,13 +54,13 @@ class MarketingController extends Controller
                 break;
         }
 
-        // 1. KPI Metrics
+        // 1. KPI Metrics from Live Traffic & Bookings
         $logs = MarketingTrafficLog::whereBetween('created_at', [$from, $to]);
         $prevLogs = MarketingTrafficLog::whereBetween('created_at', [$prevFrom, $prevTo]);
 
         $totalVisits = (clone $logs)->where('event_type', 'page_view')->count();
         $prevVisits = (clone $prevLogs)->where('event_type', 'page_view')->count();
-        $visitsGrowth = $prevVisits > 0 ? round((($totalVisits - $prevVisits) / $prevVisits) * 100, 1) : 100;
+        $visitsGrowth = $prevVisits > 0 ? round((($totalVisits - $prevVisits) / $prevVisits) * 100, 1) : ($totalVisits > 0 ? 100 : 0);
 
         $uniqueVisitors = (clone $logs)->where('event_type', 'page_view')->distinct('session_id')->count('session_id');
         
@@ -84,7 +91,7 @@ class MarketingController extends Controller
             ->groupBy('device_type')
             ->get();
 
-        // 4. Daily Chart Trend Data (Last 14 days or period days)
+        // 4. Daily Chart Trend Data
         $chartDays = $period === 'today' ? 24 : ($period === '7days' ? 7 : 30);
         $dailyDates = [];
         $dailyVisitsSeries = [];
@@ -125,44 +132,45 @@ class MarketingController extends Controller
             ->limit(8)
             ->get();
 
-        // TAB 2: Weekly Digital Marketing & Growth Report Data (Document 2)
-        $latestReport = MarketingReport::latest()->first();
+        // TAB 2 & TAB 3: Weekly Digital Marketing & Growth Report Data
         $allReports = MarketingReport::orderByDesc('id')->get();
+        
+        $selectedReport = null;
+        if ($reportId) {
+            $selectedReport = MarketingReport::find($reportId);
+        }
+        if (!$selectedReport && $allReports->count() > 0) {
+            $selectedReport = $allReports->first();
+        }
 
-        // If no report exists or we want default report values:
-        $defaultReport = [
+        // Clean template for new report or fallback (NO DUMMY DATA - only real live auto-collected metrics)
+        $cleanTemplate = [
             'week_number' => 'Week ' . $now->weekOfYear,
             'reporting_period' => $now->copy()->startOfWeek()->format('M d, Y') . ' - ' . $now->copy()->endOfWeek()->format('M d, Y'),
             'prepared_by' => auth()->user()->name ?? 'Digital Marketing Lead',
             'department' => 'MEDIA & ICT',
             'date_submitted' => $now->format('Y-m-d'),
             'reviewed_by' => 'General Manager',
-            'tasks_data' => [
-                ['no' => 1, 'task' => 'Publish 3 Social Media Posters & 1 Reel on Facebook/Instagram', 'status' => 'Completed', 'remarks' => 'High engagement on room showcase'],
-                ['no' => 2, 'task' => 'Update Google Business Profile photos and reply to recent reviews', 'status' => 'Completed', 'remarks' => 'Uploaded 7 new exterior photos'],
-                ['no' => 3, 'task' => 'Optimize Website Booking Form & SEO meta tags', 'status' => 'In Progress', 'remarks' => 'Improved mobile page speed'],
-                ['no' => 4, 'task' => 'Monitor WhatsApp inquiries and follow up on pending leads', 'status' => 'Completed', 'remarks' => 'All inquiries answered within 15 mins'],
-                ['no' => 5, 'task' => 'Review Meta Ads campaign CTR and optimize ad copy', 'status' => 'Completed', 'remarks' => 'Cost per lead reduced by 12%'],
-            ],
+            'tasks_data' => [],
             'kpi_data' => [
-                ['kpi' => 'Planned Tasks Completed', 'target' => '100%', 'actual' => '80%', 'status' => 'On Track'],
-                ['kpi' => 'Social Media Posts', 'target' => '3', 'actual' => '3', 'status' => 'Achieved'],
-                ['kpi' => 'Reels Published', 'target' => '1', 'actual' => '1', 'status' => 'Achieved'],
-                ['kpi' => 'Videos Produced', 'target' => '1', 'actual' => '1', 'status' => 'Achieved'],
-                ['kpi' => 'Photos Captured', 'target' => '7', 'actual' => '8', 'status' => 'Exceeded'],
-                ['kpi' => 'Website Visitors', 'target' => '250', 'actual' => strval($totalVisits), 'status' => 'Measured via Website'],
-                ['kpi' => 'WhatsApp Inquiries', 'target' => '20', 'actual' => strval($whatsappClicks), 'status' => 'Tracked Button Clicks'],
-                ['kpi' => 'Phone Calls', 'target' => '15', 'actual' => strval($phoneClicks), 'status' => 'Tracked Call Clicks'],
-                ['kpi' => 'Booking Requests', 'target' => '10', 'actual' => strval($totalBookings), 'status' => 'Confirmed Online'],
-                ['kpi' => 'New Guests', 'target' => '8', 'actual' => strval(Customer::count()), 'status' => 'Total Registered'],
-                ['kpi' => 'Google Reviews', 'target' => '5', 'actual' => '4', 'status' => 'Good Rating'],
-                ['kpi' => 'Meta Ads CTR', 'target' => '2.5%', 'actual' => '3.1%', 'status' => 'Exceeded'],
-                ['kpi' => 'Cost per Lead', 'target' => '$5.00', 'actual' => '$3.80', 'status' => 'Optimized'],
+                ['kpi' => 'Planned Tasks Completed', 'target' => '100%', 'actual' => '', 'status' => 'Pending'],
+                ['kpi' => 'Social Media Posts', 'target' => '3', 'actual' => '', 'status' => 'Pending'],
+                ['kpi' => 'Reels Published', 'target' => '2', 'actual' => '', 'status' => 'Pending'],
+                ['kpi' => 'Videos Produced', 'target' => '1', 'actual' => '', 'status' => 'Pending'],
+                ['kpi' => 'Photos Captured', 'target' => '10', 'actual' => '', 'status' => 'Pending'],
+                ['kpi' => 'Website Visitors', 'target' => '250', 'actual' => strval($totalVisits), 'status' => '⚡ Auto-Collected Live'],
+                ['kpi' => 'WhatsApp Inquiries', 'target' => '20', 'actual' => strval($whatsappClicks), 'status' => '⚡ Auto-Collected Live'],
+                ['kpi' => 'Phone Calls', 'target' => '15', 'actual' => strval($phoneClicks), 'status' => '⚡ Auto-Collected Live'],
+                ['kpi' => 'Booking Requests', 'target' => '10', 'actual' => strval($totalBookings), 'status' => '⚡ Auto-Collected Live'],
+                ['kpi' => 'New Guests', 'target' => '8', 'actual' => strval(Customer::count()), 'status' => '⚡ Auto-Collected Live'],
+                ['kpi' => 'Google Reviews', 'target' => '5', 'actual' => '', 'status' => 'Pending'],
+                ['kpi' => 'Meta Ads CTR', 'target' => '2.5%', 'actual' => '', 'status' => 'Pending'],
+                ['kpi' => 'Cost per Lead', 'target' => '$5.00', 'actual' => '', 'status' => 'Pending'],
             ],
             'social_media_data' => [
-                ['platform' => 'Facebook', 'planned' => '8 (3 posters, 1 reel, 4 stories)', 'posted' => '8', 'reels' => '1', 'stories' => '4', 'status' => 'On Target'],
-                ['platform' => 'Instagram', 'planned' => '8 (3 posters, 1 reel, 4 stories)', 'posted' => '8', 'reels' => '1', 'stories' => '4', 'status' => 'On Target'],
-                ['platform' => 'TikTok', 'planned' => '1 reel', 'posted' => '1', 'reels' => '1', 'stories' => '0', 'status' => 'Completed'],
+                ['platform' => 'Facebook', 'planned' => '', 'posted' => '', 'reels' => '', 'stories' => '', 'status' => 'Not Started'],
+                ['platform' => 'Instagram', 'planned' => '', 'posted' => '', 'reels' => '', 'stories' => '', 'status' => 'Not Started'],
+                ['platform' => 'TikTok', 'planned' => '', 'posted' => '', 'reels' => '', 'stories' => '', 'status' => 'Not Started'],
             ],
             'website_performance_data' => [
                 ['metric' => 'Website Visitors', 'value' => number_format($totalVisits)],
@@ -173,52 +181,47 @@ class MarketingController extends Controller
                 ['metric' => 'Average Conversion Rate', 'value' => $conversionRate . '%'],
             ],
             'google_business_data' => [
-                ['metric' => 'Searches', 'value' => '412'],
-                ['metric' => 'Profile Views', 'value' => '680'],
-                ['metric' => 'Website Clicks', 'value' => '145'],
-                ['metric' => 'Phone Calls', 'value' => '32'],
-                ['metric' => 'Direction Requests', 'value' => '84'],
-                ['metric' => 'New Reviews', 'value' => '4'],
-                ['metric' => 'Average Rating', 'value' => '4.8 ★'],
+                ['metric' => 'Searches', 'value' => ''],
+                ['metric' => 'Profile Views', 'value' => ''],
+                ['metric' => 'Website Clicks', 'value' => ''],
+                ['metric' => 'Phone Calls', 'value' => ''],
+                ['metric' => 'Direction Requests', 'value' => ''],
+                ['metric' => 'New Reviews', 'value' => ''],
+                ['metric' => 'Average Rating', 'value' => ''],
             ],
             'bookings_leads_data' => [
-                ['source' => 'Facebook', 'leads' => 18, 'bookings' => 4, 'revenue' => '$520'],
-                ['source' => 'Instagram', 'leads' => 24, 'bookings' => 6, 'revenue' => '$780'],
-                ['source' => 'TikTok', 'leads' => 5, 'bookings' => 1, 'revenue' => '$120'],
-                ['source' => 'Google Search', 'leads' => 35, 'bookings' => 12, 'revenue' => '$1,650'],
-                ['source' => 'Google Business Profile', 'leads' => 14, 'bookings' => 5, 'revenue' => '$640'],
-                ['source' => 'Website Direct', 'leads' => 20, 'bookings' => 8, 'revenue' => '$980'],
-                ['source' => 'WhatsApp', 'leads' => 28, 'bookings' => 10, 'revenue' => '$1,350'],
-                ['source' => 'Phone Calls', 'leads' => 12, 'bookings' => 4, 'revenue' => '$480'],
-                ['source' => 'Walk-ins', 'leads' => 10, 'bookings' => 7, 'revenue' => '$890'],
+                ['source' => 'Website Direct', 'leads' => '', 'bookings' => strval($totalBookings), 'revenue' => '$' . number_format($totalRevenue, 2)],
+                ['source' => 'WhatsApp Direct', 'leads' => '', 'bookings' => '0', 'revenue' => '$0.00'],
+                ['source' => 'Phone Calls Direct', 'leads' => '', 'bookings' => '0', 'revenue' => '$0.00'],
+                ['source' => 'Walk-ins', 'leads' => '', 'bookings' => '0', 'revenue' => '$0.00'],
+                ['source' => 'Facebook Referral', 'leads' => '', 'bookings' => '0', 'revenue' => '$0.00'],
+                ['source' => 'Instagram Referral', 'leads' => '', 'bookings' => '0', 'revenue' => '$0.00'],
+                ['source' => 'Google Search', 'leads' => '', 'bookings' => '0', 'revenue' => '$0.00'],
             ],
-            'paid_ads_data' => [
-                ['campaign' => 'Meta Ads (Bella Vista Getaway)', 'budget' => '$30 / month ($1/day)', 'reach' => '14,250', 'clicks' => '440', 'leads' => '38', 'cost_lead' => '$0.78', 'status' => 'Active & Performing'],
-            ],
-            'content_created_data' => [
-                ['type' => 'Graphics Designed', 'quantity' => '6 Promo Posters'],
-                ['type' => 'Reels Produced', 'quantity' => '2 Video Walkthroughs'],
-                ['type' => 'Videos Produced', 'quantity' => '1 Room Highlights HD'],
-                ['type' => 'Health Articles / Blog Posts', 'quantity' => '1 Blog Post on Local Attractions'],
-                ['type' => 'Photos Captured', 'quantity' => '15 High-Res Room & Garden Shots'],
-            ],
-            'challenges_data' => [
-                ['challenge' => 'Slow mobile network loading speed for high-res gallery images', 'impact' => 'Moderate bounce rate on mobile devices', 'action' => 'Implemented WebP compression & lazy loading on images'],
-            ],
-            'achievements_data' => [
-                ['achievement' => 'Increased direct website bookings by 18% compared to previous month'],
-                ['achievement' => 'Maintained 4.8 star average rating on Google Business Profile'],
-                ['achievement' => 'Reduced cost per lead on Meta Ads below $1.00 through targeted audience refinement'],
-            ],
-            'next_week_plan_data' => [
-                ['no' => 1, 'activity' => 'Launch Weekend Special Package Promotion on Instagram & WhatsApp', 'priority' => 'High', 'responsible' => 'MEDIA & ICT Team'],
-                ['no' => 2, 'activity' => 'Upload drone footage of lodge exterior and gardens to website gallery', 'priority' => 'Medium', 'responsible' => 'Photography Lead'],
-                ['no' => 3, 'activity' => 'Optimize Google Business Profile Q&A section with top guest FAQs', 'priority' => 'High', 'responsible' => 'Marketing Specialist'],
-            ]
+            'paid_ads_data' => [],
+            'content_created_data' => [],
+            'challenges_data' => [],
+            'achievements_data' => [],
+            'next_week_plan_data' => []
         ];
 
-        // TAB 3: Digital Growth Strategy Checklist (Document 1)
+        // If viewing an existing report, use its data; otherwise use clean template
+        $activeReportData = $selectedReport ? $selectedReport->toArray() : $cleanTemplate;
+
+        // If in 'feed' tab and we selected a report_id, load it for editing
+        $editReport = null;
+        if ($tab === 'feed' && $reportId) {
+            $editReport = MarketingReport::find($reportId);
+        }
+
+        // TAB 4: Digital Growth Strategy Checklist (Document 1)
         $strategyItems = MarketingStrategyItem::orderBy('area_number')->orderBy('id')->get()->groupBy('area_name');
+
+        // TAB 5: Email Advertisement Campaigns
+        $campaigns = MarketingCampaign::orderByDesc('id')->get();
+        $subscribersCount = NewsletterSubscriber::count();
+        $customersCount = User::whereIn('role', ['Customer', 'Guest'])->orWhereHas('customer')->count();
+        $staffCount = User::whereNotIn('role', ['Customer', 'Guest'])->whereDoesntHave('customer')->count();
 
         return view('marketing.index', compact(
             'tab', 'period', 'from', 'to',
@@ -228,8 +231,9 @@ class MarketingController extends Controller
             'sourcesBreakdown', 'devicesBreakdown',
             'dailyDates', 'dailyVisitsSeries', 'dailyInteractionsSeries',
             'topPages',
-            'latestReport', 'allReports', 'defaultReport',
-            'strategyItems'
+            'selectedReport', 'allReports', 'activeReportData', 'cleanTemplate', 'editReport',
+            'strategyItems',
+            'campaigns', 'subscribersCount', 'customersCount', 'staffCount'
         ));
     }
 
@@ -239,7 +243,6 @@ class MarketingController extends Controller
         $url = $request->input('url', $request->header('referer') ?: url('/'));
         $pageType = $request->input('page_type', 'Home');
         
-        // Detect source from referrer or query params
         $referrer = $request->input('referrer', $request->header('referer'));
         $source = 'Direct';
         if ($request->has('utm_source') && !empty($request->input('utm_source'))) {
@@ -254,7 +257,6 @@ class MarketingController extends Controller
             else $source = 'Referral';
         }
 
-        // Detect device
         $userAgent = $request->header('User-Agent');
         $deviceType = 'Desktop';
         if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', strtolower($userAgent))) {
@@ -282,30 +284,81 @@ class MarketingController extends Controller
 
     public function saveReport(Request $request)
     {
-        $data = $request->validate([
+        $validated = $request->validate([
+            'report_id'        => 'nullable|integer',
             'week_number'      => 'required|string',
             'reporting_period' => 'required|string',
             'prepared_by'      => 'nullable|string',
             'department'       => 'nullable|string',
             'date_submitted'   => 'nullable|date',
             'reviewed_by'      => 'nullable|string',
-            'tasks_data'       => 'nullable|array',
-            'kpi_data'         => 'nullable|array',
-            'social_media_data'=> 'nullable|array',
-            'website_performance_data' => 'nullable|array',
-            'google_business_data'     => 'nullable|array',
-            'bookings_leads_data'      => 'nullable|array',
-            'paid_ads_data'            => 'nullable|array',
-            'content_created_data'     => 'nullable|array',
-            'challenges_data'          => 'nullable|array',
-            'achievements_data'        => 'nullable|array',
-            'next_week_plan_data'      => 'nullable|array',
         ]);
 
-        MarketingReport::create($data);
+        // Clean and filter arrays to remove empty rows
+        $cleanArray = function ($input, $requiredKey) {
+            if (!is_array($input)) return [];
+            return array_values(array_filter($input, fn($row) => is_array($row) && !empty($row[$requiredKey])));
+        };
 
+        $data = [
+            'week_number'      => $validated['week_number'],
+            'reporting_period' => $validated['reporting_period'],
+            'prepared_by'      => $validated['prepared_by'] ?? 'Digital Marketing Lead',
+            'department'       => $validated['department'] ?? 'MEDIA & ICT',
+            'date_submitted'   => $validated['date_submitted'] ?? date('Y-m-d'),
+            'reviewed_by'      => $validated['reviewed_by'] ?? 'General Manager',
+            'tasks_data'       => $cleanArray($request->input('tasks_data', []), 'task'),
+            'kpi_data'         => $cleanArray($request->input('kpi_data', []), 'kpi'),
+            'social_media_data'=> $cleanArray($request->input('social_media_data', []), 'platform'),
+            'website_performance_data' => $cleanArray($request->input('website_performance_data', []), 'metric'),
+            'google_business_data'     => $cleanArray($request->input('google_business_data', []), 'metric'),
+            'bookings_leads_data'      => $cleanArray($request->input('bookings_leads_data', []), 'source'),
+            'paid_ads_data'            => $cleanArray($request->input('paid_ads_data', []), 'campaign'),
+            'content_created_data'     => $cleanArray($request->input('content_created_data', []), 'type'),
+            'challenges_data'          => $cleanArray($request->input('challenges_data', []), 'challenge'),
+            'achievements_data'        => $cleanArray($request->input('achievements_data', []), 'achievement'),
+            'next_week_plan_data'      => $cleanArray($request->input('next_week_plan_data', []), 'activity'),
+        ];
+
+        if (!empty($validated['report_id'])) {
+            $report = MarketingReport::findOrFail($validated['report_id']);
+            $report->update($data);
+            $msg = '✅ Weekly Digital Marketing & Growth Report updated successfully!';
+        } else {
+            $report = MarketingReport::create($data);
+            $msg = '✅ New Weekly Digital Marketing & Growth Report created and saved successfully!';
+        }
+
+        return redirect()->route('marketing.index', ['tab' => 'report', 'report_id' => $report->id])
+            ->with('success', $msg);
+    }
+
+    public function destroyReport(MarketingReport $report)
+    {
+        $report->delete();
         return redirect()->route('marketing.index', ['tab' => 'report'])
-            ->with('success', '✅ Weekly Digital Marketing & Growth Report saved successfully!');
+            ->with('success', '🗑️ Marketing Report deleted successfully!');
+    }
+
+    public function storeStrategyItem(Request $request)
+    {
+        $request->validate([
+            'area_number' => 'required|integer',
+            'area_name'   => 'required|string',
+            'task'        => 'required|string',
+            'cost'        => 'nullable|string',
+            'status'      => 'required|string',
+        ]);
+
+        MarketingStrategyItem::create([
+            'area_number' => $request->area_number,
+            'area_name'   => $request->area_name,
+            'task'        => $request->task,
+            'cost'        => $request->cost ?: '0/=',
+            'status'      => $request->status,
+        ]);
+
+        return redirect()->back()->with('success', '✅ New strategy task added successfully!');
     }
 
     public function updateStrategyItem(Request $request, MarketingStrategyItem $item)
@@ -326,6 +379,121 @@ class MarketingController extends Controller
             return response()->json(['status' => 'success', 'item' => $item]);
         }
 
-        return redirect()->back()->with('success', 'Strategy task updated successfully!');
+        return redirect()->back()->with('success', '✅ Strategy task updated successfully!');
+    }
+
+    public function destroyStrategyItem(MarketingStrategyItem $item)
+    {
+        $item->delete();
+        return redirect()->back()->with('success', '🗑️ Strategy task removed successfully!');
+    }
+
+    public function sendCampaign(Request $request)
+    {
+        $request->validate([
+            'title'           => 'required|string|max:255',
+            'subject'         => 'required|string|max:255',
+            'headline'        => 'required|string|max:255',
+            'banner_url'      => 'nullable|url|max:500',
+            'content'         => 'required|string',
+            'cta_text'        => 'nullable|string|max:100',
+            'cta_url'         => 'nullable|url|max:500',
+            'discount_code'   => 'nullable|string|max:50',
+            'target_audiences'=> 'nullable|array',
+            'custom_emails'   => 'nullable|string',
+        ]);
+
+        $audiences = $request->input('target_audiences', []);
+        $recipients = [];
+
+        // 1. Newsletter Subscribers
+        if (in_array('subscribers', $audiences)) {
+            $subs = NewsletterSubscriber::all();
+            foreach ($subs as $s) {
+                if ($s->email && filter_var($s->email, FILTER_VALIDATE_EMAIL)) {
+                    $recipients[$s->email] = 'Valued Subscriber';
+                }
+            }
+        }
+
+        // 2. Customers / Past Guests
+        if (in_array('customers', $audiences)) {
+            $custs = User::whereIn('role', ['Customer', 'Guest'])->orWhereHas('customer')->get();
+            foreach ($custs as $c) {
+                if ($c->email && filter_var($c->email, FILTER_VALIDATE_EMAIL)) {
+                    $recipients[$c->email] = $c->name ?: 'Valued Guest';
+                }
+            }
+        }
+
+        // 3. Staff & Internal System Users
+        if (in_array('staff', $audiences)) {
+            $staff = User::whereNotIn('role', ['Customer', 'Guest'])->whereDoesntHave('customer')->get();
+            foreach ($staff as $s) {
+                if ($s->email && filter_var($s->email, FILTER_VALIDATE_EMAIL)) {
+                    $recipients[$s->email] = $s->name ?: 'Team Member';
+                }
+            }
+        }
+
+        // 4. Custom Emails
+        if (!empty($request->custom_emails)) {
+            $rawEmails = preg_split('/[,;\r\n]+/', $request->custom_emails);
+            foreach ($rawEmails as $e) {
+                $trimmed = trim($e);
+                if (filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                    $recipients[$trimmed] = 'Valued Client';
+                }
+            }
+        }
+
+        if (empty($recipients)) {
+            return redirect()->back()->withErrors(['target_audiences' => 'Please select at least one target audience or enter valid custom email addresses.'])->withInput();
+        }
+
+        // Format target audience string
+        $audienceNames = [];
+        if (in_array('subscribers', $audiences)) $audienceNames[] = 'Subscribers';
+        if (in_array('customers', $audiences)) $audienceNames[] = 'Customers & Guests';
+        if (in_array('staff', $audiences)) $audienceNames[] = 'Staff & System Users';
+        if (!empty($request->custom_emails)) $audienceNames[] = 'Custom Recipients';
+        $targetAudienceStr = implode(', ', $audienceNames);
+
+        // Record campaign in database
+        $campaign = MarketingCampaign::create([
+            'title'            => $request->title,
+            'subject'          => $request->subject,
+            'headline'         => $request->headline,
+            'banner_url'       => $request->banner_url,
+            'content'          => $request->content,
+            'cta_text'         => $request->cta_text,
+            'cta_url'          => $request->cta_url,
+            'discount_code'    => $request->discount_code,
+            'target_audience'  => $targetAudienceStr,
+            'recipients_count' => count($recipients),
+            'sent_by'          => auth()->user()->name ?? 'Marketing Admin',
+            'status'           => 'Sent',
+        ]);
+
+        // Send Emails
+        $sentCount = 0;
+        foreach ($recipients as $email => $name) {
+            try {
+                Mail::to($email)->send(new MarketingCampaignMail($campaign, $name));
+                $sentCount++;
+            } catch (\Exception $ex) {
+                Log::error("Failed sending marketing ad to {$email}: " . $ex->getMessage());
+            }
+        }
+
+        return redirect()->route('marketing.index', ['tab' => 'campaigns'])
+            ->with('success', "🚀 Advertisement Campaign '{$campaign->title}' pushed successfully to {$sentCount} recipients!");
+    }
+
+    public function destroyCampaign(MarketingCampaign $campaign)
+    {
+        $campaign->delete();
+        return redirect()->route('marketing.index', ['tab' => 'campaigns'])
+            ->with('success', '🗑️ Campaign record removed from history!');
     }
 }

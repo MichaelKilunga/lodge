@@ -66,7 +66,12 @@ Route::group(['middleware' => ['auth', 'checkRole:Super,Admin']], function () {
     
     Route::get('/marketing', [MarketingController::class, 'index'])->name('marketing.index');
     Route::post('/marketing/report/save', [MarketingController::class, 'saveReport'])->name('marketing.report.save');
+    Route::delete('/marketing/report/{report}', [MarketingController::class, 'destroyReport'])->name('marketing.report.destroy');
+    Route::post('/marketing/strategy/store', [MarketingController::class, 'storeStrategyItem'])->name('marketing.strategy.store');
     Route::post('/marketing/strategy/{item}/update', [MarketingController::class, 'updateStrategyItem'])->name('marketing.strategy.update');
+    Route::delete('/marketing/strategy/{item}', [MarketingController::class, 'destroyStrategyItem'])->name('marketing.strategy.destroy');
+    Route::post('/marketing/campaign/send', [MarketingController::class, 'sendCampaign'])->name('marketing.campaign.send');
+    Route::delete('/marketing/campaign/{campaign}', [MarketingController::class, 'destroyCampaign'])->name('marketing.campaign.destroy');
     
     Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
     Route::post('/setting', [SettingController::class, 'update'])->name('setting.update');

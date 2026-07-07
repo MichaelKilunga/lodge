@@ -262,11 +262,12 @@
                     </a>
                 </div>
 
-                @if (auth()->user()->role == 'Super' || auth()->user()->role == 'Admin')
+                @if (!auth()->user()->isCustomer())
                     <!-- Operations -->
                     <div class="nav-section">
                         <div class="nav-section-title">Operations</div>
 
+                        @if (auth()->user()->hasPermission('view_transactions'))
                         <!-- Transactions -->
                         <a href="{{ route('transaction.index') }}"
                             class="nav-item {{ in_array(Route::currentRouteName(), ['payment.index', 'transaction.index', 'transaction.reservation.createIdentity', 'transaction.reservation.pickFromCustomer', 'transaction.reservation.usersearch', 'transaction.reservation.storeCustomer', 'transaction.reservation.viewCountPerson', 'transaction.reservation.chooseRoom', 'transaction.reservation.confirmation', 'transaction.reservation.payDownPayment']) ? 'active' : '' }}">
@@ -278,7 +279,9 @@
                                 <div class="nav-subtitle">Bookings & Payments</div>
                             </div>
                         </a>
+                        @endif
 
+                        @if (auth()->user()->hasPermission('view_rooms'))
                         <!-- Room Management -->
                         <div
                             class="nav-item dropdown-nav {{ in_array(Route::currentRouteName(), ['room.index', 'room.show', 'room.create', 'room.edit', 'type.index', 'type.create', 'type.edit', 'roomstatus.index', 'roomstatus.create', 'roomstatus.edit', 'facility.index', 'facility.create', 'facility.edit']) ? 'active' : '' }}">
@@ -316,7 +319,9 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
+                        @if (auth()->user()->hasPermission('view_customers') || auth()->user()->hasPermission('manage_staff'))
                         <!-- Customer & User Management -->
                         <div
                             class="nav-item dropdown-nav {{ in_array(Route::currentRouteName(), ['customer.index', 'customer.create', 'customer.edit', 'user.index', 'user.create', 'user.edit']) ? 'active' : '' }}">
@@ -335,26 +340,32 @@
                             <div class="collapse {{ in_array(Route::currentRouteName(), ['customer.index', 'customer.create', 'customer.edit', 'user.index', 'user.create', 'user.edit']) ? 'show' : '' }} w-100"
                                 id="mobileUserSubmenu">
                                 <div class="nav-submenu">
+                                    @if (auth()->user()->hasPermission('view_customers'))
                                     <a href="{{ route('customer.index') }}"
                                         class="nav-subitem {{ in_array(Route::currentRouteName(), ['customer.index', 'customer.create', 'customer.edit']) ? 'active' : '' }}">
                                         <i class="fas fa-user-friends me-2"></i>Customers
                                     </a>
-                                    @if (auth()->user()->role == 'Super')
-                                        <a href="{{ route('user.index') }}"
-                                            class="nav-subitem {{ in_array(Route::currentRouteName(), ['user.index', 'user.create', 'user.edit']) ? 'active' : '' }}">
-                                            <i class="fas fa-user-cog me-2"></i>Staff Users
-                                        </a>
+                                    @endif
+                                    @if (auth()->user()->hasPermission('manage_staff'))
+                                    <a href="{{ route('user.index') }}"
+                                        class="nav-subitem {{ in_array(Route::currentRouteName(), ['user.index', 'user.create', 'user.edit']) ? 'active' : '' }}">
+                                        <i class="fas fa-user-cog me-2"></i>Staff Users
+                                    </a>
                                     @endif
                                 </div>
                             </div>
                         </div>
+                        @endif
                     </div>
 
-                    <!-- Analytics -->
+                    @if (auth()->user()->hasPermission('view_reports') || auth()->user()->hasPermission('manage_blog'))
+                    <!-- Analytics & Content -->
                     <div class="nav-section">
-                        <div class="nav-section-title">Analytics</div>
+                        <div class="nav-section-title">Analytics & Content</div>
 
-                        <a href="#" class="nav-item">
+                        @if (auth()->user()->hasPermission('view_reports'))
+                        <a href="{{ route('report.index') }}"
+                            class="nav-item {{ Route::currentRouteName() == 'report.index' ? 'active' : '' }}">
                             <div class="nav-icon">
                                 <i class="fas fa-chart-bar"></i>
                             </div>
@@ -363,13 +374,42 @@
                                 <div class="nav-subtitle">Financial & Analytics</div>
                             </div>
                         </a>
-                    </div>
 
+                        <a href="{{ route('marketing.index') }}"
+                            class="nav-item {{ in_array(Route::currentRouteName(), ['marketing.index', 'marketing.report.save']) ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <i class="fas fa-bullhorn" style="color: #4facfe;"></i>
+                            </div>
+                            <div class="nav-content">
+                                <div class="nav-title">Marketing & Traffic</div>
+                                <div class="nav-subtitle">Growth Trends & Strategy</div>
+                            </div>
+                        </a>
+                        @endif
+
+                        @if (auth()->user()->hasPermission('manage_blog'))
+                        <a href="{{ route('post.index') }}"
+                            class="nav-item {{ in_array(Route::currentRouteName(), ['post.index', 'post.create', 'post.edit']) ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <i class="fas fa-blog"></i>
+                            </div>
+                            <div class="nav-content">
+                                <div class="nav-title">Blog</div>
+                                <div class="nav-subtitle">Posts & Articles</div>
+                            </div>
+                        </a>
+                        @endif
+                    </div>
+                    @endif
+
+                    @if (auth()->user()->hasPermission('manage_settings') || auth()->user()->hasPermission('manage_payment_accounts') || auth()->user()->hasPermission('manage_roles'))
                     <!-- Administration -->
                     <div class="nav-section">
                         <div class="nav-section-title">Administration</div>
 
-                        <a href="#" class="nav-item">
+                        @if (auth()->user()->hasPermission('manage_settings'))
+                        <a href="{{ route('setting.index') }}"
+                            class="nav-item {{ Route::currentRouteName() == 'setting.index' ? 'active' : '' }}">
                             <div class="nav-icon">
                                 <i class="fas fa-cogs"></i>
                             </div>
@@ -378,7 +418,46 @@
                                 <div class="nav-subtitle">System Configuration</div>
                             </div>
                         </a>
+                        @endif
+
+                        @if (auth()->user()->hasPermission('manage_payment_accounts'))
+                        <a href="{{ route('payment-account.index') }}"
+                            class="nav-item {{ in_array(Route::currentRouteName(), ['payment-account.index', 'payment-account.create', 'payment-account.edit']) ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="nav-content">
+                                <div class="nav-title">Payment Accounts</div>
+                                <div class="nav-subtitle">Bank Details</div>
+                            </div>
+                        </a>
+                        @endif
+
+                        @if (auth()->user()->hasPermission('manage_roles'))
+                        <a href="{{ route('role.index') }}"
+                            class="nav-item {{ in_array(Route::currentRouteName(), ['role.index', 'role.create', 'role.edit']) ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="nav-content">
+                                <div class="nav-title">Roles & Perms</div>
+                                <div class="nav-subtitle">Access Control</div>
+                            </div>
+                        </a>
+                        @endif
+
+                        <a href="{{ route('activity-log.index') }}"
+                            class="nav-item {{ Route::currentRouteName() == 'activity-log.index' ? 'active' : '' }}">
+                            <div class="nav-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="nav-content">
+                                <div class="nav-title">Activity Log</div>
+                                <div class="nav-subtitle">System Audit Trail</div>
+                            </div>
+                        </a>
                     </div>
+                    @endif
                 @endif
             </nav>
 
