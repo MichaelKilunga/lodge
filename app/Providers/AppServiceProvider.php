@@ -57,6 +57,14 @@ class AppServiceProvider extends ServiceProvider
         
         try {
             $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
+            
+            if (!empty($settings['location_map_iframe'])) {
+                $settings['location_map_iframe'] = \App\Helpers\Helper::cleanEmbedUrl($settings['location_map_iframe'], 'map');
+            }
+            if (!empty($settings['location_youtube_video'])) {
+                $settings['location_youtube_video'] = \App\Helpers\Helper::cleanEmbedUrl($settings['location_youtube_video'], 'youtube');
+            }
+
             \Illuminate\Support\Facades\View::share('global_settings', $settings);
         } catch (\Exception $e) {
             // Ignore during initial migrations

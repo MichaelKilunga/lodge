@@ -30,6 +30,13 @@ class SettingController extends Controller
         // Handle all other (non-file) fields
         $data = $request->except(array_merge(['_token', '_method'], $fileFields));
 
+        if (isset($data['location_map_iframe'])) {
+            $data['location_map_iframe'] = \App\Helpers\Helper::cleanEmbedUrl($data['location_map_iframe'], 'map');
+        }
+        if (isset($data['location_youtube_video'])) {
+            $data['location_youtube_video'] = \App\Helpers\Helper::cleanEmbedUrl($data['location_youtube_video'], 'youtube');
+        }
+
         foreach ($data as $key => $value) {
             Setting::updateOrCreate(
                 ['key' => $key],
@@ -38,9 +45,17 @@ class SettingController extends Controller
         }
 
         // Bust the cached global_settings for this request cycle
+        $allSettings = Setting::all()->pluck('value', 'key')->toArray();
+        if (!empty($allSettings['location_map_iframe'])) {
+            $allSettings['location_map_iframe'] = \App\Helpers\Helper::cleanEmbedUrl($allSettings['location_map_iframe'], 'map');
+        }
+        if (!empty($allSettings['location_youtube_video'])) {
+            $allSettings['location_youtube_video'] = \App\Helpers\Helper::cleanEmbedUrl($allSettings['location_youtube_video'], 'youtube');
+        }
+
         \Illuminate\Support\Facades\View::share(
             'global_settings',
-            Setting::all()->pluck('value', 'key')->toArray()
+            $allSettings
         );
 
         return redirect()->back()->with('success', 'Settings updated successfully.');

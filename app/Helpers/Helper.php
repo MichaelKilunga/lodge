@@ -74,4 +74,45 @@ class Helper
     {
         return $day * $price;
     }
+
+    public static function cleanEmbedUrl($url, $type = null)
+    {
+        if (empty($url)) {
+            return $url;
+        }
+
+        // 1. If user pasted an entire <iframe src="..."> HTML tag, extract the src attribute
+        if (preg_match('/src=["\']([^"\']+)["\']/i', $url, $matches)) {
+            $url = $matches[1];
+        }
+
+        $url = trim($url, " '\"\t\n\r\0\x0B");
+
+        // 2. Clean YouTube URL
+        if ($type === 'youtube' || str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be')) {
+            if (preg_match('/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/i', $url, $matches)) {
+                return 'https://www.youtube.com/embed/' . $matches[1];
+            }
+        }
+
+        // 3. Clean Google Maps URL
+        if ($type === 'map' || str_contains($url, 'google.com/maps') || str_contains($url, 'maps.google.com')) {
+            if (!str_contains($url, '/embed') && !str_contains($url, 'output=embed')) {
+                if (preg_match('/\/place\/([^\/\?@]+)/i', $url, $matches)) {
+                    $place = urldecode($matches[1]);
+                    return 'https://www.google.com/maps?q=' . urlencode($place) . '&output=embed';
+                }
+                if (preg_match('/[\?&]q=([^&]+)/i', $url, $matches)) {
+                    return 'https://www.google.com/maps?q=' . $matches[1] . '&output=embed';
+                }
+                if (preg_match('/@(-?\d+\.\d+),(-?\d+\.\d+)/i', $url, $matches)) {
+                    return 'https://www.google.com/maps?q=' . $matches[1] . ',' . $matches[2] . '&output=embed';
+                }
+                $separator = str_contains($url, '?') ? '&' : '?';
+                return $url . $separator . 'output=embed';
+            }
+        }
+
+        return $url;
+    }
 }
