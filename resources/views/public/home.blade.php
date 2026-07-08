@@ -163,10 +163,88 @@
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </section>
+
+    <!-- Featured Blog & Stories Section -->
+    @if(isset($posts) && count($posts) > 0)
+    <section class="py-5 bg-white border-top">
+        <div class="container py-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5">
+                <div>
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3 text-uppercase letter-spacing shadow-sm">
+                        <i class="fas fa-feather-alt me-1"></i> Journal &amp; Guides
+                    </span>
+                    <h2 class="display-6 fw-bold mb-2">Latest Stories from Bella Vista</h2>
+                    <p class="text-muted mb-0 lead">Immerse yourself in curated safari advice, travel tips, and updates from our lodge.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="{{ route('public.blog.index') }}" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2">
+                        View All Articles <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                @foreach ($posts as $post)
+                    <div class="col-md-6 col-lg-4">
+                        <article class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden blog-home-card" style="transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); border: 1px solid rgba(226, 232, 240, 0.8) !important;">
+                            <a href="{{ route('public.blog.show', $post->slug) }}" class="position-relative overflow-hidden text-decoration-none" style="height: 220px; display: block;">
+                                <span class="badge bg-dark text-warning position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill fw-bold z-2" style="font-size: 0.75rem;">
+                                    <i class="fas fa-bookmark me-1"></i> Story
+                                </span>
+                                @if($post->image)
+                                    <img src="{{ asset($post->image) }}" class="w-100 h-100" alt="{{ $post->meta_title ?: $post->title }}" style="object-fit: cover; transition: transform 0.6s ease;" loading="lazy">
+                                @else
+                                    <div class="bg-dark text-white d-flex align-items-center justify-content-center h-100">
+                                        <i class="fas fa-newspaper fa-3x opacity-25"></i>
+                                    </div>
+                                @endif
+                            </a>
+                            <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                                <div class="d-flex align-items-center gap-3 text-muted small mb-3">
+                                    <span><i class="far fa-calendar-alt text-primary me-1"></i> {{ $post->created_at->format('M d, Y') }}</span>
+                                    <span><i class="far fa-clock text-primary me-1"></i> {{ $post->read_time ?? max(1, ceil(str_word_count(strip_tags($post->content)) / 200)) }} min read</span>
+                                    @if($post->views_count > 0)
+                                        <span class="ms-auto"><i class="far fa-eye me-1"></i> {{ number_format($post->views_count) }}</span>
+                                    @endif
+                                </div>
+                                <h3 class="card-title h5 fw-bold mb-3" style="line-height: 1.4; font-family: 'Playfair Display', serif;">
+                                    <a href="{{ route('public.blog.show', $post->slug) }}" class="text-decoration-none text-dark">{{ $post->title }}</a>
+                                </h3>
+                                <p class="card-text text-muted small mb-4 flex-grow-1" style="line-height: 1.6;">
+                                    {{ $post->excerpt ?: Str::limit(strip_tags($post->content), 110) }}
+                                </p>
+                                <div class="pt-3 border-top d-flex align-items-center justify-content-between mt-auto">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-dark text-warning d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                            BV
+                                        </div>
+                                        <span class="small fw-semibold text-dark">Editorial Team</span>
+                                    </div>
+                                    <a href="{{ route('public.blog.show', $post->slug) }}" class="text-primary text-decoration-none small fw-bold d-inline-flex align-items-center gap-1">
+                                        Read <i class="fas fa-chevron-right" style="font-size: 0.75rem;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    <style>
+        .blog-home-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.12) !important;
+            border-color: var(--accent-color) !important;
+        }
+        .blog-home-card:hover img {
+            transform: scale(1.08);
+        }
+    </style>
+    @endif
 @endsection
 
 @section('footer')

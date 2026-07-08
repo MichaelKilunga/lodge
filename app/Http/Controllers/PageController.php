@@ -12,7 +12,8 @@ class PageController extends Controller
     {
         $rooms = Room::with(['type', 'image'])->inRandomOrder()->take(3)->get();
         $facilities = \App\Models\Facility::take(3)->get();
-        return view('public.home', compact('rooms', 'facilities'));
+        $posts = \App\Models\Post::where('is_published', true)->latest()->take(3)->get();
+        return view('public.home', compact('rooms', 'facilities', 'posts'));
     }
 
     public function rooms(Request $request)
