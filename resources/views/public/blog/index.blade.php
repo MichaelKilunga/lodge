@@ -86,15 +86,15 @@
 {{-- Schema.org Blog / ItemList JSON-LD --}}
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "Blog",
+  "@@context": "https://schema.org",
+  "@@type": "Blog",
   "name": "{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }} Journal & Insights",
   "description": "Discover the latest travel guides, safari tips, and stories from Bella Vista Lodge.",
   "url": "{{ route('public.blog.index') }}",
   "blogPost": [
     @foreach($posts as $index => $post)
     {
-      "@type": "BlogPosting",
+      "@@type": "BlogPosting",
       "headline": "{{ addslashes($post->meta_title ?: $post->title) }}",
       "description": "{{ addslashes($post->meta_description ?: ($post->excerpt ?: Str::limit(strip_tags($post->content), 150))) }}",
       "url": "{{ route('public.blog.show', $post->slug) }}",

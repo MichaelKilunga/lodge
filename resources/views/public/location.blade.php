@@ -7,20 +7,20 @@
 @section('head')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
+  "@@context": "https://schema.org",
+  "@@type": "LocalBusiness",
   "name": "{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}",
   "description": "{{ $global_settings['location_description'] ?? 'Nestled amidst breathtaking natural vistas, Bella Vista Lodge offers tranquil seclusion with effortless accessibility.' }}",
   "url": "{{ route('public.location') }}",
   "telephone": "{{ $global_settings['contact_phone'] ?? '+255 123 456 789' }}",
   "address": {
-    "@type": "PostalAddress",
+    "@@type": "PostalAddress",
     "streetAddress": "{{ $global_settings['hotel_address'] ?? '123 Luxury Way, Serengeti Estate' }}",
     "addressLocality": "Arusha",
     "addressCountry": "TZ"
   },
   "geo": {
-    "@type": "GeoCoordinates",
+    "@@type": "GeoCoordinates",
     "latitude": "-3.386925",
     "longitude": "36.682995"
   },

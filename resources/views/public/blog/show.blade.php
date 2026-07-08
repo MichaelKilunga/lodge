@@ -124,8 +124,8 @@
 {{-- Schema.org Article / BlogPosting JSON-LD --}}
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
+  "@@context": "https://schema.org",
+  "@@type": "BlogPosting",
   "headline": "{{ addslashes($post->meta_title ?: $post->title) }}",
   "description": "{{ addslashes($post->meta_description ?: ($post->excerpt ?: Str::limit(strip_tags($post->content), 150))) }}",
   "image": "{{ $post->image ? asset($post->image) : asset('img/default/default-room.png') }}",
@@ -133,21 +133,21 @@
   "datePublished": "{{ $post->created_at->toIso8601String() }}",
   "dateModified": "{{ $post->updated_at->toIso8601String() }}",
   "author": {
-    "@type": "Organization",
+    "@@type": "Organization",
     "name": "{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }} Editorial Team",
     "url": "{{ url('/') }}"
   },
   "publisher": {
-    "@type": "Organization",
+    "@@type": "Organization",
     "name": "{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}",
     "logo": {
-      "@type": "ImageObject",
+      "@@type": "ImageObject",
       "url": "{{ !empty($global_settings['logo_path']) ? asset($global_settings['logo_path']) : asset('img/logo/sip.png') }}"
     }
   },
   "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "{{ route('public.blog.show', $post->slug) }}"
+    "@@type": "WebPage",
+    "@@id": "{{ route('public.blog.show', $post->slug) }}"
   }
 }
 </script>
@@ -155,23 +155,23 @@
 {{-- Schema.org BreadcrumbList JSON-LD --}}
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
+  "@@context": "https://schema.org",
+  "@@type": "BreadcrumbList",
   "itemListElement": [
     {
-      "@type": "ListItem",
+      "@@type": "ListItem",
       "position": 1,
       "name": "Home",
       "item": "{{ route('public.home') }}"
     },
     {
-      "@type": "ListItem",
+      "@@type": "ListItem",
       "position": 2,
       "name": "Blog",
       "item": "{{ route('public.blog.index') }}"
     },
     {
-      "@type": "ListItem",
+      "@@type": "ListItem",
       "position": 3,
       "name": "{{ addslashes($post->title) }}",
       "item": "{{ route('public.blog.show', $post->slug) }}"

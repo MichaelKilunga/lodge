@@ -7,8 +7,8 @@
 @section('head')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "ItemList",
+  "@@context": "https://schema.org",
+  "@@type": "ItemList",
   "name": "All Rooms & Suites at {{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}",
   "description": "Browse our complete inventory of luxury rooms and suites.",
   "url": "{{ route('public.rooms') }}",
@@ -16,20 +16,20 @@
   "itemListElement": [
     @foreach($rooms as $index => $room)
     {
-      "@type": "ListItem",
+      "@@type": "ListItem",
       "position": {{ $index + 1 }},
       "item": {
-        "@type": "HotelRoom",
+        "@@type": "HotelRoom",
         "name": "{{ addslashes($room->type->name) }} (Room {{ $room->number }})",
         "description": "Luxury accommodation for up to {{ $room->capacity }} guests. View: {{ $room->view ?? 'Standard View' }}.",
         "image": "{{ $room->firstImage() }}",
         "url": "{{ route('public.room', $room->id) }}",
         "occupancy": {
-          "@type": "QuantitativeValue",
+          "@@type": "QuantitativeValue",
           "value": {{ $room->capacity }}
         },
         "offers": {
-          "@type": "Offer",
+          "@@type": "Offer",
           "priceCurrency": "TZS",
           "price": "{{ $room->price }}",
           "availability": "https://schema.org/InStock"

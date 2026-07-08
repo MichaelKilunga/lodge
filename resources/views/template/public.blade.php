@@ -186,22 +186,22 @@
     {{-- Schema.org LodgingBusiness Structured Data --}}
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "LodgingBusiness",
+      "@@context": "https://schema.org",
+      "@@type": "LodgingBusiness",
       "name": "{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}",
       "description": "{{ $global_settings['hotel_tagline'] ?? 'Experience unparalleled luxury, comfort, and exceptional service.' }}",
       "image": "{{ !empty($global_settings['hero_image_path']) ? asset($global_settings['hero_image_path']) : asset('img/default/default-room.png') }}",
       "url": "{{ url('/') }}",
       "telephone": "{{ $global_settings['contact_phone'] ?? '+255 123 456 789' }}",
       "address": {
-        "@type": "PostalAddress",
+        "@@type": "PostalAddress",
         "streetAddress": "{{ $global_settings['hotel_address'] ?? '123 Luxury Way, Serengeti Estate' }}",
         "addressLocality": "Arusha",
         "addressCountry": "TZ"
       },
       "priceRange": "$$$",
       "starRating": {
-        "@type": "Rating",
+        "@@type": "Rating",
         "ratingValue": "5"
       }
     }

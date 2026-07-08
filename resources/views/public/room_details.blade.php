@@ -9,23 +9,23 @@
 @section('head')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "HotelRoom",
+  "@@context": "https://schema.org",
+  "@@type": "HotelRoom",
   "name": "{{ addslashes($room->type->name) }} - Room {{ $room->number }}",
   "description": "Book our {{ addslashes($room->type->name) }} room. Enjoy premium amenities, {{ $room->view ?? 'great' }} views, and comfort for up to {{ $room->capacity }} guests.",
   "image": "{{ $room->firstImage() }}",
   "url": "{{ route('public.room', $room->id) }}",
   "bed": {
-    "@type": "BedDetails",
+    "@@type": "BedDetails",
     "numberOfBeds": "1",
     "typeOfBed": "King/Twin"
   },
   "occupancy": {
-    "@type": "QuantitativeValue",
+    "@@type": "QuantitativeValue",
     "value": {{ $room->capacity }}
   },
   "offers": {
-    "@type": "Offer",
+    "@@type": "Offer",
     "priceCurrency": "TZS",
     "price": "{{ $room->price }}",
     "availability": "https://schema.org/InStock",
@@ -36,23 +36,23 @@
 
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
+  "@@context": "https://schema.org",
+  "@@type": "BreadcrumbList",
   "itemListElement": [
     {
-      "@type": "ListItem",
+      "@@type": "ListItem",
       "position": 1,
       "name": "Home",
       "item": "{{ route('public.home') }}"
     },
     {
-      "@type": "ListItem",
+      "@@type": "ListItem",
       "position": 2,
       "name": "Rooms & Suites",
       "item": "{{ route('public.rooms') }}"
     },
     {
-      "@type": "ListItem",
+      "@@type": "ListItem",
       "position": 3,
       "name": "{{ addslashes($room->type->name) }}",
       "item": "{{ route('public.room', $room->id) }}"
