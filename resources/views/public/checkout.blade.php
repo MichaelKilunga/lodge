@@ -1,6 +1,6 @@
 @extends('template.public')
 
-@section('title', 'Checkout - ' . $room->type->name)
+@section('title', 'Checkout - ' . $rooms->first()->type->name . ($rooms->count() > 1 ? ' & More' : ''))
 
 @section('content')
 <div class="container py-5">
