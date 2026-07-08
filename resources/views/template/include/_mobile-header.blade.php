@@ -149,13 +149,15 @@
 </header>
 
 <!-- Mobile Offcanvas Sidebar -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileOffcanvas" aria-labelledby="mobileOffcanvasLabel">
-    <button type="button" class="offcanvas-close-btn" data-bs-dismiss="offcanvas" aria-label="Close">
+<div class="offcanvas offcanvas-start offcanvas-sidebar" tabindex="-1" id="mobileOffcanvas" aria-labelledby="mobileOffcanvasLabel"
+     style="width: 280px !important; max-width: 85vw !important; background: #1e293b !important; border-right: 1px solid rgba(255,255,255,0.1) !important;">
+    <button type="button" class="offcanvas-close-btn" data-bs-dismiss="offcanvas" aria-label="Close"
+            style="position: absolute; top: 1rem; right: 1rem; z-index: 1060; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.18); color: #ffffff; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
         <i class="fas fa-times"></i>
     </button>
 
     <!-- Reuse the existing sidebar content -->
-    <div class="lh-sidebar mobile-sidebar-content">
+    <div class="lh-sidebar mobile-sidebar-content" style="width: 100% !important; min-width: 100% !important; position: relative !important; top: 0 !important; left: 0 !important; height: 100% !important; background: transparent !important;">
         <div class="sidebar-content">
             <!-- Brand Header -->
             <div class="sidebar-brand">

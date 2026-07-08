@@ -320,14 +320,22 @@
 <style>
     .lh-sidebar {
         width: 280px;
+        min-width: 280px;
         background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-        position: fixed;
+        position: sticky;
         top: 0;
-        left: 0;
         height: 100vh;
         z-index: 1000;
         overflow: hidden;
-        transition: all 0.3s ease;
+        transition: width 0.3s ease, min-width 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    /* When sidebar is collapsed on desktop */
+    .lh-sidebar.collapsed {
+        width: 0;
+        min-width: 0;
+        overflow: hidden;
     }
 
     .sidebar-content {
@@ -809,21 +817,42 @@
         z-index: 1001;
     }
 
-    .lh-sidebar {
-        width: var(--bs-offcanvas-width);
+    @media (max-width: 991.98px) {
+        /* On mobile and tablet, the desktop sidebar in #wrapper is completely hidden */
+        #sidebar-wrapper {
+            display: none !important;
+        }
+        /* Page content takes full 100% width on mobile with zero left padding/margin */
+        #page-content-wrapper {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
     }
 
     @media (min-width: 992px) {
-
-        /* body.sidebar-layout {
-        margin-left: 280px;
-    } */
-        .lh-sidebar {
-            width: 280px;
+        #sidebar-wrapper {
+            display: block !important;
+            position: sticky !important;
+            top: 0 !important;
+            width: 280px !important;
+            min-width: 280px !important;
+            height: 100vh !important;
+            flex-shrink: 0 !important;
         }
-
+        #sidebar-wrapper.collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+        }
+        /* Sticky sidebar already takes 280px in flex container, so remove padding-left from content */
+        #page-content-wrapper {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
         .sidebar-toggle {
-            display: none;
+            display: none !important;
         }
     }
 </style>
