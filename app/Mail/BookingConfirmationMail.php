@@ -24,7 +24,7 @@ class BookingConfirmationMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($transactions, string $tempPassword, Collection $paymentAccounts)
+    public function __construct($transactions, ?string $tempPassword, Collection $paymentAccounts)
     {
         $this->transactions      = $transactions instanceof Collection ? $transactions : collect([$transactions]);
         $this->tempPassword      = $tempPassword;

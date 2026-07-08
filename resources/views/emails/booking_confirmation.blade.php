@@ -124,7 +124,7 @@
                 <div class="step-num">2</div>
                 <div class="step-content">
                     <strong>Log In to Your Account</strong>
-                    <span>Use the credentials below to log in to our guest portal at <a href="{{ config('app.url') }}/login">{{ config('app.url') }}/login</a></span>
+                    <span>Log in to our guest portal using your registered credentials at <a href="{{ config('app.url') }}/login">{{ config('app.url') }}/login</a>{{ !empty($tempPassword) ? ' (temporary credentials are provided below)' : '' }}</span>
                 </div>
             </li>
             <li class="step">
@@ -136,6 +136,7 @@
             </li>
         </ul>
 
+        @if(!empty($tempPassword))
         <!-- Login Credentials -->
         <div class="section-title">🔐 Your Login Credentials</div>
         <div class="credentials-box">
@@ -153,6 +154,7 @@
             </div>
         </div>
         <span class="warning">⚠ Please log in and change your password after your first login for security.</span>
+        @endif
 
         <!-- Payment Accounts -->
         <div class="section-title">🏦 Payment Accounts</div>
