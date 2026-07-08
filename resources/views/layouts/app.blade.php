@@ -6,6 +6,7 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="p:domain_verify" content="cc86bfafcc598557a9ed6965e7d97049"/>
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
