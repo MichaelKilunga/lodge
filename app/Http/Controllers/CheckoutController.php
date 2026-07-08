@@ -161,7 +161,7 @@ class CheckoutController extends Controller
         );
 
         // Create transactions
-        $transactions = collect();
+        $transactions = new \Illuminate\Database\Eloquent\Collection();
         foreach ($rooms as $r) {
             $transactions->push(Transaction::create([
                 'user_id'     => $user->id,
