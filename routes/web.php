@@ -135,4 +135,6 @@ Route::post('/checkout/{room?}', [CheckoutController::class, 'process'])->name('
 Route::get('/blog', [PostController::class, 'publicIndex'])->name('public.blog.index');
 Route::get('/blog/{slug}', [PostController::class, 'publicShow'])->name('public.blog.show');
 
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+
 Route::post('/marketing/track-interaction', [MarketingController::class, 'trackInteraction'])->name('marketing.track');

@@ -9,7 +9,23 @@
 
     {{-- SEO Meta Tags --}}
     <meta name="description" content="@yield('meta_description', ($global_settings['hotel_tagline'] ?? ($global_settings['hotel_name'] ?? 'Bella Vista Lodge') . ' - The best place to stay and relax.'))">
-    <meta name="keywords" content="hotel, booking, accommodation, relax, luxury">
+    <meta name="keywords" content="@yield('meta_keywords', 'hotel, booking, accommodation, relax, luxury, tanzania lodge, suites, holiday getaway, bella vista')">
+    <meta name="robots" content="@yield('robots', 'index, follow')">
+    <link rel="canonical" href="{{ url()->current() }}" />
+
+    {{-- OpenGraph Cards --}}
+    <meta property="og:title" content="@yield('title') - {{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}" />
+    <meta property="og:description" content="@yield('meta_description', ($global_settings['hotel_tagline'] ?? 'Experience luxury, comfort, and exceptional service.'))" />
+    <meta property="og:image" content="@yield('og_image', !empty($global_settings['hero_image_path']) ? asset($global_settings['hero_image_path']) : asset('img/default/default-room.png'))" />
+    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:type" content="@yield('og_type', 'website')" />
+    <meta property="og:site_name" content="{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}" />
+
+    {{-- Twitter Cards --}}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@yield('title') - {{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}" />
+    <meta name="twitter:description" content="@yield('meta_description', ($global_settings['hotel_tagline'] ?? 'Experience luxury, comfort, and exceptional service.'))" />
+    <meta name="twitter:image" content="@yield('og_image', !empty($global_settings['hero_image_path']) ? asset($global_settings['hero_image_path']) : asset('img/default/default-room.png'))" />
 
     {{-- Favicon --}}
     @if(!empty($global_settings['favicon_path']))
@@ -166,7 +182,32 @@
             box-shadow: 2px 2px 15px rgba(37,211,102,0.5);
         }
     </style>
+
+    {{-- Schema.org LodgingBusiness Structured Data --}}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LodgingBusiness",
+      "name": "{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}",
+      "description": "{{ $global_settings['hotel_tagline'] ?? 'Experience unparalleled luxury, comfort, and exceptional service.' }}",
+      "image": "{{ !empty($global_settings['hero_image_path']) ? asset($global_settings['hero_image_path']) : asset('img/default/default-room.png') }}",
+      "url": "{{ url('/') }}",
+      "telephone": "{{ $global_settings['contact_phone'] ?? '+255 123 456 789' }}",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "{{ $global_settings['hotel_address'] ?? '123 Luxury Way, Serengeti Estate' }}",
+        "addressLocality": "Arusha",
+        "addressCountry": "TZ"
+      },
+      "priceRange": "$$$",
+      "starRating": {
+        "@type": "Rating",
+        "ratingValue": "5"
+      }
+    }
+    </script>
 </head>
+
 
 <body>
     <!-- Navbar -->

@@ -30,6 +30,29 @@
                         <label class="form-label fw-bold">Content</label>
                         <textarea name="content" id="content-editor" class="form-control" rows="10">{{ $post->content }}</textarea>
                     </div>
+
+                    <div class="card bg-light border-0 mb-4 p-3 rounded-3">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-search me-2 text-primary"></i>SEO & Metadata Settings</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Meta Title</label>
+                                <input type="text" name="meta_title" class="form-control" value="{{ $post->meta_title }}" placeholder="Custom SEO title">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Meta Keywords</label>
+                                <input type="text" name="meta_keywords" class="form-control" value="{{ $post->meta_keywords }}" placeholder="e.g. luxury, safari, hotel, vacation">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-semibold">Meta Description</label>
+                                <textarea name="meta_description" class="form-control" rows="2" placeholder="Custom SEO description">{{ $post->meta_description }}</textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-semibold">Article Excerpt / Summary</label>
+                                <textarea name="excerpt" class="form-control" rows="2" placeholder="Short summary displayed on blog cards">{{ $post->excerpt }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="is_published" name="is_published" {{ $post->is_published ? 'checked' : '' }}>
                         <label class="form-check-label" for="is_published">Published</label>

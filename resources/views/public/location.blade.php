@@ -1,9 +1,33 @@
 @extends('template.public')
 
-@section('title', 'Location & Directions')
-@section('meta_description', $global_settings['location_description'] ?? 'Discover our prime luxury location and directions.')
+@section('title', 'Location & Directions | Prime Accessibility')
+@section('meta_description', $global_settings['location_description'] ?? 'Discover our prime luxury location and directions. Easy access from airports with private transfers and helipad.')
+@section('meta_keywords', 'hotel location, directions to bella vista lodge, arusha hotel map, tanzania lodge directions, helipad transfer, airport transfer, valet parking')
 
 @section('head')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}",
+  "description": "{{ $global_settings['location_description'] ?? 'Nestled amidst breathtaking natural vistas, Bella Vista Lodge offers tranquil seclusion with effortless accessibility.' }}",
+  "url": "{{ route('public.location') }}",
+  "telephone": "{{ $global_settings['contact_phone'] ?? '+255 123 456 789' }}",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "{{ $global_settings['hotel_address'] ?? '123 Luxury Way, Serengeti Estate' }}",
+    "addressLocality": "Arusha",
+    "addressCountry": "TZ"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "-3.386925",
+    "longitude": "36.682995"
+  },
+  "image": "{{ !empty($global_settings['hero_image_path']) ? asset($global_settings['hero_image_path']) : asset('img/default/default-room.png') }}",
+  "priceRange": "$$$"
+}
+</script>
 <style>
     .location-hero {
         background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 41, 59, 0.92) 100%),

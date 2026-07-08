@@ -23,6 +23,29 @@
                         <label class="form-label fw-bold">Content</label>
                         <textarea name="content" id="content-editor" class="form-control" rows="10"></textarea>
                     </div>
+
+                    <div class="card bg-light border-0 mb-4 p-3 rounded-3">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-search me-2 text-primary"></i>SEO & Metadata Settings (Optional)</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Meta Title</label>
+                                <input type="text" name="meta_title" class="form-control" placeholder="Custom SEO title (defaults to post title)">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Meta Keywords</label>
+                                <input type="text" name="meta_keywords" class="form-control" placeholder="e.g. luxury, safari, hotel, vacation">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-semibold">Meta Description</label>
+                                <textarea name="meta_description" class="form-control" rows="2" placeholder="Custom SEO description (defaults to first 150 characters of content)"></textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-semibold">Article Excerpt / Summary</label>
+                                <textarea name="excerpt" class="form-control" rows="2" placeholder="Short summary displayed on blog cards (defaults to 160 chars)"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="is_published" name="is_published" checked>
                         <label class="form-check-label" for="is_published">Publish immediately</label>

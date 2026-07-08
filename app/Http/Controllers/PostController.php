@@ -18,7 +18,13 @@ class PostController extends Controller
     public function publicShow($slug)
     {
         $post = Post::where('slug', $slug)->where('is_published', true)->firstOrFail();
-        return view('public.blog.show', compact('post'));
+        $post->increment('views_count');
+        $relatedPosts = Post::where('id', '!=', $post->id)
+            ->where('is_published', true)
+            ->latest()
+            ->take(3)
+            ->get();
+        return view('public.blog.show', compact('post', 'relatedPosts'));
     }
 
     // Admin Views
@@ -46,6 +52,15 @@ class PostController extends Controller
         $post->slug = Str::slug($request->title);
         $post->content = $request->content;
         $post->is_published = $request->has('is_published');
+
+        // SEO & Metadata
+        $post->meta_title = $request->meta_title ?: $request->title;
+        $post->meta_description = $request->meta_description ?: Str::limit(strip_tags($request->content), 150);
+        $post->meta_keywords = $request->meta_keywords ?: 'blog, lodge, travel, luxury, ' . strtolower($request->title);
+        $post->excerpt = $request->excerpt ?: Str::limit(strip_tags($request->content), 160);
+        
+        $wordCount = str_word_count(strip_tags($request->content));
+        $post->read_time = $request->read_time ?: max(1, ceil($wordCount / 200));
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -76,6 +91,15 @@ class PostController extends Controller
         $post->slug = Str::slug($request->title);
         $post->content = $request->content;
         $post->is_published = $request->has('is_published');
+
+        // SEO & Metadata
+        $post->meta_title = $request->meta_title ?: $request->title;
+        $post->meta_description = $request->meta_description ?: Str::limit(strip_tags($request->content), 150);
+        $post->meta_keywords = $request->meta_keywords ?: 'blog, lodge, travel, luxury, ' . strtolower($request->title);
+        $post->excerpt = $request->excerpt ?: Str::limit(strip_tags($request->content), 160);
+        
+        $wordCount = str_word_count(strip_tags($request->content));
+        $post->read_time = $request->read_time ?: max(1, ceil($wordCount / 200));
 
         if ($request->hasFile('image')) {
             // Delete old image if it exists

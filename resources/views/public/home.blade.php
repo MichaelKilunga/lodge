@@ -1,8 +1,46 @@
 @extends('template.public')
 
-@section('title', 'Welcome')
-@section('meta_description', 'Discover the luxury and comfort of Bella Vista Lodge. Book your stay today for an
-    unforgettable experience.')
+@section('title', 'Welcome to ' . ($global_settings['hotel_name'] ?? 'Bella Vista Lodge'))
+@section('meta_description', 'Discover the luxury and comfort of ' . ($global_settings['hotel_name'] ?? 'Bella Vista Lodge') . '. Experience premier accommodations, gourmet dining, and breathtaking Serengeti views.')
+@section('meta_keywords', 'hotel tanzania, luxury lodge, safari stay, boutique resort, bella vista rooms, suites booking, holiday getaway')
+
+@section('head')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Featured Rooms & Suites at {{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}",
+  "description": "Handpicked luxury accommodations for your unforgettable stay.",
+  "url": "{{ route('public.home') }}",
+  "numberOfItems": {{ count($rooms) }},
+  "itemListElement": [
+    @foreach($rooms as $index => $room)
+    {
+      "@type": "ListItem",
+      "position": {{ $index + 1 }},
+      "item": {
+        "@type": "HotelRoom",
+        "name": "{{ addslashes($room->type->name) }}",
+        "description": "Luxury accommodation for up to {{ $room->capacity }} guests. Room {{ $room->number }}.",
+        "image": "{{ $room->firstImage() }}",
+        "url": "{{ route('public.room', $room->id) }}",
+        "occupancy": {
+          "@type": "QuantitativeValue",
+          "value": {{ $room->capacity }}
+        },
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "TZS",
+          "price": "{{ $room->price }}",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    }{{ $index < count($rooms) - 1 ? ',' : '' }}
+    @endforeach
+  ]
+}
+</script>
+@endsection
 
 @section('content')
     <!-- Hero Section -->

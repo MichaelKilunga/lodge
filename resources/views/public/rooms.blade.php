@@ -1,9 +1,45 @@
 @extends('template.public')
 
-@section('title', 'Our Rooms')
+@section('title', 'Our Rooms & Luxury Suites')
 @section('meta_description', 'Browse our wide selection of luxury rooms and suites. Find the perfect accommodation for your stay.')
+@section('meta_keywords', 'luxury rooms, suites booking, hotel accommodations, safari resort rooms, best lodge rates, king suites')
 
 @section('head')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "All Rooms & Suites at {{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}",
+  "description": "Browse our complete inventory of luxury rooms and suites.",
+  "url": "{{ route('public.rooms') }}",
+  "numberOfItems": {{ count($rooms) }},
+  "itemListElement": [
+    @foreach($rooms as $index => $room)
+    {
+      "@type": "ListItem",
+      "position": {{ $index + 1 }},
+      "item": {
+        "@type": "HotelRoom",
+        "name": "{{ addslashes($room->type->name) }} (Room {{ $room->number }})",
+        "description": "Luxury accommodation for up to {{ $room->capacity }} guests. View: {{ $room->view ?? 'Standard View' }}.",
+        "image": "{{ $room->firstImage() }}",
+        "url": "{{ route('public.room', $room->id) }}",
+        "occupancy": {
+          "@type": "QuantitativeValue",
+          "value": {{ $room->capacity }}
+        },
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "TZS",
+          "price": "{{ $room->price }}",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    }{{ $index < count($rooms) - 1 ? ',' : '' }}
+    @endforeach
+  ]
+}
+</script>
 <style>
     .booking-drawer {
         position: fixed;
