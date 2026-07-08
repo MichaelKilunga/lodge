@@ -20,7 +20,7 @@
 }
 
 /* ─── Page wrapper ──────────────────────────────────────── */
-.cd-wrap { background: var(--cd-bg); min-height: 100vh; padding: 1.25rem 0 4rem; }
+.cd-wrap { background: var(--cd-bg); min-height: 100vh; padding: 1.25rem 0 4rem; margin: -1rem; }
 
 /* ─── Hero / greeting ───────────────────────────────────── */
 .cd-hero {
@@ -491,7 +491,7 @@
 
     {{-- ── Hero / greeting ─────────────────────────────── --}}
     <div class="cd-hero cd-animate mb-4">
-        <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3 mb-3">
             <img src="{{ $avatarUrl }}" alt="{{ $userName }}" class="cd-hero-avatar">
             <div>
                 <div class="cd-hero-date">
@@ -521,7 +521,7 @@
 
     {{-- ── Stats row ─────────────────────────────────────── --}}
     <div class="row g-3 mb-4 cd-stats-row">
-        <div class="col-6 col-lg-3 cd-animate cd-animate-d1">
+        <div class="col-12 col-sm-6 col-xl-3 cd-animate cd-animate-d1">
             <div class="cd-stat">
                 <div class="cd-stat-icon indigo"><i class="fas fa-calendar-check"></i></div>
                 <div>
@@ -530,7 +530,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3 cd-animate cd-animate-d2">
+        <div class="col-12 col-sm-6 col-xl-3 cd-animate cd-animate-d2">
             <div class="cd-stat">
                 <div class="cd-stat-icon amber"><i class="fas fa-hourglass-half"></i></div>
                 <div>
@@ -539,7 +539,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3 cd-animate cd-animate-d3">
+        <div class="col-12 col-sm-6 col-xl-3 cd-animate cd-animate-d3">
             <div class="cd-stat">
                 <div class="cd-stat-icon green"><i class="fas fa-check-double"></i></div>
                 <div>
@@ -548,7 +548,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3 cd-animate cd-animate-d4">
+        <div class="col-12 col-sm-6 col-xl-3 cd-animate cd-animate-d4">
             <div class="cd-stat">
                 <div class="cd-stat-icon indigo"><i class="fas fa-wallet"></i></div>
                 <div>

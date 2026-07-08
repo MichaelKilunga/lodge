@@ -41,6 +41,7 @@ body.sidebar-layout {
    =================================== */
 #wrapper {
     position: relative;
+    overflow-x: hidden;
 }
 
 #page-content-wrapper {
@@ -48,6 +49,7 @@ body.sidebar-layout {
     padding-left: 0; // Mobile: no sidebar
     min-width: 0;
     width: 100%;
+    overflow-x: hidden;
 }
 
 /* ===================================
@@ -2518,10 +2520,6 @@ a:active {
 }
 
 #page-content-wrapper {
-    -webkit-transition: all 0.25s ease-out;
-    -moz-transition: all 0.25s ease-out;
-    -o-transition: all 0.25s ease-out;
-    transition: all 0.25s ease-out;
 }
 
 .profile-dropdown-btn {
