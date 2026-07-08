@@ -129,8 +129,8 @@ Route::get('/rooms/{room}', [PageController::class, 'room'])->name('public.room'
 Route::get('/location', [PageController::class, 'location'])->name('public.location');
 Route::post('/subscribe', [PageController::class, 'subscribe'])->name('public.subscribe');
 
-Route::get('/checkout/{room}', [CheckoutController::class, 'index'])->name('public.checkout');
-Route::post('/checkout/{room}', [CheckoutController::class, 'process'])->name('public.checkout.process');
+Route::get('/checkout/{room?}', [CheckoutController::class, 'index'])->name('public.checkout');
+Route::post('/checkout/{room?}', [CheckoutController::class, 'process'])->name('public.checkout.process');
 
 Route::get('/blog', [PostController::class, 'publicIndex'])->name('public.blog.index');
 Route::get('/blog/{slug}', [PostController::class, 'publicShow'])->name('public.blog.show');

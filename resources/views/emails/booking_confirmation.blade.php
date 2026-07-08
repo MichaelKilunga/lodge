@@ -54,17 +54,22 @@
         <span class="badge">✓ Reservation Received</span>
     </div>
 
+    @php
+        $firstTransaction = $transactions->first();
+        $grandTotal = $transactions->sum(fn($t) => $t->getTotalPrice());
+    @endphp
     <!-- Body -->
     <div class="body">
-        <p class="greeting">Dear <strong>{{ $transaction->customer->name }}</strong>,</p>
+        <p class="greeting">Dear <strong>{{ $firstTransaction->customer->name }}</strong>,</p>
         <p class="intro">
-            Thank you for choosing <strong>Bella Vista Lodge</strong>! Your room has been successfully reserved.
+            Thank you for choosing <strong>Bella Vista Lodge</strong>! Your room reservation(s) have been successfully received.
             To <strong>activate and confirm</strong> your booking, please complete payment using the accounts listed below and upload your proof of payment to our guest portal.
         </p>
 
         <!-- Booking Details -->
         <div class="section-title">📋 Booking Details</div>
-        <div class="booking-card">
+        @foreach($transactions as $transaction)
+        <div class="booking-card" style="margin-bottom: 12px;">
             <div class="booking-row">
                 <span class="label">Booking ID</span>
                 <span class="value">#{{ str_pad($transaction->id, 6, '0', STR_PAD_LEFT) }}</span>
@@ -86,7 +91,7 @@
                 <span class="value">{{ \Carbon\Carbon::parse($transaction->check_in)->diffInDays($transaction->check_out) }} Night(s)</span>
             </div>
             <div class="booking-row">
-                <span class="label">Total Amount</span>
+                <span class="label">Amount</span>
                 <span class="value">{{ App\Helpers\Helper::convertToRupiah($transaction->getTotalPrice()) }}</span>
             </div>
             <div class="booking-row">
@@ -94,6 +99,16 @@
                 <span class="value" style="color: #f59e0b;">⏳ Pending Payment</span>
             </div>
         </div>
+        @endforeach
+
+        @if($transactions->count() > 1)
+        <div class="booking-card" style="background: #eff6ff; border: 1px solid #bfdbfe; margin-top: 15px;">
+            <div class="booking-row" style="font-size: 1.1rem; font-weight: bold;">
+                <span class="label" style="color: #1e3a5f;">Grand Total</span>
+                <span class="value" style="color: #2563eb;">{{ App\Helpers\Helper::convertToRupiah($grandTotal) }}</span>
+            </div>
+        </div>
+        @endif
 
         <!-- How to Confirm -->
         <div class="section-title">✅ How to Confirm Your Booking (3 Easy Steps)</div>
@@ -130,7 +145,7 @@
             </div>
             <div class="cred-row">
                 <span class="label">Email</span>
-                <span class="value">{{ $transaction->customer->user->email }}</span>
+                <span class="value">{{ $firstTransaction->customer->user->email }}</span>
             </div>
             <div class="cred-row">
                 <span class="label">Temporary Password: </span>

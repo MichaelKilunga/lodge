@@ -6,11 +6,35 @@
 
 @section('content')
     <!-- Hero Section -->
-    <section class="hero-section">
+    <section class="hero-section" style="padding: 100px 0 120px 0 !important;">
         <div class="container">
             <h1 class="display-3 fw-bold mb-4">{{ $global_settings['home_hero_title'] ?? 'Welcome to ' . ($global_settings['hotel_name'] ?? 'Bella Vista Lodge') }}</h1>
-            <p class="lead mb-5">{{ $global_settings['home_hero_subtitle'] ?? 'Experience luxury, comfort, and exceptional service.' }}</p>
-            <a href="{{ route('public.rooms') }}" class="btn btn-hotel-primary btn-lg px-5">Book Your Stay</a>
+            <p class="lead mb-5 fs-5" style="max-width: 600px; margin: 0 auto 3rem auto;">{{ $global_settings['home_hero_subtitle'] ?? 'Experience luxury, comfort, and exceptional service.' }}</p>
+            
+            <!-- Check Availability Search Card -->
+            <div class="card border-0 mx-auto shadow-lg" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); max-width: 900px; border: 1px solid rgba(255,255,255,0.25) !important; border-radius: 16px;">
+                <div class="card-body p-4 text-start text-white">
+                    <form action="{{ route('public.rooms') }}" method="GET">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label for="check_in" class="form-label fw-bold text-white small"><i class="fas fa-calendar-alt me-1"></i> Check-In Date</label>
+                                <input type="date" class="form-control bg-white border-0 py-2 rounded-3 text-dark" id="check_in" name="check_in" min="{{ date('Y-m-d') }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="check_out" class="form-label fw-bold text-white small"><i class="fas fa-calendar-check me-1"></i> Check-Out Date</label>
+                                <input type="date" class="form-control bg-white border-0 py-2 rounded-3 text-dark" id="check_out" name="check_out" min="{{ date('Y-m-d', strtotime('+1 day')) }}" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="guests" class="form-label fw-bold text-white small"><i class="fas fa-users me-1"></i> Guests</label>
+                                <input type="number" class="form-control bg-white border-0 py-2 rounded-3 text-dark" id="guests" name="guests" min="1" value="1" required>
+                            </div>
+                            <div class="col-md-2 d-grid">
+                                <button type="submit" class="btn btn-hotel-primary py-2 border-0 shadow-sm rounded-3 text-uppercase fw-bold letter-spacing-1" style="background-color: var(--accent-color); color: #fff;"><i class="fas fa-search me-1"></i> Find Rooms</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -105,4 +129,29 @@
             </div>
         </div>
     </section>
+@endsection
+
+@section('footer')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkIn = document.getElementById('check_in');
+        const checkOut = document.getElementById('check_out');
+
+        if (checkIn && checkOut) {
+            checkIn.addEventListener('change', function() {
+                if (checkIn.value) {
+                    const minDate = new Date(checkIn.value);
+                    minDate.setDate(minDate.getDate() + 1);
+                    const yyyy = minDate.getFullYear();
+                    const mm = String(minDate.getMonth() + 1).padStart(2, '0');
+                    const dd = String(minDate.getDate()).padStart(2, '0');
+                    checkOut.min = `${yyyy}-${mm}-${dd}`;
+                    if (checkOut.value && checkOut.value <= checkIn.value) {
+                        checkOut.value = `${yyyy}-${mm}-${dd}`;
+                    }
+                }
+            });
+        }
+    });
+</script>
 @endsection

@@ -15,10 +15,29 @@ class PageController extends Controller
         return view('public.home', compact('rooms', 'facilities'));
     }
 
-    public function rooms()
+    public function rooms(Request $request)
     {
-        $rooms = Room::with(['type', 'image'])->get();
-        return view('public.rooms', compact('rooms'));
+        $check_in = $request->input('check_in');
+        $check_out = $request->input('check_out');
+        $guests = $request->input('guests');
+
+        $query = Room::with(['type', 'image']);
+
+        if ($check_in && $check_out) {
+            $conflictingRoomIds = \App\Models\Transaction::query()->where('status', '!=', 'Canceled')
+                ->where(function ($q) use ($check_in, $check_out) {
+                    $q->where('check_in', '<', $check_out)
+                      ->where('check_out', '>', $check_in);
+                })
+                ->pluck('room_id')
+                ->unique();
+
+            $query->whereNotIn('id', $conflictingRoomIds);
+        }
+
+        $rooms = $query->get();
+
+        return view('public.rooms', compact('rooms', 'check_in', 'check_out', 'guests'));
     }
 
     public function room(Room $room)

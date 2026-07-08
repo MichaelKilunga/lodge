@@ -64,11 +64,91 @@
                         </ul>
 
                         <div class="d-grid gap-2">
-                            <a href="{{ route('public.checkout', $room->id) }}" class="btn btn-hotel-primary btn-lg">Book This Room</a>
+                            <button type="button" id="detail-book-btn" class="btn btn-hotel-primary btn-lg"
+                                    data-room-id="{{ $room->id }}" 
+                                    data-room-number="{{ $room->number }}" 
+                                    data-room-capacity="{{ $room->capacity }}" 
+                                    data-room-price="{{ $room->price }}" 
+                                    data-room-name="{{ $room->type->name }}">
+                                Book This Room
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+@endsection
+
+@section('footer')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkInVal = "{{ request()->query('check_in') }}";
+        const checkOutVal = "{{ request()->query('check_out') }}";
+        const guestsVal = parseInt("{{ request()->query('guests') }}") || 0;
+
+        const bookBtn = document.getElementById('detail-book-btn');
+        if (bookBtn) {
+            // Initialize button state if already selected
+            let selectedRooms = [];
+            try {
+                selectedRooms = JSON.parse(sessionStorage.getItem('selected_rooms')) || [];
+            } catch(e) { selectedRooms = []; }
+
+            const isAlreadySelected = selectedRooms.some(r => r.id === bookBtn.getAttribute('data-room-id'));
+            if (isAlreadySelected) {
+                bookBtn.innerHTML = '<i class="fas fa-check me-2"></i>Selected - Go to Cart';
+                bookBtn.className = "btn btn-success btn-lg";
+            }
+
+            bookBtn.addEventListener('click', function() {
+                const roomId = this.getAttribute('data-room-id');
+                const roomNumber = this.getAttribute('data-room-number');
+                const roomCapacity = this.getAttribute('data-room-capacity');
+                const roomPrice = this.getAttribute('data-room-price');
+                const roomName = this.getAttribute('data-room-name');
+
+                if (!checkInVal || !checkOutVal || guestsVal <= 0) {
+                    // Redirect to rooms page to search first
+                    window.location.href = "{{ route('public.rooms') }}";
+                    return;
+                }
+
+                // Get latest list
+                try {
+                    selectedRooms = JSON.parse(sessionStorage.getItem('selected_rooms')) || [];
+                } catch(e) { selectedRooms = []; }
+
+                const idx = selectedRooms.findIndex(r => r.id === roomId);
+                if (idx === -1) {
+                    selectedRooms.push({
+                        id: roomId,
+                        number: roomNumber,
+                        capacity: roomCapacity,
+                        price: roomPrice,
+                        name: roomName
+                    });
+                    sessionStorage.setItem('selected_rooms', JSON.stringify(selectedRooms));
+                }
+
+                // Calculate total capacity
+                const totalCapacity = selectedRooms.reduce((sum, r) => sum + parseInt(r.capacity), 0);
+
+                if (totalCapacity >= guestsVal) {
+                    // Meet capacity: build checkout url and redirect
+                    let checkoutUrl = "{{ route('public.checkout') }}?";
+                    selectedRooms.forEach(room => {
+                        checkoutUrl += `room_ids[]=${room.id}&`;
+                    });
+                    checkoutUrl += `check_in=${checkInVal}&check_out=${checkOutVal}&guests=${guestsVal}`;
+                    window.location.href = checkoutUrl;
+                } else {
+                    // Does not meet capacity yet: redirect to rooms page to select more rooms, carrying params
+                    alert(`Room ${roomNumber} added. You are booking for ${guestsVal} guests, but selected room(s) only hold ${totalCapacity} guests. Please select additional rooms.`);
+                    window.location.href = "{{ route('public.rooms') }}?check_in=" + checkInVal + "&check_out=" + checkOutVal + "&guests=" + guestsVal;
+                }
+            });
+        }
+    });
+</script>
 @endsection

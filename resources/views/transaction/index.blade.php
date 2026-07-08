@@ -100,13 +100,30 @@
     padding: 0 1.1rem;
 }
 
-/* Table Styles */
+/* ── Table Wrapper ─────────────────────────────────────────────
+   Use overflow:visible on the card wrapper so the inner
+   table-responsive div can scroll horizontally without being
+   clipped. Border-radius is faked via a clip trick on the inner. */
 .txn-table-wrap {
     border-radius: 14px;
-    overflow: hidden;
+    overflow: visible;
     border: 1px solid #e2e8f0;
+    /* clip the rounded corners while still allowing scrollbar */
+    isolation: isolate;
 }
-.txn-table { margin-bottom: 0; }
+.txn-table-wrap > .table-responsive {
+    border-radius: 14px 14px 0 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* thin custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.txn-table-wrap > .table-responsive::-webkit-scrollbar { height: 5px; }
+.txn-table-wrap > .table-responsive::-webkit-scrollbar-track { background: transparent; }
+.txn-table-wrap > .table-responsive::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+.txn-table { margin-bottom: 0; min-width: 900px; }
 .txn-table thead th {
     background: #f1f5f9;
     border-bottom: 1.5px solid #e2e8f0;
@@ -126,8 +143,91 @@
 .txn-table tbody tr:last-child { border-bottom: none; }
 .txn-table td, .txn-table th { padding: .7rem 1rem; vertical-align: middle; font-size: .855rem; }
 
+/* ── Responsive column priorities ──────────────────────────────
+   On screens < 992px (lg) collapse the table into a stacked
+   card layout using data-label attributes. Hidden columns on
+   small screens are shown inside inline "sub-rows". */
+
+/* On medium screens (≥768, <992): hide lower-priority cols */
+@media (max-width: 991.98px) {
+    .txn-table { min-width: unset; }
+    .txn-table thead { display: none; }
+    .txn-table tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        margin: .6rem .5rem;
+        padding: .6rem .75rem;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .txn-table tbody tr:hover { background: #f8fafc; }
+    .txn-table td {
+        display: flex;
+        flex-direction: column;
+        padding: .3rem .35rem;
+        border: none;
+        font-size: .82rem;
+    }
+    .txn-table td::before {
+        content: attr(data-label);
+        font-size: .67rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #94a3b8;
+        margin-bottom: 2px;
+    }
+    /* Row number: tiny, span full width at top */
+    .txn-table td[data-label="#"] {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        align-items: center;
+        gap: .5rem;
+        border-bottom: 1px dashed #f1f5f9;
+        padding-bottom: .4rem;
+        margin-bottom: .2rem;
+    }
+    /* Guest + Actions span full width for breathing room */
+    .txn-table td[data-label="Guest"] {
+        grid-column: 1 / -1;
+    }
+    .txn-table td[data-label="Actions"] {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 5px;
+        align-items: center;
+        padding-top: .5rem;
+        border-top: 1px dashed #f1f5f9;
+        margin-top: .2rem;
+    }
+    .txn-table td[data-label="Actions"]::before { display: none; }
+    /* Payment col: full width so progress bar looks good */
+    .txn-table td[data-label="Payment"] {
+        grid-column: 1 / -1;
+    }
+    .txn-table-wrap { border: none; background: transparent; box-shadow: none !important; }
+    .txn-table-wrap > .table-responsive { overflow-x: visible; border-radius: 0; }
+    .txn-table tbody tr.empty-row { display: table-row; }
+    .txn-table tbody tr.empty-row td { display: table-cell; }
+}
+
+/* On very small screens (< 576px): stack to single column */
+@media (max-width: 575.98px) {
+    .txn-table tbody tr {
+        grid-template-columns: 1fr;
+    }
+    .txn-table td[data-label="Payment"],
+    .txn-table td[data-label="Guest"] {
+        grid-column: 1;
+    }
+}
+
 /* Payment Progress Bar */
-.pay-progress-wrap { min-width: 120px; }
+.pay-progress-wrap { min-width: 0; width: 100%; }
 .pay-progress-bar-bg {
     height: 6px; border-radius: 10px; background: #e2e8f0;
     overflow: hidden; margin-top: 4px;
@@ -146,6 +246,7 @@
     padding: .3rem .7rem; border-radius: 8px;
     font-size: .75rem; font-weight: 700;
     letter-spacing: .03em;
+    white-space: nowrap;
 }
 .txn-badge-reservation { background: #fef3c7; color: #92400e; }
 .txn-badge-paid        { background: #d1fae5; color: #065f46; }
@@ -176,6 +277,7 @@
     display: inline-flex; align-items: center; gap: 4px;
     padding: .18rem .6rem; border-radius: 20px;
     font-size: .75rem; font-weight: 700;
+    white-space: nowrap;
 }
 .days-urgent  { background: #fee2e2; color: #b91c1c; }
 .days-warning { background: #fef3c7; color: #b45309; }
@@ -183,7 +285,7 @@
 .days-past    { background: #f1f5f9; color: #94a3b8; }
 
 /* Action buttons */
-.txn-actions { display: flex; gap: 5px; align-items: center; flex-wrap: nowrap; }
+.txn-actions { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
 .txn-btn {
     width: 32px; height: 32px;
     border-radius: 8px;
@@ -195,6 +297,7 @@
     transition: all 0.15s ease;
     cursor: pointer;
     text-decoration: none;
+    flex-shrink: 0;
 }
 .txn-btn:hover  { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,.12); color: #1e40af; border-color: #93c5fd; }
 .txn-btn.pay    { background: #f0fdf4; color: #059669; border-color: #6ee7b7; }
@@ -218,6 +321,11 @@
 }
 .txn-modal-body { padding: 1.5rem 1.75rem; }
 .txn-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+@media (max-width: 575.98px) {
+    .txn-detail-grid { grid-template-columns: 1fr; }
+    .txn-modal-header { padding: 1rem 1.25rem; }
+    .txn-modal-body   { padding: 1rem 1.25rem; }
+}
 .txn-detail-item {
     background: #f8fafc;
     border-radius: 10px;
@@ -271,6 +379,15 @@
 /* Urgency row highlight */
 tr.row-urgent td { background: rgba(239,68,68,.035); }
 tr.row-today td  { background: rgba(245,158,11,.035); }
+
+/* Responsive tab-nav + header */
+@media (max-width: 767.98px) {
+    .txn-tab-nav { flex-wrap: wrap; }
+    .txn-tab-nav .nav-link { font-size: .78rem; padding: .38rem .8rem; }
+}
+@media (max-width: 575.98px) {
+    .txn-summary-bar { flex-direction: column; align-items: flex-start; gap: .4rem; }
+}
 </style>
 @endsection
 
@@ -477,13 +594,13 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                 $rowClass     = $daysLeft == 0 ? 'row-today' : ($daysLeft < 0 ? 'row-urgent' : '');
                             @endphp
                             <tr class="{{ $rowClass }}" data-txn-id="{{ $transaction->id }}">
-                                <td class="text-muted" style="font-size:.78rem;">
+                                <td data-label="#" class="text-muted" style="font-size:.78rem;">
                                     {{ ($transactions->currentpage() - 1) * $transactions->perpage() + $loop->index + 1 }}
                                 </td>
-                                <td>
+                                <td data-label="Booking ID">
                                     <span class="fw-bold" style="color:#3b82f6;font-family:monospace;font-size:.85rem;">#{{ $transaction->id }}</span>
                                 </td>
-                                <td>
+                                <td data-label="Guest">
                                     <div class="txn-customer-cell">
                                         <div class="txn-avatar-fallback">{{ strtoupper(substr($transaction->customer->name, 0, 2)) }}</div>
                                         <div>
@@ -492,20 +609,20 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Room">
                                     <div class="fw-bold" style="font-size:.85rem;">Room {{ $transaction->room->number }}</div>
                                     <div style="font-size:.72rem;color:#94a3b8;">{{ $transaction->room->type->name ?? '-' }}</div>
                                 </td>
-                                <td>
+                                <td data-label="Check-In">
                                     <div style="font-size:.84rem;">{{ Helper::dateFormat($transaction->check_in) }}</div>
                                 </td>
-                                <td>
+                                <td data-label="Check-Out">
                                     <div style="font-size:.84rem;">{{ Helper::dateFormat($transaction->check_out) }}</div>
                                 </td>
-                                <td>
+                                <td data-label="Duration">
                                     <span class="fw-600" style="font-size:.84rem;">{{ $transaction->getDateDifferenceWithPlural() }}</span>
                                 </td>
-                                <td>
+                                <td data-label="Payment">
                                     <div class="pay-progress-wrap">
                                         <div class="d-flex justify-content-between align-items-baseline">
                                             <span style="font-size:.78rem;color:#64748b;">{{ $pct }}%</span>
@@ -523,7 +640,7 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     @php
                                         $statusClass = match($transaction->status) {
                                             'Reservation' => 'txn-badge-reservation',
@@ -547,13 +664,13 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                         {{ $transaction->status }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Countdown">
                                     <span class="days-pill {{ $countClass }}">
                                         <i class="fas fa-{{ $daysLeft < 0 ? 'exclamation-circle' : 'hourglass-half' }}" style="font-size:.65rem;"></i>
                                         {{ $countLabel }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Actions">
                                     <div class="txn-actions">
                                         {{-- Quick View --}}
                                         <button type="button"
@@ -625,7 +742,7 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                 </td>
                             </tr>
                         @empty
-                            <tr>
+                            <tr class="empty-row">
                                 <td colspan="11">
                                     <div class="txn-empty">
                                         <div class="empty-icon"><i class="fas fa-bed"></i></div>
@@ -680,11 +797,11 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                 $daysAgo     = (int) $today->diffInDays($checkOut);
                             @endphp
                             <tr data-txn-id="{{ $transaction->id }}">
-                                <td class="text-muted" style="font-size:.78rem;">{{ $loop->index + 1 }}</td>
-                                <td>
+                                <td data-label="#" class="text-muted" style="font-size:.78rem;">{{ $loop->index + 1 }}</td>
+                                <td data-label="Booking ID">
                                     <span class="fw-bold" style="color:#94a3b8;font-family:monospace;font-size:.85rem;">#{{ $transaction->id }}</span>
                                 </td>
-                                <td>
+                                <td data-label="Guest">
                                     <div class="txn-customer-cell">
                                         <div class="txn-avatar-fallback" style="background:linear-gradient(135deg,#94a3b8,#64748b);">
                                             {{ strtoupper(substr($transaction->customer->name, 0, 2)) }}
@@ -695,14 +812,14 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Room">
                                     <div class="fw-bold" style="font-size:.85rem;">Room {{ $transaction->room->number }}</div>
                                     <div style="font-size:.72rem;color:#94a3b8;">{{ $transaction->room->type->name ?? '-' }}</div>
                                 </td>
-                                <td><div style="font-size:.84rem;">{{ Helper::dateFormat($transaction->check_in) }}</div></td>
-                                <td><div style="font-size:.84rem;">{{ Helper::dateFormat($transaction->check_out) }}</div></td>
-                                <td><span style="font-size:.84rem;">{{ $transaction->getDateDifferenceWithPlural() }}</span></td>
-                                <td>
+                                <td data-label="Check-In"><div style="font-size:.84rem;">{{ Helper::dateFormat($transaction->check_in) }}</div></td>
+                                <td data-label="Check-Out"><div style="font-size:.84rem;">{{ Helper::dateFormat($transaction->check_out) }}</div></td>
+                                <td data-label="Duration"><span style="font-size:.84rem;">{{ $transaction->getDateDifferenceWithPlural() }}</span></td>
+                                <td data-label="Payment">
                                     <div class="pay-progress-wrap">
                                         <div class="d-flex justify-content-between align-items-baseline">
                                             <span style="font-size:.78rem;color:#64748b;">{{ $pct }}%</span>
@@ -720,7 +837,7 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     @php
                                         $statusClass = match($transaction->status) {
                                             'Reservation' => 'txn-badge-reservation',
@@ -744,13 +861,13 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                         {{ $transaction->status }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Overdue">
                                     <span class="days-pill days-past">
                                         <i class="fas fa-exclamation-circle" style="font-size:.65rem;"></i>
                                         {{ $daysAgo }}d ago
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Actions">
                                     <div class="txn-actions">
                                         <button type="button"
                                             class="txn-btn view"
@@ -816,7 +933,7 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
                                 </td>
                             </tr>
                         @empty
-                            <tr>
+                            <tr class="empty-row">
                                 <td colspan="11">
                                     <div class="txn-empty">
                                         <div class="empty-icon"><i class="fas fa-check-double"></i></div>

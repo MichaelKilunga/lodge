@@ -31,6 +31,6 @@ class CheckRole
             }
         }
 
-        return redirect()->back()->with('failed', 'You are not authorized');
+        return redirect()->route('login.index')->with('failed', 'You are not authorized to access that page.');
     }
 }

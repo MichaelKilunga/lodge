@@ -14,7 +14,7 @@ class BookingConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $transaction;
+    public $transactions;
     public $tempPassword;
     public $paymentAccounts;
     public $hotelName;
@@ -24,14 +24,14 @@ class BookingConfirmationMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(Transaction $transaction, string $tempPassword, Collection $paymentAccounts)
+    public function __construct($transactions, string $tempPassword, Collection $paymentAccounts)
     {
-        $this->transaction       = $transaction;
+        $this->transactions      = $transactions instanceof Collection ? $transactions : collect([$transactions]);
         $this->tempPassword      = $tempPassword;
         $this->paymentAccounts   = $paymentAccounts;
 
         // Pull live settings
-        $settings = \App\Models\Setting::all()->pluck('value', 'key');
+        $settings = \App\Models\Setting::query()->pluck('value', 'key');
         $this->hotelName         = $settings['hotel_name']          ?? 'Bella Vista Lodge';
         $this->contactEmail      = $settings['contact_email']       ?? config('mail.from.address');
         $this->receiptVerifyTime = $settings['receipt_verify_time'] ?? '1-2 hours';
