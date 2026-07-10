@@ -22,15 +22,8 @@ class SmsService
     {
         $to = trim($to);
 
-        // Normalize phone number(s) according to send_sms.md spec (e.g. 2557xxxx)
-        $numbers = array_map(function ($num) {
-            $num = preg_replace('/[^0-9]/', '', trim($num));
-            // Convert local Tanzanian/regional format (07... / 06...) to international 255... format
-            if (preg_match('/^0([67]\d{8})$/', $num, $matches)) {
-                return '255' . $matches[1];
-            }
-            return $num;
-        }, explode(',', $to));
+        // Normalize phone number(s) using the exact proven formatPhoneNumber logic from PMS workspace
+        $numbers = array_map([self::class, 'formatPhoneNumber'], explode(',', $to));
         $normalizedTo = implode(',', array_filter($numbers));
 
         if (empty($normalizedTo) || empty($message)) {
@@ -54,23 +47,21 @@ class SmsService
         }
 
         try {
-            // Detect if message contains non-ASCII characters to set language standard correctly
-            $isUnicode = (bool) preg_match('/[^\x20-\x7E\r\n\t]/', $message);
-
+            // Match exactly what pms workspace passes in payload to satisfy remote API controller
             $payload = [
                 'to'         => $normalizedTo,
                 'message'    => $message,
                 'client_app' => $clientApp,
                 'reference'  => 'sms_' . uniqid(),
-                'language'   => $isUnicode ? 'Unicode' : 'English',
             ];
 
             if (!empty($sender)) {
-                $payload['sender'] = $sender;
+                $payload['sender']    = $sender;
+                $payload['sender_id'] = $sender;
             }
 
-            // Strictly follow send_sms.md headers spec by forcing application/json Content-Type
-            $response = Http::asJson()->withHeaders([
+            // Documented working endpoint call matching PMS workspace exact integration
+            $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept'       => 'application/json',
                 'X-API-KEY'    => $apiKey,
@@ -88,5 +79,27 @@ class SmsService
             Log::error('SmsService: exception - ' . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Format phone number to 255XXXXXXXXX exactly like PMS workspace formatPhoneNumber
+     */
+    private static function formatPhoneNumber($phone)
+    {
+        $phone = preg_replace('/[^0-9]/', '', trim($phone));
+
+        if (substr($phone, 0, 1) === '0') {
+            $phone = '255' . substr($phone, 1);
+        }
+
+        if (substr($phone, 0, 4) === '2550') {
+             $phone = '255' . substr($phone, 4);
+        }
+
+        if (strlen($phone) === 9) {
+            $phone = '255' . $phone;
+        }
+
+        return $phone;
     }
 }
