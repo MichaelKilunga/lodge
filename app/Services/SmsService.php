@@ -22,7 +22,18 @@ class SmsService
     {
         $to = trim($to);
 
-        if (empty($to) || empty($message)) {
+        // Normalize phone number(s) according to send_sms.md spec (e.g. 2557xxxx)
+        $numbers = array_map(function ($num) {
+            $num = preg_replace('/[^0-9]/', '', trim($num));
+            // Convert local Tanzanian/regional format (07... / 06...) to international 255... format
+            if (preg_match('/^0([67]\d{8})$/', $num, $matches)) {
+                return '255' . $matches[1];
+            }
+            return $num;
+        }, explode(',', $to));
+        $normalizedTo = implode(',', array_filter($numbers));
+
+        if (empty($normalizedTo) || empty($message)) {
             Log::warning('SmsService: skipped - empty recipient or message.');
             return false;
         }
@@ -43,27 +54,34 @@ class SmsService
         }
 
         try {
+            // Detect if message contains non-ASCII characters to set language standard correctly
+            $isUnicode = (bool) preg_match('/[^\x20-\x7E\r\n\t]/', $message);
+
             $payload = [
-                'to'         => $to,
+                'to'         => $normalizedTo,
                 'message'    => $message,
                 'client_app' => $clientApp,
+                'reference'  => 'sms_' . uniqid(),
+                'language'   => $isUnicode ? 'Unicode' : 'English',
             ];
 
             if (!empty($sender)) {
                 $payload['sender'] = $sender;
             }
 
-            $response = Http::withHeaders([
-                'X-API-KEY' => $apiKey,
-                'Accept'    => 'application/json',
+            // Strictly follow send_sms.md headers spec by forcing application/json Content-Type
+            $response = Http::asJson()->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept'       => 'application/json',
+                'X-API-KEY'    => $apiKey,
             ])->post($baseUrl . '/api/v1/send', $payload);
 
             if ($response->successful()) {
-                Log::info('SmsService: OK to [' . $to . '], id=' . ($response->json('id') ?? 'n/a'));
+                Log::info('SmsService: OK to [' . $normalizedTo . '], id=' . ($response->json('id') ?? 'n/a'));
                 return true;
             }
 
-            Log::error('SmsService: failed to [' . $to . ']. HTTP ' . $response->status() . ': ' . $response->body());
+            Log::error('SmsService: failed to [' . $normalizedTo . ']. HTTP ' . $response->status() . ': ' . $response->body());
             return false;
 
         } catch (\Throwable $e) {

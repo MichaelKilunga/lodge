@@ -3,10 +3,12 @@
  * Cache-first for static assets, network-first for pages/API
  */
 
-const CACHE_NAME = 'bella-vista-lodge-v1';
+const CACHE_NAME = 'bella-vista-lodge-v2';
 const STATIC_ASSETS = [
     '/',
     '/manifest.json',
+    '/img/branding/bellavista_logo.jpg',
+    '/img/logo/bellavista_logo.jpg',
     '/img/logo/sip.png',
     '/offline.html',
 ];

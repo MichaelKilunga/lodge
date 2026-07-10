@@ -5,7 +5,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ asset('img/logo/sip.png') }}">
+    @php
+        $faviconUrl = !empty($global_settings['favicon_path']) ? asset($global_settings['favicon_path']) : (!empty($global_settings['logo_path']) ? asset($global_settings['logo_path']) : asset('img/logo/sip.png'));
+        $themeColor = $global_settings['primary_color'] ?? '#0f172a';
+        $appName = $global_settings['hotel_name'] ?? 'BV Lodge';
+    @endphp
+    <link rel="icon" href="{{ $faviconUrl }}">
+    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="{{ $themeColor }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -7,20 +7,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    @php
+        $faviconUrl = !empty($global_settings['favicon_path']) ? asset($global_settings['favicon_path']) : (!empty($global_settings['logo_path']) ? asset($global_settings['logo_path']) : asset('img/logo/sip.png'));
+        $themeColor = $global_settings['primary_color'] ?? '#0f172a';
+        $appName = $global_settings['hotel_name'] ?? 'BV Lodge';
+    @endphp
     {{-- Icon --}}
-    <link rel="icon" href="{{ asset('img/logo/sip.png') }}" type="image/png">
-    <link rel="apple-touch-icon" href="{{ asset('img/logo/sip.png') }}">
+    <link rel="icon" href="{{ $faviconUrl }}">
+    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
 
     {{-- PWA --}}
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="theme-color" content="#3b82f6">
+    <meta name="theme-color" content="{{ $themeColor }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BV Lodge">
+    <meta name="apple-mobile-web-app-title" content="{{ $appName }}">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="BV Lodge">
-    <meta name="msapplication-TileColor" content="#0f172a">
-    <meta name="msapplication-TileImage" content="{{ asset('img/logo/sip.png') }}">
+    <meta name="application-name" content="{{ $appName }}">
+    <meta name="msapplication-TileColor" content="{{ $themeColor }}">
+    <meta name="msapplication-TileImage" content="{{ $faviconUrl }}">
 
     {{-- style --}}
     @vite('resources/sass/app.scss')

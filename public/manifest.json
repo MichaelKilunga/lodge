@@ -1,32 +1,36 @@
 {
     "name": "Bella Vista Lodge",
     "short_name": "BV Lodge",
-    "description": "Bella Vista Lodge Hotel Management System",
+    "description": "Experience unparalleled luxury, comfort, and exceptional service in the heart of the city.",
     "start_url": "/dashboard",
     "scope": "/",
     "display": "standalone",
     "orientation": "portrait-primary",
     "background_color": "#0f172a",
-    "theme_color": "#3b82f6",
+    "theme_color": "#d4af37",
     "lang": "en",
-    "categories": ["business", "productivity"],
+    "categories": [
+        "business",
+        "productivity",
+        "travel"
+    ],
     "icons": [
         {
-            "src": "/img/logo/sip.png",
+            "src": "/img/branding/bellavista_logo.jpg",
             "sizes": "any",
-            "type": "image/png",
+            "type": "image/jpeg",
             "purpose": "any maskable"
         },
         {
-            "src": "/img/icons/icon-192.png",
+            "src": "/img/branding/bellavista_logo.jpg",
             "sizes": "192x192",
-            "type": "image/png",
+            "type": "image/jpeg",
             "purpose": "any maskable"
         },
         {
-            "src": "/img/icons/icon-512.png",
+            "src": "/img/branding/bellavista_logo.jpg",
             "sizes": "512x512",
-            "type": "image/png",
+            "type": "image/jpeg",
             "purpose": "any maskable"
         }
     ],
@@ -36,14 +40,26 @@
             "short_name": "Dashboard",
             "description": "View hotel dashboard",
             "url": "/dashboard",
-            "icons": [{ "src": "/img/logo/sip.png", "sizes": "any" }]
+            "icons": [
+                {
+                    "src": "/img/branding/bellavista_logo.jpg",
+                    "sizes": "any",
+                    "type": "image/jpeg"
+                }
+            ]
         },
         {
             "name": "New Reservation",
             "short_name": "Reserve",
             "description": "Create a new reservation",
             "url": "/transaction/reservation/create-identity",
-            "icons": [{ "src": "/img/logo/sip.png", "sizes": "any" }]
+            "icons": [
+                {
+                    "src": "/img/branding/bellavista_logo.jpg",
+                    "sizes": "any",
+                    "type": "image/jpeg"
+                }
+            ]
         }
     ],
     "screenshots": [],

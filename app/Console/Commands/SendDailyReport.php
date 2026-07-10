@@ -58,7 +58,7 @@ class SendDailyReport extends Command
         $adminPhone = Setting::where('key', 'admin_sms_recipient')->value('value');
         if ($adminPhone) {
             $hotelName = Setting::where('key', 'hotel_name')->value('value') ?? config('app.name');
-            $smsText   = "[{$hotelName}] Daily Report – {$today->format('d M Y')}:\n"
+            $smsText   = "[{$hotelName}] Daily Report - {$today->format('d M Y')}:\n"
                        . "Bookings: {$totalBookings} | Occupancy: {$occupancyRate}% | Revenue: " . number_format((float)$totalRevenue, 0, '.', ',');
             SmsService::send($adminPhone, $smsText);
         }

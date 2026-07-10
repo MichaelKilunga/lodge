@@ -27,12 +27,23 @@
     <meta name="twitter:description" content="@yield('meta_description', ($global_settings['hotel_tagline'] ?? 'Experience luxury, comfort, and exceptional service.'))" />
     <meta name="twitter:image" content="@yield('og_image', !empty($global_settings['hero_image_path']) ? asset($global_settings['hero_image_path']) : asset('img/default/default-room.png'))" />
 
-    {{-- Favicon --}}
-    @if(!empty($global_settings['favicon_path']))
-        <link rel="icon" href="{{ asset($global_settings['favicon_path']) }}">
-    @else
-        <link rel="icon" href="{{ asset('img/logo/sip.png') }}">
-    @endif
+    @php
+        $faviconUrl = !empty($global_settings['favicon_path']) ? asset($global_settings['favicon_path']) : (!empty($global_settings['logo_path']) ? asset($global_settings['logo_path']) : asset('img/logo/sip.png'));
+        $themeColor = $global_settings['primary_color'] ?? '#0f172a';
+        $appName = $global_settings['hotel_name'] ?? 'Bella Vista Lodge';
+    @endphp
+    {{-- Favicon & PWA Icons --}}
+    <link rel="icon" href="{{ $faviconUrl }}">
+    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="{{ $themeColor }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ $appName }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="{{ $appName }}">
+    <meta name="msapplication-TileColor" content="{{ $themeColor }}">
+    <meta name="msapplication-TileImage" content="{{ $faviconUrl }}">
 
     {{-- Styles --}}
     @vite('resources/sass/app.scss')
