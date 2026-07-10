@@ -274,7 +274,7 @@
                 <div class="col-lg-4 col-md-6">
                     <h4>
                         @if(!empty($global_settings['logo_path']))
-                            <img src="{{ asset($global_settings['logo_path']) }}" alt="{{ $global_settings['hotel_name'] ?? 'Logo' }}" style="height: 40px; object-fit: contain; filter: brightness(0) invert(1);">
+                            <img src="{{ asset($global_settings['logo_path']) }}" alt="{{ $global_settings['hotel_name'] ?? 'Logo' }}" style="height: 40px; object-fit: contain;">
                         @else
                             <i class="fas fa-hotel me-2"></i>{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}
                         @endif

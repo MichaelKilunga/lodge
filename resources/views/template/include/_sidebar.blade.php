@@ -4,7 +4,7 @@
         <div class="sidebar-brand">
             <div class="brand-logo">
                 @if(!empty($global_settings['logo_path']))
-                <img src="{{ asset($global_settings['logo_path']) }}" alt="Logo" style="height: 36px; object-fit: contain; filter: brightness(0) invert(1);">
+                <img src="{{ asset($global_settings['logo_path']) }}" alt="Logo" style="height: 36px; object-fit: contain;">
                 @else
                 <i class="fas fa-hotel"></i>
                 @endif
