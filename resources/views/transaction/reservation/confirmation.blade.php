@@ -12,40 +12,38 @@
                     <div class="card-body p-4">
                         <div class="row">
                             <div class="col-sm-12">
-                                <div class="row mb-3">
-                                    <label for="room_number" class="col-sm-2 col-form-label">Room</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="room_number" name="room_number"
-                                            placeholder="col-form-label" value="{{ $room->number }} " readonly>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <label for="room_type" class="col-sm-2 col-form-label">Type</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="room_type" name="room_type"
-                                            placeholder="col-form-label" value="{{ $room->type->name }} " readonly>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <label for="room_capacity" class="col-sm-2 col-form-label">Capacity</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="room_capacity" name="room_capacity"
-                                            placeholder="col-form-label" value="{{ $room->capacity }} " readonly>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <label for="room_price" class="col-sm-2 col-form-label">Price / Day</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="room_price" name="room_price"
-                                            placeholder="col-form-label"
-                                            value="{{ Helper::convertToRupiah($room->price) }}" readonly>
-                                    </div>
+                                <div class="table-responsive mb-4">
+                                    <table class="table table-bordered align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Room Number</th>
+                                                <th>Room Type</th>
+                                                <th>Capacity</th>
+                                                <th>Price / Day</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($rooms as $r)
+                                                <tr>
+                                                    <td><strong>Room {{ $r->number }}</strong></td>
+                                                    <td>{{ $r->type->name }}</td>
+                                                    <td>{{ $r->capacity }} {{ Str::plural('Person', $r->capacity) }}</td>
+                                                    <td>{{ Helper::convertToRupiah($r->price) }}</td>
+                                                </tr>
+                                            @endforeach
+                                            <tr class="table-info fw-bold">
+                                                <td colspan="2">Total</td>
+                                                <td>{{ $totalCapacity }} {{ Str::plural('Person', $totalCapacity) }}</td>
+                                                <td>{{ Helper::convertToRupiah($totalPrice) }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                             <hr>
                             <div class="col-sm-12 mt-2">
                                 <form method="POST"
-                                    action="{{ route('transaction.reservation.payDownPayment', ['customer' => $customer->id, 'room' => $room->id]) }}">
+                                    action="{{ route('transaction.reservation.payDownPayment', ['customer' => $customer->id, 'room' => $roomIdsString]) }}">
                                     @csrf
                                     <div class="row mb-3">
                                         <label for="check_in" class="col-sm-2 col-form-label">Check In</label>
@@ -75,7 +73,7 @@
                                         <div class="col-sm-10">
                                             <input type="text" class="form-control" id="total_price" name="total_price"
                                                 placeholder="col-form-label"
-                                                value="{{ Helper::convertToRupiah(Helper::getTotalPayment($dayDifference, $room->price)) }} "
+                                                value="{{ Helper::convertToRupiah(Helper::getTotalPayment($dayDifference, $totalPrice)) }} "
                                                 readonly>
                                         </div>
                                     </div>

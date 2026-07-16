@@ -29,6 +29,51 @@
                             {{ Helper::dateFormat(request()->input('check_in')) }} to
                             {{ Helper::dateFormat(request()->input('check_out')) }}</p>
                         <hr>
+                        @if(!empty($selectedRooms) && $selectedRooms->count() > 0)
+                            <div class="card mb-4 border-primary bg-light">
+                                <div class="card-body">
+                                    <h5 class="fw-bold text-primary mb-3"><i class="fas fa-check-circle me-2"></i>Selected Rooms</h5>
+                                    <div class="row g-2">
+                                        @foreach($selectedRooms as $sr)
+                                            <div class="col-md-6">
+                                                <div class="border rounded p-2 bg-white d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong class="d-block">Room {{ $sr->number }}</strong>
+                                                        <small class="text-muted">{{ $sr->type->name }} (Cap: {{ $sr->capacity }})</small>
+                                                    </div>
+                                                    @php
+                                                        $remainingRoomIds = array_diff(explode(',', $selectedRoomsString), [$sr->id]);
+                                                        $removeUrl = route('transaction.reservation.chooseRoom', [
+                                                            'customer' => $customer->id,
+                                                            'count_person' => request()->input('count_person'),
+                                                            'check_in' => request()->input('check_in'),
+                                                            'check_out' => request()->input('check_out'),
+                                                            'selected_rooms' => implode(',', $remainingRoomIds)
+                                                        ]);
+                                                    @endphp
+                                                    <a href="{{ $removeUrl }}" class="btn btn-sm btn-outline-danger py-1 px-2"><i class="fas fa-times"></i></a>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                                        <span>
+                                            Total Capacity: <strong>{{ $currentCapacity }}</strong> / {{ request()->input('count_person') }} Guests
+                                        </span>
+                                        @php
+                                            $confirmUrl = route('transaction.reservation.confirmation', [
+                                                'customer' => $customer->id,
+                                                'room' => $selectedRoomsString,
+                                                'from' => request()->input('check_in'),
+                                                'to' => request()->input('check_out')
+                                            ]);
+                                        @endphp
+                                        <a href="{{ $confirmUrl }}" class="btn btn-success px-4 fw-bold">Proceed to Confirmation <i class="fas fa-arrow-right ms-2"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                        @endif
                         <form method="GET"
                             action="{{ route('transaction.reservation.chooseRoom', ['customer' => $customer->id]) }}">
                             <div class="row mb-2">
@@ -36,6 +81,7 @@
                                     value="{{ request()->input('count_person') }}">
                                 <input type="date" hidden name="check_in" value="{{ request()->input('check_in') }}">
                                 <input type="date" hidden name="check_out" value="{{ request()->input('check_out') }}">
+                                <input type="text" hidden name="selected_rooms" value="{{ $selectedRoomsString }}">
                                 <div class="col-lg-6">
                                     <select class="form-select" id="sort_name" name="sort_name"
                                         aria-label="Default select example">
@@ -71,7 +117,19 @@
                                             <div class="wrapper">
                                                 <p class="card-text mb-auto demo-1">{{ $room->view }}</p>
                                             </div>
-                                            <a href="{{ route('transaction.reservation.confirmation', ['customer' => $customer->id, 'room' => $room->id, 'from' => request()->input('check_in'), 'to' => request()->input('check_out')]) }}"
+                                            @php
+                                                $nextSelectedRooms = $selectedRoomsString ? $selectedRoomsString . ',' . $room->id : $room->id;
+                                                $chooseUrl = route('transaction.reservation.chooseRoom', [
+                                                    'customer' => $customer->id,
+                                                    'count_person' => request()->input('count_person'),
+                                                    'check_in' => request()->input('check_in'),
+                                                    'check_out' => request()->input('check_out'),
+                                                    'selected_rooms' => $nextSelectedRooms,
+                                                    'sort_name' => request()->input('sort_name'),
+                                                    'sort_type' => request()->input('sort_type')
+                                                ]);
+                                            @endphp
+                                            <a href="{{ $chooseUrl }}"
                                                 class="btn myBtn shadow-sm border w-100 m-2">Choose</a>
                                         </div>
                                         <div class="col-auto d-none d-lg-block">
@@ -86,12 +144,13 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 {{ $rooms->onEachSide(1)->appends([
-        'count_person' => request()->input('count_person'),
-        'check_in' => request()->input('check_in'),
-        'check_out' => request()->input('check_out'),
-        'sort_name' => request()->input('sort_name'),
-        'sort_type' => request()->input('sort_type'),
-    ])->links('template.paginationlinks') }}
+                                    'count_person' => request()->input('count_person'),
+                                    'check_in' => request()->input('check_in'),
+                                    'check_out' => request()->input('check_out'),
+                                    'sort_name' => request()->input('sort_name'),
+                                    'sort_type' => request()->input('sort_type'),
+                                    'selected_rooms' => $selectedRoomsString,
+                                ])->links('template.paginationlinks') }}
                             </div>
                         </div>
                     </div>

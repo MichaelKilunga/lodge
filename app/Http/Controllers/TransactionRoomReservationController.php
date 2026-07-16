@@ -84,10 +84,18 @@ class TransactionRoomReservationController extends Controller
         $stayFrom = $request->check_in;
         $stayUntil = $request->check_out;
 
+        $selectedRoomIds = $request->input('selected_rooms') ? explode(',', $request->input('selected_rooms')) : [];
+
         $occupiedRoomId = $this->getOccupiedRoomID($request->check_in, $request->check_out);
+        if (!empty($selectedRoomIds)) {
+            $occupiedRoomId = $occupiedRoomId->merge($selectedRoomIds);
+        }
 
         $rooms = $this->reservationRepository->getUnocuppiedroom($request, $occupiedRoomId);
         $roomsCount = $this->reservationRepository->countUnocuppiedroom($request, $occupiedRoomId);
+
+        $selectedRooms = \App\Models\Room::with('type')->whereIn('id', $selectedRoomIds)->get();
+        $currentCapacity = $selectedRooms->sum('capacity');
 
         return view('transaction.reservation.chooseRoom', [
             'customer' => $customer,
@@ -95,34 +103,57 @@ class TransactionRoomReservationController extends Controller
             'stayFrom' => $stayFrom,
             'stayUntil' => $stayUntil,
             'roomsCount' => $roomsCount,
+            'selectedRooms' => $selectedRooms,
+            'currentCapacity' => $currentCapacity,
+            'selectedRoomsString' => $request->input('selected_rooms', ''),
         ]);
     }
 
-    public function confirmation(Customer $customer, Room $room, $stayFrom, $stayUntil)
+    public function confirmation(Customer $customer, $room, $stayFrom, $stayUntil)
     {
-        $price = $room->price;
+        $roomIds = explode(',', $room);
+        $rooms = Room::with('type')->whereIn('id', $roomIds)->get();
+
+        $totalPrice = 0;
+        $totalCapacity = 0;
+        foreach ($rooms as $r) {
+            $totalPrice += $r->price;
+            $totalCapacity += $r->capacity;
+        }
+
         $dayDifference = Helper::getDateDifference($stayFrom, $stayUntil);
-        $downPayment = ($price * $dayDifference) * 0.15;
+        $downPayment = ($totalPrice * $dayDifference) * 0.15;
 
         return view('transaction.reservation.confirmation', [
             'customer' => $customer,
-            'room' => $room,
+            'rooms' => $rooms,
+            'roomIdsString' => $room,
             'stayFrom' => $stayFrom,
             'stayUntil' => $stayUntil,
             'downPayment' => $downPayment,
             'dayDifference' => $dayDifference,
+            'totalPrice' => $totalPrice,
+            'totalCapacity' => $totalCapacity,
         ]);
     }
 
     public function payDownPayment(
         Customer $customer,
-        Room $room,
+        $room,
         Request $request,
         TransactionRepositoryInterface $transactionRepository,
         PaymentRepositoryInterface $paymentRepository
     ) {
+        $roomIds = explode(',', $room);
+        $rooms = Room::whereIn('id', $roomIds)->get();
+
+        $totalPrice = 0;
+        foreach ($rooms as $r) {
+            $totalPrice += $r->price;
+        }
+
         $dayDifference = Helper::getDateDifference($request->check_in, $request->check_out);
-        $minimumDownPayment = ($room->price * $dayDifference) * 0.15;
+        $minimumDownPayment = ($totalPrice * $dayDifference) * 0.15;
 
         $request->validate([
             'downPayment' => 'required|numeric|gte:'.$minimumDownPayment,
@@ -131,39 +162,49 @@ class TransactionRoomReservationController extends Controller
         $occupiedRoomId = $this->getOccupiedRoomID($request->check_in, $request->check_out);
         $occupiedRoomIdInArray = $occupiedRoomId->toArray();
 
-        if (in_array($room->id, $occupiedRoomIdInArray)) {
-            return redirect()->back()->with('failed', 'Sorry, room '.$room->number.' already occupied');
+        foreach ($rooms as $r) {
+            if (in_array($r->id, $occupiedRoomIdInArray)) {
+                return redirect()->back()->with('failed', 'Sorry, room '.$r->number.' already occupied');
+            }
         }
 
-        $transaction = $transactionRepository->store($request, $customer, $room);
+        $firstTransaction = null;
+        foreach ($rooms as $r) {
+            $transaction = $transactionRepository->store($request, $customer, $r);
+            if (!$firstTransaction) {
+                $firstTransaction = $transaction;
+            }
+        }
+
         $status = 'Down Payment';
-        $payment = $paymentRepository->store($request, $transaction, $status);
+        $payment = $paymentRepository->store($request, $firstTransaction, $status);
 
         $superAdmins = User::where('role', 'Super')->get();
 
         foreach ($superAdmins as $superAdmin) {
             $message = 'Reservation added by '.$customer->name;
             event(new NewReservationEvent($message, $superAdmin));
-            $superAdmin->notify(new NewRoomReservationDownPayment($transaction, $payment));
+            $superAdmin->notify(new NewRoomReservationDownPayment($firstTransaction, $payment));
         }
 
         // Send SMS to admin recipient in parallel with the in-app notification
         $adminPhone = \App\Models\Setting::where('key', 'admin_sms_recipient')->value('value');
         if ($adminPhone) {
             $hotelName  = \App\Models\Setting::where('key', 'hotel_name')->value('value') ?? config('app.name');
-            $checkIn    = \Carbon\Carbon::parse($transaction->check_in)->format('d M Y');
-            $checkOut   = \Carbon\Carbon::parse($transaction->check_out)->format('d M Y');
+            $checkIn    = \Carbon\Carbon::parse($firstTransaction->check_in)->format('d M Y');
+            $checkOut   = \Carbon\Carbon::parse($firstTransaction->check_out)->format('d M Y');
+            $roomNumbers = $rooms->pluck('number')->implode(', ');
             $smsText    = "New reservation at {$hotelName} by {$customer->name}.\n"
-                        . "Room: {$room->number} | Check-in: {$checkIn} | Check-out: {$checkOut}.\n"
+                        . "Rooms: {$roomNumbers} | Check-in: {$checkIn} | Check-out: {$checkOut}.\n"
                         . 'Down payment recorded. Please review.';
             SmsService::send($adminPhone, $smsText);
-
         }
 
         event(new RefreshDashboardEvent('Someone reserved a room'));
 
+        $roomNumbersList = $rooms->pluck('number')->implode(', ');
         return redirect()->route('transaction.index')
-            ->with('success', 'Room '.$room->number.' has been reservated by '.$customer->name);
+            ->with('success', 'Rooms '.$roomNumbersList.' have been reservated by '.$customer->name);
     }
 
     private function getOccupiedRoomID($stayFrom, $stayUntil)

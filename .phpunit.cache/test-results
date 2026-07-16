@@ -1,1 +1,1 @@
-{"version":2,"defects":[],"times":{"Tests\\Unit\\ExampleTest::test_basic_test":0.011,"Tests\\Feature\\ExampleTest::test_basic_test":0.277}}
+{"version":2,"defects":[],"times":{"Tests\\Unit\\ExampleTest::test_basic_test":0.008,"Tests\\Feature\\ExampleTest::test_basic_test":0.197}}
