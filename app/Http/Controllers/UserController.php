@@ -16,6 +16,7 @@ class UserController extends Controller
         private UserRepositoryInterface $userRepository
     ) {
         $this->userRepository = $userRepository;
+        $this->middleware('permission:manage_staff')->except(['show', 'updateProfile']);
     }
 
     public function index(Request $request)
@@ -40,7 +41,10 @@ class UserController extends Controller
         activity()->causedBy(auth()->user())->log('User '.$request->name.' created');
         
         $role = Role::find($request->role_id);
-        $request->merge(['role' => $role->name]);
+        $request->merge([
+            'role' => $role->name,
+            'role_id' => $role->id,
+        ]);
 
         $user = $this->userRepository->store($request);
 
@@ -143,11 +147,18 @@ class UserController extends Controller
         if ($request->has('role_id')) {
             $role = Role::find($request->role_id);
             if ($role) {
-                $request->merge(['role' => $role->name]);
+                $user->role_id = $role->id;
+                $user->role = $role->name;
             }
         }
         
-        $user->update($request->all());
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+        $user->save();
 
         if ($user->isCustomer()) {
             $user->customer->update([
@@ -155,7 +166,7 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('user.index')->with('success', 'User '.$user->name.' udpated!');
+        return redirect()->route('user.index')->with('success', 'User '.$user->name.' updated!');
     }
 
     public function destroy(User $user)

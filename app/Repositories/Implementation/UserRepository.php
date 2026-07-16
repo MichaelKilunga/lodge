@@ -13,8 +13,10 @@ class UserRepository implements UserRepositoryInterface
         $user = new User;
         $user->name = $userData->name;
         $user->email = $userData->email;
+        $user->phone = $userData->phone;
         $user->password = bcrypt($userData->password);
         $user->role = $userData->role;
+        $user->role_id = $userData->role_id;
         $user->random_key = Str::random(60);
         $user->save();
 
@@ -23,9 +25,22 @@ class UserRepository implements UserRepositoryInterface
 
     public function showUser($request)
     {
-        return User::whereIn('role', ['Super', 'Admin'])->orderBy('id', 'DESC')
+        $customerRole = \App\Models\Role::where('name', 'Customer')->first();
+        $customerRoleId = $customerRole ? $customerRole->id : null;
+
+        return User::where('role', '!=', 'Customer')
+            ->when($customerRoleId, function ($query) use ($customerRoleId) {
+                $query->where(function ($q) use ($customerRoleId) {
+                    $q->where('role_id', '!=', $customerRoleId)
+                      ->orWhereNull('role_id');
+                });
+            })
+            ->orderBy('id', 'DESC')
             ->when($request->qu, function ($query) use ($request) {
-                $query->where('email', 'LIKE', '%'.$request->qu.'%');
+                $query->where(function ($q) use ($request) {
+                    $q->where('email', 'LIKE', '%'.$request->qu.'%')
+                      ->orWhere('name', 'LIKE', '%'.$request->qu.'%');
+                });
             })
             ->paginate(5, ['*'], 'users')
             ->appends($request->all());
@@ -33,11 +48,22 @@ class UserRepository implements UserRepositoryInterface
 
     public function showCustomer($request)
     {
-        return User::where('role', 'Customer')->orderBy('id', 'DESC')
+        $customerRole = \App\Models\Role::where('name', 'Customer')->first();
+        $customerRoleId = $customerRole ? $customerRole->id : null;
+
+        return User::where('role', 'Customer')
+            ->when($customerRoleId, function ($query) use ($customerRoleId) {
+                $query->orWhere('role_id', $customerRoleId);
+            })
+            ->orderBy('id', 'DESC')
             ->when($request->qc, function ($query) use ($request) {
-                $query->where('email', 'LIKE', '%'.$request->qc.'%');
+                $query->where(function ($q) use ($request) {
+                    $q->where('email', 'LIKE', '%'.$request->qc.'%')
+                      ->orWhere('name', 'LIKE', '%'.$request->qc.'%');
+                });
             })
             ->paginate(5, ['*'], 'customers')
             ->appends($request->all());
     }
+
 }

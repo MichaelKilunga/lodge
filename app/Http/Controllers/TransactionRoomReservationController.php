@@ -131,10 +131,11 @@ class TransactionRoomReservationController extends Controller
             $hotelName  = \App\Models\Setting::where('key', 'hotel_name')->value('value') ?? config('app.name');
             $checkIn    = \Carbon\Carbon::parse($transaction->check_in)->format('d M Y');
             $checkOut   = \Carbon\Carbon::parse($transaction->check_out)->format('d M Y');
-            $smsText    = "[{$hotelName}] New reservation by {$customer->name}.\n"
+            $smsText    = "New reservation at {$hotelName} by {$customer->name}.\n"
                         . "Room: {$room->number} | Check-in: {$checkIn} | Check-out: {$checkOut}.\n"
                         . 'Down payment recorded. Please review.';
             SmsService::send($adminPhone, $smsText);
+
         }
 
         event(new RefreshDashboardEvent('Someone reserved a room'));

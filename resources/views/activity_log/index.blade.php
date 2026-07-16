@@ -1,65 +1,76 @@
 @extends('template.master')
-@section('title', 'User')
+@section('title', 'Activity Logs')
 @section('content')
-    <div class="container">
-        <h1>User Activity Log</h1>
+    <div class="container-fluid fade-in">
+        <div class="row align-items-center mb-4">
+            <div class="col-md-6 col-sm-12">
+                <h1 class="h3 text-gradient mb-1">User Activity Log</h1>
+                <p class="text-muted mb-0 small">Audit trail and system logs of staff actions</p>
+            </div>
+            <div class="col-md-6 col-sm-12 text-md-end text-start mt-3 mt-md-0">
+                <a href="{{ route('activity-log.all') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+                    <i class="fas fa-list-ul me-2"></i> See All Logs
+                </a>
+            </div>
+        </div>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Description</th>
-                    <th>By</th>
-                    <th>Logged At</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($activities as $activity)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $activity->description }}</td>
-                        <td>{{ $activity->causer->name ?? 'System' }}</td>
-                        <td>{{ $activity->created_at->format('Y-m-d H:i:s') }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">#</th>
+                                <th style="width: 50%;">Description</th>
+                                <th style="width: 20%;">By User</th>
+                                <th style="width: 20%;">Logged At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($activities as $activity)
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-light text-secondary border font-monospace">
+                                            {{ ($activities->currentPage() - 1) * $activities->perPage() + $loop->iteration }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ $activity->description }}</div>
+                                    </td>
+                                    <td>
+                                        @if($activity->causer)
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-circle text-muted me-2" style="font-size: 1.1rem;"></i>
+                                                <span class="fw-semibold">{{ $activity->causer->name }}</span>
+                                            </div>
+                                        @else
+                                            <span class="badge bg-secondary">System Agent</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="text-muted small font-monospace">
+                                            <i class="far fa-clock me-1"></i>
+                                            {{ $activity->created_at->format('M d, Y g:i A') }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <i class="fas fa-history mb-3" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                                        <p class="mb-0">No activities logged yet.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-        <!-- Custom pagination links with only Previous, Next, and Numbers -->
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                <!-- Previous Link -->
-                @if ($activities->onFirstPage())
-                    <li class="page-item disabled">
-                        <span class="page-link">Previous</span>
-                    </li>
-                @else
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $activities->previousPageUrl() }}" rel="prev">Previous</a>
-                    </li>
-                @endif
-
-                <!-- Pagination Numbers -->
-                @for ($i = 1; $i <= $activities->lastPage(); $i++)
-                    <li class="page-item {{ $i == $activities->currentPage() ? 'active' : '' }}">
-                        <a class="page-link" href="{{ $activities->url($i) }}">{{ $i }}</a>
-                    </li>
-                @endfor
-
-                <!-- Next Link -->
-                @if ($activities->hasMorePages())
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $activities->nextPageUrl() }}" rel="next">Next</a>
-                    </li>
-                @else
-                    <li class="page-item disabled">
-                        <span class="page-link">Next</span>
-                    </li>
-                @endif
-            </ul>
-        </nav>
-
-        <!-- Option to view all logs -->
-        <a href="{{ route('activity-log.all') }}" class="btn btn-primary">See All</a>
+        <!-- Custom Pagination -->
+        <div class="d-flex justify-content-center">
+            {{ $activities->links('template.paginationlinks') }}
+        </div>
     </div>
 @endsection

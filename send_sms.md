@@ -212,8 +212,70 @@ Occurs when the `X-API-KEY` header is missing or incorrect.
 
 ### Check Balance
 **Endpoint**: `GET /api/v1/balance`  
-Returns the current SMS balance from the provider.
+Returns the local remaining SMS balance for a specific sender account or client application.
 
-### Check Sender Balance
+> [!IMPORTANT]
+> To prevent platform-wide balance exposure, this endpoint strictly requires you to identify your sender profile. You must specify your sender or client application name using one of the following methods.
+
+#### Identification Methods
+You can pass your identifier through any of the following fields (searched in order of priority):
+- **Query Parameter**: `sender`, `sender_id`, or `client_app`
+- **Request Header**: `X-Client-App` or `X-Sender-Id`
+
+#### Example Request (Query Parameter)
+```bash
+curl -X GET "https://pushsms.rehospace.com/api/v1/balance?sender=SKYLINK" \
+  -H "Accept: application/json" \
+  -H "X-API-KEY: your_super_secret_key"
+```
+
+#### Example Request (Header)
+```bash
+curl -X GET "https://pushsms.rehospace.com/api/v1/balance" \
+  -H "Accept: application/json" \
+  -H "X-API-KEY: your_super_secret_key" \
+  -H "X-Client-App: SKYLINK"
+```
+
+#### Successful Response (200 OK)
+```json
+{
+    "status": "success",
+    "sender": "SKYLINK",
+    "balance": 750
+}
+```
+
+#### Error Response - Missing Identifier (400 Bad Request)
+Occurs when the request does not provide any of the required query parameters or headers.
+```json
+{
+    "status": "error",
+    "message": "Missing sender identifier. Please specify your sender name or ID using the \"sender\" query parameter or \"X-Client-App\" header."
+}
+```
+
+#### Error Response - Sender Not Found (404 Not Found)
+Occurs when the specified sender identifier is not registered or does not have an initialized balance.
+```json
+{
+    "status": "error",
+    "message": "Sender balance not found for identifier: SKYLINK"
+}
+```
+
+---
+
+### Check Sender Balance (Mobishastra Provider Live Balance)
 **Endpoint**: `GET /api/v1/sender-balance?username={username}`  
-Returns the balance for a specific sender account.
+Queries the live Mobishastra API for the provider balance of a specific sub-account username.
+
+#### Request Parameters
+- `username` (String, Required): The Mobishastra sub-account profile username.
+
+#### Successful Response (200 OK)
+```json
+{
+    "balance": "balance = 5000"
+}
+```

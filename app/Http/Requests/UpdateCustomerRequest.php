@@ -27,13 +27,17 @@ class UpdateCustomerRequest extends FormRequest
             return [
                 'name' => 'required',
                 'email' => 'required|unique:users,email,'.$this->user->id,
+                'phone' => 'nullable|string',
             ];
         }
 
         return [
             'name' => 'required',
             'email' => 'required|unique:users,email,'.$this->user->id,
+            'phone' => 'nullable|string',
+            'password' => 'nullable|string|min:6|confirmed',
             'role_id' => 'required|exists:roles,id',
         ];
     }
+
 }

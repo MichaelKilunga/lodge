@@ -98,4 +98,12 @@ class User extends Authenticatable
         return strcasecmp((string) $this->role, 'Super') === 0 || 
                ($this->role_id && $this->userRole && strcasecmp((string) $this->userRole->name, 'Super') === 0);
     }
+
+    public function isSystemAdminOrOwner(): bool
+    {
+        return $this->isSuperAdmin() || 
+               ($this->role_id && $this->userRole && strcasecmp((string) $this->userRole->name, 'Owner') === 0) ||
+               strcasecmp((string) $this->role, 'Owner') === 0;
+    }
 }
+

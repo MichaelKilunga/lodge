@@ -29,6 +29,210 @@
 
     {{-- style --}}
     @vite('resources/sass/app.scss')
+    
+    <!-- Premium Global UI & Responsive Table Refinements -->
+    <style>
+        body {
+            background-color: #f8fafc !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        /* Elevate all bootstrap cards to a glassmorphic/flat SaaS feel */
+        .card {
+            border: 1px solid rgba(226, 232, 240, 0.8) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.03), 0 2px 8px -2px rgba(0, 0, 0, 0.02) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            background-color: #ffffff !important;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .card-header {
+            background-color: transparent !important;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+            padding: 1.25rem 1.5rem !important;
+        }
+
+        /* Modernize and wrap all tables for responsiveness and beauty */
+        .table-responsive {
+            border-radius: 14px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            background-color: white;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.005);
+            margin-bottom: 1rem;
+            overflow-x: auto;
+        }
+
+        .table {
+            margin-bottom: 0 !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            width: 100% !important;
+        }
+
+        .table th {
+            background-color: #f8fafc !important;
+            color: #475569 !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            font-size: 0.72rem !important;
+            letter-spacing: 0.06em !important;
+            padding: 14px 18px !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            border-top: none !important;
+            white-space: nowrap;
+        }
+
+        .table td {
+            padding: 14px 18px !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            color: #334155 !important;
+            font-size: 0.88rem !important;
+            transition: background-color 0.2s;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        .table tbody tr:hover td {
+            background-color: #f8fafc !important;
+        }
+
+        /* Custom buttons micro-animations */
+        .btn {
+            border-radius: 10px !important;
+            font-weight: 500 !important;
+            padding: 0.5rem 1.25rem !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .btn-sm {
+            border-radius: 8px !important;
+            font-size: 0.8rem !important;
+            padding: 0.35rem 0.85rem !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+            border: none !important;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.12) !important;
+            color: white !important;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2) !important;
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            border: none !important;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.12) !important;
+            color: white !important;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2) !important;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            border: none !important;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.12) !important;
+            color: white !important;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2) !important;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+            border: none !important;
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.12) !important;
+            color: white !important;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(14, 165, 233, 0.2) !important;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+            color: white !important;
+        }
+
+        /* Modernize alerts style */
+        .alert {
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 1rem 1.25rem !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.08) !important;
+            color: #065f46 !important;
+            border-left: 4px solid #10b981 !important;
+        }
+
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.08) !important;
+            color: #991b1b !important;
+            border-left: 4px solid #ef4444 !important;
+        }
+
+        /* Badges styling */
+        .badge {
+            font-weight: 600 !important;
+            padding: 0.4em 0.85em !important;
+            border-radius: 9999px !important;
+            font-size: 0.72rem !important;
+            letter-spacing: 0.02em !important;
+        }
+
+        /* Form Inputs */
+        .form-control, .form-select {
+            border-radius: 10px !important;
+            border: 1px solid #e2e8f0 !important;
+            padding: 0.55rem 0.9rem !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s !important;
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+        }
+
+        /* Custom Scrollbar for tables and overflow divs */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
     <title>@yield('title') - Hotel Admin</title>
     @yield('head')
 </head>

@@ -37,14 +37,21 @@ class SendDailyReport extends Command
 
         $today = Carbon::today();
 
-        $transactions = Transaction::with('payment')
-            ->whereDate('created_at', $today)
-            ->get();
+        // 1. Get transactions created today
+        $transactionsCreatedToday = Transaction::whereDate('created_at', $today)->get();
+        $totalBookings  = $transactionsCreatedToday->count();
 
-        $totalBookings  = $transactions->count();
-        $totalRevenue   = $transactions->sum(fn($t) => optional($t->payment)->total ?? 0);
+        // 2. Sum up payments received today (revenue)
+        $totalRevenue   = \App\Models\Payment::whereDate('created_at', $today)->sum('price');
+
+        // 3. Count occupied rooms today (active stay dates overlapping today)
         $totalRooms     = Room::count();
-        $occupiedRooms  = $transactions->pluck('room_id')->unique()->count();
+        $occupiedRooms  = Transaction::where('check_in', '<=', $today)
+            ->where('check_out', '>=', $today)
+            ->where('status', '!=', 'Canceled')
+            ->pluck('room_id')
+            ->unique()
+            ->count();
         $occupancyRate  = $totalRooms > 0 ? round(($occupiedRooms / $totalRooms) * 100) : 0;
 
         Mail::to($ownerEmail)->send(new DailyReportMail(
@@ -58,10 +65,11 @@ class SendDailyReport extends Command
         $adminPhone = Setting::where('key', 'admin_sms_recipient')->value('value');
         if ($adminPhone) {
             $hotelName = Setting::where('key', 'hotel_name')->value('value') ?? config('app.name');
-            $smsText   = "[{$hotelName}] Daily Report - {$today->format('d M Y')}:\n"
+            $smsText   = "Daily Report for {$hotelName} - {$today->format('d M Y')}:\n"
                        . "Bookings: {$totalBookings} | Occupancy: {$occupancyRate}% | Revenue: " . number_format((float)$totalRevenue, 0, '.', ',');
             SmsService::send($adminPhone, $smsText);
         }
+
 
         $this->info("Daily report for {$today->format('Y-m-d')} sent to {$ownerEmail}.");
         return 0;

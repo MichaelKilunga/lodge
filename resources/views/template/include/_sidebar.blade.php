@@ -254,10 +254,22 @@
                 </div>
                 @endif
 
-                @if (auth()->user()->hasPermission('manage_settings') || auth()->user()->hasPermission('manage_payment_accounts') || auth()->user()->hasPermission('manage_roles'))
+                @if (auth()->user()->hasPermission('manage_settings') || auth()->user()->hasPermission('manage_payment_accounts') || auth()->user()->hasPermission('manage_roles') || auth()->user()->isSystemAdminOrOwner())
                 <!-- Administration -->
                 <div class="nav-section">
                     <div class="nav-section-title">Administration</div>
+
+                    @if (auth()->user()->isSystemAdminOrOwner())
+                    <a href="{{ route('sms.monitoring') }}" class="nav-item {{ Route::currentRouteName() == 'sms.monitoring' ? 'active' : '' }}">
+                        <div class="nav-icon">
+                            <i class="fas fa-sms" style="color: #f59e0b;"></i>
+                        </div>
+                        <div class="nav-content">
+                            <div class="nav-title">SMS Monitor</div>
+                            <div class="nav-subtitle">Gateway & Spending</div>
+                        </div>
+                    </a>
+                    @endif
 
                     @if (auth()->user()->hasPermission('manage_settings'))
                     <a href="{{ route('setting.index') }}" class="nav-item {{ Route::currentRouteName() == 'setting.index' ? 'active' : '' }}">
@@ -270,6 +282,7 @@
                         </div>
                     </a>
                     @endif
+
 
                     @if (auth()->user()->hasPermission('manage_payment_accounts'))
                     <a href="{{ route('payment-account.index') }}" class="nav-item {{ in_array(Route::currentRouteName(), ['payment-account.index', 'payment-account.create', 'payment-account.edit']) ? 'active' : '' }}">

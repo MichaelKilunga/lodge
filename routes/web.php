@@ -34,11 +34,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['middleware' => ['auth', 'checkRole:Super']], function () {
-    Route::resource('user', UserController::class);
-});
+Route::group(['middleware' => ['auth', 'checkRole:Super,Admin,Owner,Front Desk']], function () {
+    Route::resource('user', UserController::class)->middleware('permission:manage_staff');
+    Route::get('/sms-monitoring', [\App\Http\Controllers\SmsMonitoringController::class, 'index'])->name('sms.monitoring');
 
-Route::group(['middleware' => ['auth', 'checkRole:Super,Admin']], function () {
     Route::post('/room/{room}/image/upload', [ImageController::class, 'store'])->name('image.store');
     Route::delete('/image/{image}', [ImageController::class, 'destroy'])->name('image.destroy');
 
@@ -58,23 +57,23 @@ Route::group(['middleware' => ['auth', 'checkRole:Super,Admin']], function () {
     Route::resource('roomstatus', RoomStatusController::class);
     Route::resource('transaction', TransactionController::class);
     Route::resource('facility', FacilityController::class);
-    Route::resource('payment-account', \App\Http\Controllers\PaymentAccountController::class);
-    Route::resource('role', \App\Http\Controllers\RoleController::class)->except(['show']);
-    Route::post('/post/upload-image', [PostController::class, 'uploadImage'])->name('post.upload_image');
-    Route::resource('post', PostController::class);
-    Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+    Route::resource('payment-account', \App\Http\Controllers\PaymentAccountController::class)->middleware('permission:manage_payment_accounts');
+    Route::resource('role', \App\Http\Controllers\RoleController::class)->except(['show'])->middleware('permission:manage_roles');
+    Route::post('/post/upload-image', [PostController::class, 'uploadImage'])->name('post.upload_image')->middleware('permission:manage_blog');
+    Route::resource('post', PostController::class)->middleware('permission:manage_blog');
+    Route::get('/report', [ReportController::class, 'index'])->name('report.index')->middleware('permission:view_reports');
     
-    Route::get('/marketing', [MarketingController::class, 'index'])->name('marketing.index');
-    Route::post('/marketing/report/save', [MarketingController::class, 'saveReport'])->name('marketing.report.save');
-    Route::delete('/marketing/report/{report}', [MarketingController::class, 'destroyReport'])->name('marketing.report.destroy');
-    Route::post('/marketing/strategy/store', [MarketingController::class, 'storeStrategyItem'])->name('marketing.strategy.store');
-    Route::post('/marketing/strategy/{item}/update', [MarketingController::class, 'updateStrategyItem'])->name('marketing.strategy.update');
-    Route::delete('/marketing/strategy/{item}', [MarketingController::class, 'destroyStrategyItem'])->name('marketing.strategy.destroy');
-    Route::post('/marketing/campaign/send', [MarketingController::class, 'sendCampaign'])->name('marketing.campaign.send');
-    Route::delete('/marketing/campaign/{campaign}', [MarketingController::class, 'destroyCampaign'])->name('marketing.campaign.destroy');
+    Route::get('/marketing', [MarketingController::class, 'index'])->name('marketing.index')->middleware('permission:view_reports');
+    Route::post('/marketing/report/save', [MarketingController::class, 'saveReport'])->name('marketing.report.save')->middleware('permission:view_reports');
+    Route::delete('/marketing/report/{report}', [MarketingController::class, 'destroyReport'])->name('marketing.report.destroy')->middleware('permission:view_reports');
+    Route::post('/marketing/strategy/store', [MarketingController::class, 'storeStrategyItem'])->name('marketing.strategy.store')->middleware('permission:view_reports');
+    Route::post('/marketing/strategy/{item}/update', [MarketingController::class, 'updateStrategyItem'])->name('marketing.strategy.update')->middleware('permission:view_reports');
+    Route::delete('/marketing/strategy/{item}', [MarketingController::class, 'destroyStrategyItem'])->name('marketing.strategy.destroy')->middleware('permission:view_reports');
+    Route::post('/marketing/campaign/send', [MarketingController::class, 'sendCampaign'])->name('marketing.campaign.send')->middleware('permission:view_reports');
+    Route::delete('/marketing/campaign/{campaign}', [MarketingController::class, 'destroyCampaign'])->name('marketing.campaign.destroy')->middleware('permission:view_reports');
     
-    Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
-    Route::post('/setting', [SettingController::class, 'update'])->name('setting.update');
+    Route::get('/setting', [SettingController::class, 'index'])->name('setting.index')->middleware('permission:manage_settings');
+    Route::post('/setting', [SettingController::class, 'update'])->name('setting.update')->middleware('permission:manage_settings');
 
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
     Route::get('/payment/{payment}/invoice', [PaymentController::class, 'invoice'])->name('payment.invoice');
@@ -86,9 +85,9 @@ Route::group(['middleware' => ['auth', 'checkRole:Super,Admin']], function () {
     Route::get('/get-dialy-guest/{year}/{month}/{day}', [ChartController::class, 'dailyGuest'])->name('chart.dailyGuest');
 });
 
-Route::group(['middleware' => ['auth', 'checkRole:Super,Admin,Customer']], function () {
-    Route::get('/activity-log', [ActivityController::class, 'index'])->name('activity-log.index');
-    Route::get('/activity-log/all', [ActivityController::class, 'all'])->name('activity-log.all');
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/activity-log', [ActivityController::class, 'index'])->name('activity-log.index')->middleware('permission:view_reports');
+    Route::get('/activity-log/all', [ActivityController::class, 'all'])->name('activity-log.all')->middleware('permission:view_reports');
     Route::resource('user', UserController::class)->only([
         'show',
     ]);
@@ -107,6 +106,7 @@ Route::group(['middleware' => ['auth', 'checkRole:Super,Admin,Customer']], funct
     Route::post('/transaction/{transaction}/cancel', [TransactionController::class, 'cancel'])->name('transaction.cancel');
     Route::post('/transaction/{transaction}/upload-receipt', [TransactionController::class, 'uploadReceipt'])->name('transaction.uploadReceipt');
 });
+
 
 // Login routes
 Route::view('/login', 'auth.login')->name('login.index');

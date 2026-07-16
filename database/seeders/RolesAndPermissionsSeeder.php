@@ -64,6 +64,15 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminPermissions = Permission::whereNotIn('key', ['manage_roles', 'manage_staff'])->pluck('id');
         $adminRole->permissions()->sync($adminPermissions);
 
+        $ownerRole = Role::updateOrCreate(
+            ['name' => 'Owner'],
+            ['description' => 'Business Owner with access to all business operations', 'is_system' => true]
+        );
+        // Owner gets all business permissions, excluding technical features (settings and roles)
+        $ownerPermissions = Permission::whereNotIn('key', ['manage_roles', 'manage_settings'])->pluck('id');
+        $ownerRole->permissions()->sync($ownerPermissions);
+
+
         $customerRole = Role::updateOrCreate(
             ['name' => 'Customer'],
             ['description' => 'Hotel Guest', 'is_system' => true]
@@ -89,13 +98,19 @@ class RolesAndPermissionsSeeder extends Seeder
                 $user->role_id = $superRole->id;
             } elseif ($user->role === 'Admin') {
                 $user->role_id = $adminRole->id;
+            } elseif ($user->role === 'Owner') {
+                $user->role_id = $ownerRole->id;
             } elseif ($user->role === 'Customer') {
                 $user->role_id = $customerRole->id;
+            } elseif ($user->role === 'Front Desk') {
+                $user->role_id = $frontDeskRole->id;
             } else {
                 // Fallback to front desk or admin if somehow something else
                 $user->role_id = $frontDeskRole->id;
             }
+
             $user->save();
         }
+
     }
 }
