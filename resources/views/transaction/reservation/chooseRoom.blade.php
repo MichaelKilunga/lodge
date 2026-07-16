@@ -80,9 +80,7 @@
                                     </div>
                                 </div>
                             @empty
-                                <h3>Theres no available room for {{ request()->input('count_person') }} or more
-                                    person
-                                </h3>
+                                <h3>There are no available rooms for the selected dates.</h3>
                             @endforelse
                         </div>
                         <div class="row">

@@ -10,7 +10,6 @@ class ReservationRepository implements ReservationRepositoryInterface
     public function getUnocuppiedroom($request, $occupiedRoomId)
     {
         return Room::with('type', 'roomStatus')
-            ->where('capacity', '>=', $request->count_person)
             ->whereNotIn('id', $occupiedRoomId)
             ->when(! empty($request->sort_name), function ($query) use ($request) {
                 $query->orderBy($request->sort_name, $request->sort_type);
@@ -22,7 +21,6 @@ class ReservationRepository implements ReservationRepositoryInterface
     public function countUnocuppiedroom($request, $occupiedRoomId)
     {
         return Room::with('type', 'roomStatus')
-            ->where('capacity', '>=', $request->count_person)
             ->whereNotIn('id', $occupiedRoomId)
             ->orderBy('price')
             ->orderBy('capacity')
