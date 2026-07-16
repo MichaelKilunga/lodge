@@ -49,8 +49,12 @@
                         <span class="fw-medium">{{ $customer->job ?: 'Not specified' }}</span>
                     </div>
                     <div class="mb-2">
-                        <small class="text-muted d-block">Address / Phone</small>
+                        <small class="text-muted d-block">Address</small>
                         <span class="fw-medium">{{ $customer->address ?: 'Not specified' }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted d-block">Phone Number</small>
+                        <span class="fw-medium">{{ $customer->user && $customer->user->phone ? $customer->user->phone : 'Not specified' }}</span>
                     </div>
                     @if($customer->birthdate)
                     <div class="mb-2">
