@@ -43,6 +43,28 @@ class TransactionRoomReservationController extends Controller
 
     public function storeCustomer(StoreCustomerRequest $request, CustomerRepositoryInterface $customerRepository)
     {
+        $user = \App\Models\User::where('email', $request->email)->first();
+        if ($user) {
+            $customer = \App\Models\Customer::where('user_id', $user->id)->first();
+            if (!$customer) {
+                $customer = \App\Models\Customer::create([
+                    'name' => $user->name,
+                    'address' => $request->address,
+                    'job' => $request->job,
+                    'birthdate' => $request->birthdate,
+                    'gender' => $request->gender,
+                    'user_id' => $user->id,
+                ]);
+            }
+            if ($request->phone && !$user->phone) {
+                $user->phone = $request->phone;
+                $user->save();
+            }
+            return redirect()
+                ->route('transaction.reservation.viewCountPerson', ['customer' => $customer->id])
+                ->with('success', 'Existing customer '.$customer->name.' selected!');
+        }
+
         $customer = $customerRepository->store($request);
 
         return redirect()

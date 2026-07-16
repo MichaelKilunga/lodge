@@ -30,6 +30,7 @@ class StoreCustomerRequest extends FormRequest
         ];
 
         if ($this->routeIs('transaction.reservation.storeCustomer')) {
+            $rules['email'] = 'required|email';
             $rules['phone'] = 'required|string|max:30';
             $rules['address'] = 'nullable|max:255';
             $rules['job'] = 'nullable';
