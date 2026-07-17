@@ -510,48 +510,85 @@ tr.row-today td  { background: rgba(245,158,11,.035); }
 
 {{-- ── Tab Nav + Filter ─────────────────────────────────────── --}}
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-    <ul class="nav txn-tab-nav" id="txnTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#tab-active" type="button">
-                <i class="fas fa-user-check"></i> Active
-                <span class="tab-badge">{{ $totalActive }}</span>
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="expired-tab" data-bs-toggle="tab" data-bs-target="#tab-expired" type="button">
-                <i class="fas fa-history"></i> Expired
-                <span class="tab-badge">{{ $totalExpired }}</span>
-            </button>
-        </li>
-    </ul>
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+        <ul class="nav txn-tab-nav" id="txnTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#tab-active" type="button">
+                    <i class="fas fa-user-check"></i> Active
+                    <span class="tab-badge">{{ $totalActive }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="expired-tab" data-bs-toggle="tab" data-bs-target="#tab-expired" type="button">
+                    <i class="fas fa-history"></i> Expired
+                    <span class="tab-badge">{{ $totalExpired }}</span>
+                </button>
+            </li>
+        </ul>
 
-    {{-- Search form --}}
-    <form method="GET" action="{{ route('transaction.index') }}" id="searchForm" class="d-flex gap-2 flex-wrap">
-        <div class="txn-filter-bar p-2 d-flex gap-2 flex-wrap" style="margin-bottom:0; padding:.5rem .75rem !important;">
-            <input class="form-control" type="search" placeholder="Search ID or customer…"
-                   name="search" value="{{ request('search') }}" style="min-width:180px;">
-            <select name="filter_status" class="form-select" style="min-width:140px;">
-                <option value="">All Statuses</option>
-                <option value="Reservation" {{ request('filter_status')=='Reservation' ? 'selected' : '' }}>Reservation</option>
-                <option value="Paid"        {{ request('filter_status')=='Paid'        ? 'selected' : '' }}>Paid</option>
-                <option value="Checked In"  {{ request('filter_status')=='Checked In'  ? 'selected' : '' }}>Checked In</option>
-                <option value="Checked Out" {{ request('filter_status')=='Checked Out' ? 'selected' : '' }}>Checked Out</option>
-                <option value="Canceled"    {{ request('filter_status')=='Canceled'    ? 'selected' : '' }}>Canceled</option>
-            </select>
-            <input type="date" name="filter_date_from" class="form-control" placeholder="From"
-                   value="{{ request('filter_date_from') }}" style="min-width:130px;" title="Check-in from">
-            <input type="date" name="filter_date_to" class="form-control" placeholder="To"
-                   value="{{ request('filter_date_to') }}" style="min-width:130px;" title="Check-in to">
-            <button type="submit" class="btn btn-filter btn-primary">
-                <i class="fas fa-search me-1"></i>Filter
-            </button>
-            @if(request()->hasAny(['search','filter_status','filter_date_from','filter_date_to']))
-                <a href="{{ route('transaction.index') }}" class="btn btn-filter btn-outline-secondary">
-                    <i class="fas fa-times me-1"></i>Clear
-                </a>
+        @php
+            $hasActiveFilters = request()->hasAny(['search','filter_status','filter_date_from','filter_date_to']);
+        @endphp
+
+        <button class="btn btn-outline-secondary btn-sm ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#txnFilterCollapse" aria-expanded="{{ $hasActiveFilters ? 'true' : 'false' }}" aria-controls="txnFilterCollapse">
+            <i class="fas fa-filter me-1"></i> Filter Options
+            @if($hasActiveFilters)
+                <span class="badge bg-primary ms-1">Active</span>
             @endif
+        </button>
+    </div>
+
+    @if($hasActiveFilters)
+        <a href="{{ route('transaction.index') }}" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-times me-1"></i> Clear Filters
+        </a>
+    @endif
+</div>
+
+{{-- Collapsible Filter Bar --}}
+<div class="collapse {{ $hasActiveFilters ? 'show' : '' }} mb-3" id="txnFilterCollapse">
+    <div class="card border-0 shadow-sm" style="background: #f8fafc; border: 1px solid #e2e8f0 !important;">
+        <div class="card-body p-3">
+            <form method="GET" action="{{ route('transaction.index') }}" id="searchForm" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small text-muted">Search ID or Customer</label>
+                    <input class="form-control" type="search" placeholder="Search name or ID…"
+                           name="search" value="{{ request('search') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small text-muted">Status</label>
+                    <select name="filter_status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="Reservation" {{ request('filter_status')=='Reservation' ? 'selected' : '' }}>Reservation</option>
+                        <option value="Paid"        {{ request('filter_status')=='Paid'        ? 'selected' : '' }}>Paid</option>
+                        <option value="Checked In"  {{ request('filter_status')=='Checked In'  ? 'selected' : '' }}>Checked In</option>
+                        <option value="Checked Out" {{ request('filter_status')=='Checked Out' ? 'selected' : '' }}>Checked Out</option>
+                        <option value="Canceled"    {{ request('filter_status')=='Canceled'    ? 'selected' : '' }}>Canceled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small text-muted">From (Check-in)</label>
+                    <input type="date" name="filter_date_from" class="form-control"
+                           value="{{ request('filter_date_from') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small text-muted">To (Check-in)</label>
+                    <input type="date" name="filter_date_to" class="form-control"
+                           value="{{ request('filter_date_to') }}">
+                </div>
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary px-4 btn-sm">
+                        <i class="fas fa-search me-1"></i> Apply Filters
+                    </button>
+                    @if($hasActiveFilters)
+                        <a href="{{ route('transaction.index') }}" class="btn btn-outline-secondary px-4 btn-sm ms-2">
+                            <i class="fas fa-times me-1"></i> Clear
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 
 {{-- ══════════════════════════════════════════════════════════════

@@ -183,8 +183,17 @@ class TransactionRoomReservationController extends Controller
 
         foreach ($superAdmins as $superAdmin) {
             $message = 'Reservation added by '.$customer->name;
-            event(new NewReservationEvent($message, $superAdmin));
-            $superAdmin->notify(new NewRoomReservationDownPayment($firstTransaction, $payment));
+            try {
+                event(new NewReservationEvent($message, $superAdmin));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Broadcasting failed for NewReservationEvent: ' . $e->getMessage());
+            }
+
+            try {
+                $superAdmin->notify(new NewRoomReservationDownPayment($firstTransaction, $payment));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notification failed for NewRoomReservationDownPayment: ' . $e->getMessage());
+            }
         }
 
         // Send SMS to admin recipient in parallel with the in-app notification
@@ -197,10 +206,18 @@ class TransactionRoomReservationController extends Controller
             $smsText    = "New reservation at {$hotelName} by {$customer->name}.\n"
                         . "Rooms: {$roomNumbers} | Check-in: {$checkIn} | Check-out: {$checkOut}.\n"
                         . 'Down payment recorded. Please review.';
-            SmsService::send($adminPhone, $smsText);
+            try {
+                SmsService::send($adminPhone, $smsText);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('SMS sending failed: ' . $e->getMessage());
+            }
         }
 
-        event(new RefreshDashboardEvent('Someone reserved a room'));
+        try {
+            event(new RefreshDashboardEvent('Someone reserved a room'));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Broadcasting failed for RefreshDashboardEvent: ' . $e->getMessage());
+        }
 
         $roomNumbersList = $rooms->pluck('number')->implode(', ');
         return redirect()->route('transaction.index')
