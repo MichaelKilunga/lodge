@@ -22,10 +22,20 @@
                             @enderror
                         </div>
                         <div class="col-md-12">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" " id=" email"
+                            <label for="email" class="form-label">Email (Optional)</label>
+                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
                                 name="email" value="{{ old('email') }}">
                             @error('email')
+                                <div class="text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        <div class="col-md-12">
+                            <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone"
+                                name="phone" value="{{ old('phone') }}">
+                            @error('phone')
                                 <div class="text-danger mt-1">
                                     {{ $message }}
                                 </div>

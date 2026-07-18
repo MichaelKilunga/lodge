@@ -43,7 +43,14 @@ class TransactionRoomReservationController extends Controller
 
     public function storeCustomer(StoreCustomerRequest $request, CustomerRepositoryInterface $customerRepository)
     {
-        $user = \App\Models\User::where('email', $request->email)->first();
+        $user = null;
+        if ($request->email) {
+            $user = \App\Models\User::where('email', $request->email)->first();
+        }
+        if (!$user && $request->phone) {
+            $user = \App\Models\User::where('phone', $request->phone)->first();
+        }
+
         if ($user) {
             $customer = \App\Models\Customer::where('user_id', $user->id)->first();
             if (!$customer) {
@@ -58,6 +65,10 @@ class TransactionRoomReservationController extends Controller
             }
             if ($request->phone && !$user->phone) {
                 $user->phone = $request->phone;
+                $user->save();
+            }
+            if ($request->email && !$user->email) {
+                $user->email = $request->email;
                 $user->save();
             }
             return redirect()
@@ -178,6 +189,63 @@ class TransactionRoomReservationController extends Controller
 
         $status = 'Down Payment';
         $payment = $paymentRepository->store($request, $firstTransaction, $status);
+
+        // Notify the client by email and WhatsApp since processed by authorized personnel
+        $client = $customer->user;
+        if ($client) {
+            $hotelName = \App\Models\Setting::where('key', 'hotel_name')->value('value') ?? config('app.name');
+            $roomNumbers = $rooms->pluck('number')->implode(', ');
+            $checkInFormatted = \Carbon\Carbon::parse($firstTransaction->check_in)->format('d M Y');
+            $checkOutFormatted = \Carbon\Carbon::parse($firstTransaction->check_out)->format('d M Y');
+            $totalPriceFormatted = \App\Helpers\Helper::convertToRupiah($totalPrice * $dayDifference);
+            $downPaymentFormatted = \App\Helpers\Helper::convertToRupiah($request->downPayment);
+
+            $whatsappMsg = "Dear {$customer->name},\n\n"
+                         . "Your reservation at {$hotelName} has been processed successfully.\n\n"
+                         . "Reservation Details:\n"
+                         . "- Room(s): {$roomNumbers}\n"
+                         . "- Check-in: {$checkInFormatted}\n"
+                         . "- Check-out: {$checkOutFormatted}\n"
+                         . "- Total Price: {$totalPriceFormatted}\n"
+                         . "- Down Payment: {$downPaymentFormatted}\n\n"
+                         . "Thank you for choosing us!";
+
+            // Send WhatsApp
+            if ($client->phone) {
+                try {
+                    \App\Services\WhatsappService::send($client->phone, $whatsappMsg);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('WhatsApp notification failed: ' . $e->getMessage());
+                }
+
+                // Send SMS to client
+                $clientSms = "Dear {$customer->name}, your booking for rooms ({$roomNumbers}) at {$hotelName} is confirmed.\n"
+                           . "Check-in: {$checkInFormatted} | Check-out: {$checkOutFormatted}.\n"
+                           . "Thank you for choosing us!";
+                try {
+                    SmsService::send($client->phone, $clientSms);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Client SMS notification failed: ' . $e->getMessage());
+                }
+            }
+
+            // Send Email if available
+            if ($client->email) {
+                try {
+                    $paymentAccounts = \App\Models\PaymentAccount::all();
+                    $allTransactions = Transaction::with('room.type', 'customer.user')
+                        ->where('user_id', $client->id)
+                        ->where('check_in', $firstTransaction->check_in)
+                        ->where('check_out', $firstTransaction->check_out)
+                        ->get();
+                    \Illuminate\Support\Facades\Mail::to($client->email)->send(
+                        new \App\Mail\BookingConfirmationMail($allTransactions, null, $paymentAccounts)
+                    );
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Booking confirmation email failed: ' . $e->getMessage());
+                }
+            }
+        }
 
         $superAdmins = User::where('role', 'Super')->get();
 

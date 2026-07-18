@@ -27,7 +27,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-12">
-                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <label for="email" class="form-label">Email (Optional)</label>
                                 <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
                                     name="email" value="{{ old('email') }}">
                                 @error('email')

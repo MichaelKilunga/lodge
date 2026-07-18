@@ -93,15 +93,15 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-12">
-                                <label for="name" class="form-label fw-bold">Full Name</label>
+                                <label for="name" class="form-label fw-bold">Full Name(Required)</label>
                                 <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="email" class="form-label fw-bold">Email Address</label>
-                                <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required>
+                                <label for="email" class="form-label fw-bold">Email Address(Optional)</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}">
                             </div>
                             <div class="col-md-6">
-                                <label for="phone" class="form-label fw-bold">Phone Number</label>
+                                <label for="phone" class="form-label fw-bold">Phone Number(Required)</label>
                                 <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone') }}" required>
                             </div>
                         </div>

@@ -67,7 +67,7 @@ return [
     |
     */
 
-    'timezone' => 'Asia/Jayapura',
+    'timezone' => 'Africa/Dar_es_Salaam',
 
     /*
     |--------------------------------------------------------------------------

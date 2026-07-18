@@ -47,6 +47,13 @@ class CustomerController extends Controller
     public function update(Customer $customer, StoreCustomerRequest $request)
     {
         $customer->update($request->all());
+        if ($customer->user) {
+            $customer->user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+            ]);
+        }
 
         return redirect('customer')->with('success', 'customer '.$customer->name.' udpated!');
     }

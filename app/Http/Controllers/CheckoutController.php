@@ -69,7 +69,7 @@ class CheckoutController extends Controller
 
         $request->validate([
             'name'      => 'required|string|max:255',
-            'email'     => 'required|email|max:255',
+            'email'     => 'nullable|email|max:255',
             'phone'     => 'required|string|max:20',
             'check_in'  => 'required|date|after_or_equal:today',
             'check_out' => 'required|date|after:check_in',
@@ -109,25 +109,43 @@ class CheckoutController extends Controller
         }
 
         // Determine if this is a new guest (to know if we need to send credentials)
-        $isNewUser = !User::query()->where('email', $request->email)->exists();
+        $user = null;
+        if ($request->email) {
+            $user = User::query()->where('email', $request->email)->first();
+        }
+        if (!$user && $request->phone) {
+            $user = User::query()->where('phone', $request->phone)->first();
+        }
+        $isNewUser = ($user === null);
 
         // Generate a readable temporary password for new users
         $tempPassword = $isNewUser ? Str::password(10, true, true, false) : null;
 
         $customerRole = Role::query()->where('name', 'Customer')->first();
 
-        // Create or get user
-        $user = User::query()->firstOrCreate(
-            ['email' => $request->email],
-            [
+        // Create or update user
+        if ($isNewUser) {
+            $user = User::create([
+                'email'      => $request->email,
                 'name'       => $request->name,
                 'phone'      => $request->phone,
                 'password'   => Hash::make($tempPassword ?? Str::random(12)),
                 'role'       => 'Customer',
                 'role_id'    => $customerRole?->id,
                 'random_key' => Str::random(60),
-            ]
-        );
+            ]);
+        } else {
+            if ($request->name) {
+                $user->name = $request->name;
+            }
+            if ($request->email && !$user->email) {
+                $user->email = $request->email;
+            }
+            if ($request->phone) {
+                $user->phone = $request->phone;
+            }
+            $user->save();
+        }
 
         // Always keep the phone number up-to-date for returning guests
         if (!$user->phone && $request->phone) {
@@ -193,12 +211,14 @@ class CheckoutController extends Controller
         $paymentAccounts = PaymentAccount::all();
 
         // Send booking confirmation email with credentials + payment accounts
-        try {
-            Mail::to($user->email)->send(
-                new BookingConfirmationMail($transactions, $tempPassword, $paymentAccounts)
-            );
-        } catch (\Exception $e) {
-            Log::error('Booking email failed: ' . $e->getMessage());
+        if ($user->email) {
+            try {
+                Mail::to($user->email)->send(
+                    new BookingConfirmationMail($transactions, $tempPassword, $paymentAccounts)
+                );
+            } catch (\Exception $e) {
+                Log::error('Booking email failed: ' . $e->getMessage());
+            }
         }
 
         // Send booking confirmation SMS in parallel
@@ -211,7 +231,11 @@ class CheckoutController extends Controller
             $smsMessage    = "Dear {$user->name}, your booking for rooms ({$roomDetails}) at {$hotelName} is confirmed.\n"
                            . "Check-in: {$checkInFormatted} | Check-out: {$checkOutFormatted}.\n"
                            . "Please upload your payment receipt to activate your booking. Thank you!";
-            SmsService::send($user->phone, $smsMessage);
+            try {
+                SmsService::send($user->phone, $smsMessage);
+            } catch (\Throwable $e) {
+                Log::error('Checkout SMS confirmation failed: ' . $e->getMessage());
+            }
         }
 
         // Auto-login the customer and regenerate session to bind the new identity
