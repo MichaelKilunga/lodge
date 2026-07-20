@@ -77,8 +77,33 @@ class SettingController extends Controller
             $settings = Setting::all()->pluck('value', 'key')->toArray();
         }
 
-        $iconPath = !empty($settings['favicon_path']) ? $settings['favicon_path'] : (!empty($settings['logo_path']) ? $settings['logo_path'] : 'img/logo/sip.png');
-        $iconUrl = '/' . ltrim($iconPath, '/');
+        $iconPath = !empty($settings['logo_path']) ? $settings['logo_path'] : (!empty($settings['favicon_path']) ? $settings['favicon_path'] : 'img/logo/sip.png');
+        $pwaIconPath = 'img/branding/pwa_icon.png';
+        
+        try {
+            if (file_exists(public_path($iconPath)) && !is_dir(public_path($iconPath))) {
+                $img = \Intervention\Image\Facades\Image::make(public_path($iconPath));
+                $width = $img->width();
+                $height = $img->height();
+                $size = max($width, $height);
+                
+                // Create square canvas with transparent background
+                $canvas = \Intervention\Image\Facades\Image::canvas($size, $size);
+                
+                // Insert the original image centered
+                $canvas->insert($img, 'center');
+                
+                // Save it to a public path
+                $canvas->save(public_path($pwaIconPath));
+                $iconUrl = '/' . $pwaIconPath;
+            } else {
+                $iconUrl = '/' . ltrim($iconPath, '/');
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Intervention Image failed to generate PWA icon: ' . $e->getMessage());
+            $iconUrl = '/' . ltrim($iconPath, '/');
+        }
+
         $ext = strtolower(pathinfo($iconUrl, PATHINFO_EXTENSION));
         $iconMime = ($ext === 'jpg' || $ext === 'jpeg') ? 'image/jpeg' : ($ext === 'svg' ? 'image/svg+xml' : 'image/png');
 
@@ -104,19 +129,31 @@ class SettingController extends Controller
                     "src" => $iconUrl,
                     "sizes" => "any",
                     "type" => $iconMime,
-                    "purpose" => "any maskable"
+                    "purpose" => "any"
                 ],
                 [
                     "src" => $iconUrl,
                     "sizes" => "192x192",
                     "type" => $iconMime,
-                    "purpose" => "any maskable"
+                    "purpose" => "any"
                 ],
                 [
                     "src" => $iconUrl,
                     "sizes" => "512x512",
                     "type" => $iconMime,
-                    "purpose" => "any maskable"
+                    "purpose" => "any"
+                ],
+                [
+                    "src" => $iconUrl,
+                    "sizes" => "192x192",
+                    "type" => $iconMime,
+                    "purpose" => "maskable"
+                ],
+                [
+                    "src" => $iconUrl,
+                    "sizes" => "512x512",
+                    "type" => $iconMime,
+                    "purpose" => "maskable"
                 ]
             ],
             "shortcuts" => [

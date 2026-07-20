@@ -16,22 +16,34 @@
     ],
     "icons": [
         {
-            "src": "/img/branding/favicon_path_1783686355.png",
+            "src": "/img/branding/pwa_icon.png",
             "sizes": "any",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
         },
         {
-            "src": "/img/branding/favicon_path_1783686355.png",
+            "src": "/img/branding/pwa_icon.png",
             "sizes": "192x192",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
         },
         {
-            "src": "/img/branding/favicon_path_1783686355.png",
+            "src": "/img/branding/pwa_icon.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
+        },
+        {
+            "src": "/img/branding/pwa_icon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/img/branding/pwa_icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
     ],
     "shortcuts": [
@@ -42,7 +54,7 @@
             "url": "/dashboard",
             "icons": [
                 {
-                    "src": "/img/branding/favicon_path_1783686355.png",
+                    "src": "/img/branding/pwa_icon.png",
                     "sizes": "any",
                     "type": "image/png"
                 }
@@ -55,7 +67,7 @@
             "url": "/transaction/reservation/create-identity",
             "icons": [
                 {
-                    "src": "/img/branding/favicon_path_1783686355.png",
+                    "src": "/img/branding/pwa_icon.png",
                     "sizes": "any",
                     "type": "image/png"
                 }

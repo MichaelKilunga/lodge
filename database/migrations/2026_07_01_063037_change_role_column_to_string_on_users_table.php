@@ -7,14 +7,15 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role VARCHAR(255) NOT NULL DEFAULT 'Customer'");
+        if (DB::getDriverName() === 'sqlite') {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('role')->default('Customer')->change();
+            });
+        } else {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role VARCHAR(255) NOT NULL DEFAULT 'Customer'");
+        }
     }
 
     /**
@@ -24,6 +25,12 @@ return new class extends Migration
      */
     public function down()
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('Super', 'Admin', 'Customer') NOT NULL DEFAULT 'Customer'");
+        if (DB::getDriverName() === 'sqlite') {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('role')->default('Customer')->change();
+            });
+        } else {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('Super', 'Admin', 'Customer') NOT NULL DEFAULT 'Customer'");
+        }
     }
 };
