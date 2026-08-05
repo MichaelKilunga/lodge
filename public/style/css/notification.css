@@ -1,0 +1,97 @@
+/* Modern Notification Center CSS */
+.notification-center-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.notif-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: all 0.25s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.notif-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+    transform: translateY(-2px);
+}
+
+.notif-card.unread {
+    border-left: 4px solid #4557bb;
+    background: linear-gradient(90deg, rgba(69, 87, 187, 0.02) 0%, #ffffff 100%);
+}
+
+.notif-card.read {
+    border-left: 4px solid #e9ecef;
+    opacity: 0.88;
+}
+
+.notif-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notif-icon-reservation {
+    background-color: rgba(40, 167, 69, 0.12);
+    color: #28a745;
+}
+
+.notif-icon-system {
+    background-color: rgba(69, 87, 187, 0.12);
+    color: #4557bb;
+}
+
+.notif-title {
+    font-size: 0.975rem;
+    font-weight: 600;
+    color: #1a1f36;
+    margin-bottom: 0.35rem;
+}
+
+.notif-meta {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.notif-nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.notif-nav-tabs .nav-link.active {
+    color: #4557bb;
+    background-color: rgba(69, 87, 187, 0.1);
+}
+
+.empty-state-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 3.5rem 2rem;
+    border: 2px dashed #e2e8f0;
+    text-align: center;
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(69, 87, 187, 0.08);
+    color: #4557bb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem auto;
+    font-size: 2rem;
+}

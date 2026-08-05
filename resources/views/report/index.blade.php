@@ -267,7 +267,17 @@
                     </h6>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
-                    <canvas id="roomTypePieChart" height="230"></canvas>
+                    @if(array_sum($roomTypeDistribution) > 0)
+                        <canvas id="roomTypePieChart" height="230"></canvas>
+                    @else
+                        <div class="text-center py-4 px-3 text-muted">
+                            <div class="rounded-circle bg-light d-inline-flex p-3 mb-2 text-secondary">
+                                <i class="fas fa-chart-pie fa-2x opacity-50"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1" style="color:#475569;">No Category Revenue</h6>
+                            <small class="text-muted">No room revenue recorded for this period.</small>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -389,7 +399,7 @@
 @endsection
 
 @section('footer')
-<script src="{{ asset('style/js/chart.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     function selectPeriod(period) {
         document.getElementById('periodInput').value = period;
@@ -402,81 +412,94 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js library failed to load.');
+            return;
+        }
+
         // Chart 1: Revenue & Booking Volume Trend
-        const trendCtx = document.getElementById('revenueTrendChart').getContext('2d');
-        const trendChart = new Chart(trendCtx, {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($chartLabels) !!},
-                datasets: [
-                    {
-                        label: 'Revenue (TZS)',
-                        data: {!! json_encode($chartRevenue) !!},
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Bookings Count',
-                        data: {!! json_encode($chartBookings) !!},
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: false,
-                        borderDash: [5, 5],
-                        tension: 0.2,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        ticks: {
-                            callback: function(value) { return 'TZS ' + value.toLocaleString(); }
+        const trendElem = document.getElementById('revenueTrendChart');
+        if (trendElem) {
+            const trendCtx = trendElem.getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: {!! json_encode($chartLabels) !!},
+                    datasets: [
+                        {
+                            label: 'Revenue (TZS)',
+                            data: {!! json_encode($chartRevenue) !!},
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                            fill: true,
+                            tension: 0.3,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Bookings Count',
+                            data: {!! json_encode($chartBookings) !!},
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: false,
+                            borderDash: [5, 5],
+                            tension: 0.2,
+                            yAxisID: 'y1'
                         }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        grid: { drawOnChartArea: false },
-                        ticks: { precision: 0 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return 'TZS ' + Number(value).toLocaleString(); }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false },
+                            ticks: { precision: 0 }
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         // Chart 2: Room Category Revenue Pie Chart
-        const pieCtx = document.getElementById('roomTypePieChart').getContext('2d');
-        const roomDist = {!! json_encode($roomTypeDistribution) !!};
-        const pieLabels = Object.keys(roomDist);
-        const pieValues = Object.values(roomDist);
+        const pieElem = document.getElementById('roomTypePieChart');
+        if (pieElem) {
+            const pieCtx = pieElem.getContext('2d');
+            const roomDist = {!! json_encode($roomTypeDistribution) !!};
+            const pieLabels = Object.keys(roomDist);
+            const pieValues = Object.values(roomDist);
 
-        const pieChart = new Chart(pieCtx, {
-            type: 'doughnut',
-            data: {
-                labels: pieLabels,
-                datasets: [{
-                    data: pieValues,
-                    backgroundColor: ['#3b82f6', '#10b981', '#6366f1', '#f59e0b', '#ec4899', '#06b6d4']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
+            new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: pieLabels,
+                    datasets: [{
+                        data: pieValues,
+                        backgroundColor: ['#3b82f6', '#10b981', '#6366f1', '#f59e0b', '#ec4899', '#06b6d4']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
                 }
-            }
-        });
+            });
+        }
     });
 </script>
 @endsection

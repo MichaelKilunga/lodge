@@ -192,38 +192,64 @@ class ReportController extends Controller
         $occupiedRooms = $transactions->pluck('room_id')->unique()->count();
         $occupancyRate = $totalRooms > 0 ? round(($occupiedRooms / $totalRooms) * 100) : 0;
 
-        // Chart Data Generation (Daily trend)
+        // Chart Data Generation (Hourly or Daily trend)
         $chartLabels   = [];
         $chartRevenue  = [];
         $chartBookings = [];
 
-        $diffInDays = $from->diffInDays($to);
-        $stepDays   = $diffInDays > 60 ? 7 : 1;
+        $diffInHours = $from->diffInHours($to);
 
-        $currentDate = $from->copy();
-        while ($currentDate <= $to) {
-            $dayStart = $currentDate->copy()->startOfDay();
-            $dayEnd   = $stepDays > 1 ? $currentDate->copy()->addDays($stepDays - 1)->endOfDay() : $currentDate->copy()->endOfDay();
+        if ($diffInHours <= 30) {
+            // 3-hour intervals for 1-day view (e.g. today / yesterday)
+            for ($h = 0; $h < 24; $h += 3) {
+                $slotStart = $from->copy()->addHours($h);
+                $slotEnd   = $from->copy()->addHours($h + 3)->subSecond();
 
-            $dayLabel = $stepDays > 1 
-                ? $dayStart->format('M d') . ' - ' . $dayEnd->format('M d') 
-                : $dayStart->format('M d');
+                $dayLabel = $slotStart->format('H:i');
 
-            $dayTxns = $transactions->filter(function ($t) use ($dayStart, $dayEnd) {
-                $created = Carbon::parse($t->created_at);
-                return $created >= $dayStart && $created <= $dayEnd;
-            });
+                $slotTxns = $transactions->filter(function ($t) use ($slotStart, $slotEnd) {
+                    $created = Carbon::parse($t->created_at);
+                    return $created >= $slotStart && $created <= $slotEnd;
+                });
 
-            $dayRev = $dayTxns->sum(fn ($t) => $t->getTotalPayment());
-            if ($dayRev == 0) {
-                $dayRev = \App\Models\Payment::whereBetween('created_at', [$dayStart, $dayEnd])->sum('price');
+                $slotRev = $slotTxns->sum(fn ($t) => $t->getTotalPayment());
+                if ($slotRev == 0) {
+                    $slotRev = \App\Models\Payment::whereBetween('created_at', [$slotStart, $slotEnd])->sum('price');
+                }
+
+                $chartLabels[]   = $dayLabel;
+                $chartRevenue[]  = round($slotRev, 2);
+                $chartBookings[] = $slotTxns->count();
             }
+        } else {
+            $diffInDays = $from->diffInDays($to);
+            $stepDays   = $diffInDays > 60 ? 7 : 1;
 
-            $chartLabels[]   = $dayLabel;
-            $chartRevenue[]  = round($dayRev, 2);
-            $chartBookings[] = $dayTxns->count();
+            $currentDate = $from->copy();
+            while ($currentDate <= $to) {
+                $dayStart = $currentDate->copy()->startOfDay();
+                $dayEnd   = $stepDays > 1 ? $currentDate->copy()->addDays($stepDays - 1)->endOfDay() : $currentDate->copy()->endOfDay();
 
-            $currentDate->addDays($stepDays);
+                $dayLabel = $stepDays > 1 
+                    ? $dayStart->format('M d') . ' - ' . $dayEnd->format('M d') 
+                    : $dayStart->format('M d');
+
+                $dayTxns = $transactions->filter(function ($t) use ($dayStart, $dayEnd) {
+                    $created = Carbon::parse($t->created_at);
+                    return $created >= $dayStart && $created <= $dayEnd;
+                });
+
+                $dayRev = $dayTxns->sum(fn ($t) => $t->getTotalPayment());
+                if ($dayRev == 0) {
+                    $dayRev = \App\Models\Payment::whereBetween('created_at', [$dayStart, $dayEnd])->sum('price');
+                }
+
+                $chartLabels[]   = $dayLabel;
+                $chartRevenue[]  = round($dayRev, 2);
+                $chartBookings[] = $dayTxns->count();
+
+                $currentDate->addDays($stepDays);
+            }
         }
 
         // Room Type Revenue Breakdown

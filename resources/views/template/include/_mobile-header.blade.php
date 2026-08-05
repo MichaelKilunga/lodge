@@ -204,57 +204,6 @@
                         </ul>
                     </div>
                 </div>
-            </div>
-
-            <!-- Notifications Section -->
-            @php $drawerUnread = auth()->user()->unreadNotifications->count(); @endphp
-            <div class="sidebar-notifications">
-                <button class="notifications-header notif-toggle-btn w-100"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#drawerNotifCollapse"
-                        aria-expanded="{{ $drawerUnread > 0 ? 'true' : 'false' }}"
-                        aria-controls="drawerNotifCollapse">
-                    <span class="notifications-title">
-                        <i class="fas fa-bell me-2"></i>
-                        Notifications
-                        @if ($drawerUnread > 0)
-                            <span class="notification-badge">{{ $drawerUnread }}</span>
-                        @endif
-                    </span>
-                    <i class="fas fa-chevron-down notif-chevron {{ $drawerUnread > 0 ? 'rotated' : '' }}"></i>
-                </button>
-                <div class="collapse {{ $drawerUnread > 0 ? 'show' : '' }}" id="drawerNotifCollapse">
-                    <div class="notifications-content">
-                        @forelse (auth()->user()->unreadNotifications->take(3) as $notification)
-                            <a href="{{ route('notification.routeTo', ['id' => $notification->id]) }}"
-                                class="notification-item">
-                                <div class="notification-icon">
-                                    <i class="fas fa-bell"></i>
-                                </div>
-                                <div class="notification-text">
-                                    <div class="notification-message">
-                                        {{ Str::limit($notification->data['message'] ?? 'New notification', 40) }}</div>
-                                    <div class="notification-time">{{ $notification->created_at->diffForHumans() }}</div>
-                                </div>
-                            </a>
-                        @empty
-                            <div class="notification-empty">
-                                <i class="fas fa-bell-slash"></i>
-                                <span>No new notifications</span>
-                            </div>
-                        @endforelse
-
-                        @if ($drawerUnread > 3)
-                            <div class="notifications-footer">
-                                <a href="{{ route('notification.index') }}" class="view-all-notifications">
-                                    View all ({{ $drawerUnread }})
-                                </a>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
 
             <!-- Navigation Menu -->
             <nav class="sidebar-nav">
