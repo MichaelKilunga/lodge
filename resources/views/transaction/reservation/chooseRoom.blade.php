@@ -43,13 +43,13 @@
                                                     </div>
                                                     @php
                                                         $remainingRoomIds = array_diff(explode(',', $selectedRoomsString), [$sr->id]);
-                                                        $removeUrl = route('transaction.reservation.chooseRoom', [
-                                                            'customer' => $customer->id,
-                                                            'count_person' => request()->input('count_person'),
-                                                            'check_in' => request()->input('check_in'),
-                                                            'check_out' => request()->input('check_out'),
-                                                            'selected_rooms' => implode(',', $remainingRoomIds)
-                                                        ]);
+                                                        $removeUrl = route('transaction.reservation.chooseRoom', array_merge(
+                                                            request()->except(['selected_rooms', 'page']),
+                                                            [
+                                                                'customer' => $customer->id,
+                                                                'selected_rooms' => implode(',', $remainingRoomIds)
+                                                            ]
+                                                        ));
                                                     @endphp
                                                     <a href="{{ $removeUrl }}" class="btn btn-sm btn-outline-danger py-1 px-2"><i class="fas fa-times"></i></a>
                                                 </div>
@@ -75,30 +75,58 @@
                             <hr>
                         @endif
                         <form method="GET"
-                            action="{{ route('transaction.reservation.chooseRoom', ['customer' => $customer->id]) }}">
-                            <div class="row mb-2">
-                                <input type="text" hidden name="count_person"
-                                    value="{{ request()->input('count_person') }}">
-                                <input type="date" hidden name="check_in" value="{{ request()->input('check_in') }}">
-                                <input type="date" hidden name="check_out" value="{{ request()->input('check_out') }}">
-                                <input type="text" hidden name="selected_rooms" value="{{ $selectedRoomsString }}">
-                                <div class="col-lg-6">
-                                    <select class="form-select" id="sort_name" name="sort_name"
-                                        aria-label="Default select example">
+                            action="{{ route('transaction.reservation.chooseRoom', ['customer' => $customer->id]) }}"
+                            class="mb-4 bg-light p-3 rounded border shadow-sm">
+                            <input type="hidden" name="count_person" value="{{ request()->input('count_person') }}">
+                            <input type="hidden" name="check_in" value="{{ request()->input('check_in') }}">
+                            <input type="hidden" name="check_out" value="{{ request()->input('check_out') }}">
+                            <input type="hidden" name="selected_rooms" value="{{ $selectedRoomsString }}">
+
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label for="search" class="form-label small fw-bold text-secondary mb-1">Search Room</label>
+                                    <input type="text" class="form-control" id="search" name="search"
+                                        placeholder="Room # or Type..." value="{{ request()->input('search') }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="type_id" class="form-label small fw-bold text-secondary mb-1">Room Type</label>
+                                    <select class="form-select" id="type_id" name="type_id">
+                                        <option value="">All Types</option>
+                                        @foreach($types as $t)
+                                            <option value="{{ $t->id }}" @if(request()->input('type_id') == $t->id) selected @endif>{{ $t->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="sort_name" class="form-label small fw-bold text-secondary mb-1">Sort By</label>
+                                    <select class="form-select" id="sort_name" name="sort_name">
+                                        <option value="Number" @if (request()->input('sort_name', 'Number') == 'Number') selected @endif>Number</option>
                                         <option value="Price" @if (request()->input('sort_name') == 'Price') selected @endif>Price</option>
-                                        <option value="Number" @if (request()->input('sort_name') == 'Number') selected @endif>Number</option>
                                         <option value="Capacity" @if (request()->input('sort_name') == 'Capacity') selected @endif>Capacity</option>
                                     </select>
                                 </div>
-                                <div class="col-lg-4">
-                                    <select class="form-select" id="sort_type" name="sort_type"
-                                        aria-label="Default select example">
-                                        <option value="ASC" @if (request()->input('sort_type') == 'ASC') selected @endif>Ascending</option>
+                                <div class="col-md-2">
+                                    <label for="sort_type" class="form-label small fw-bold text-secondary mb-1">Order</label>
+                                    <select class="form-select" id="sort_type" name="sort_type">
+                                        <option value="ASC" @if (request()->input('sort_type', 'ASC') == 'ASC') selected @endif>Ascending</option>
                                         <option value="DESC" @if (request()->input('sort_type') == 'DESC') selected @endif>Descending</option>
                                     </select>
                                 </div>
-                                <div class="col-lg-2">
-                                    <button type="submit" class="btn myBtn shadow-sm border w-100">Search</button>
+                            </div>
+                            <div class="row g-2 mt-2 align-items-center">
+                                <div class="col-md-4">
+                                    <label for="per_page" class="form-label small fw-bold text-secondary mb-1">Display Quantity</label>
+                                    <select class="form-select" id="per_page" name="per_page">
+                                        <option value="12" @if (request()->input('per_page', '12') == '12') selected @endif>12 Rooms per page</option>
+                                        <option value="25" @if (request()->input('per_page') == '25') selected @endif>25 Rooms per page</option>
+                                        <option value="50" @if (request()->input('per_page') == '50') selected @endif>50 Rooms per page</option>
+                                        <option value="100" @if (request()->input('per_page') == '100') selected @endif>100 Rooms per page</option>
+                                        <option value="all" @if (request()->input('per_page') == 'all') selected @endif>All Vacant Rooms</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-8 d-flex justify-content-end align-items-end gap-2 mt-3">
+                                    <a href="{{ route('transaction.reservation.chooseRoom', ['customer' => $customer->id, 'count_person' => request()->input('count_person'), 'check_in' => request()->input('check_in'), 'check_out' => request()->input('check_out'), 'selected_rooms' => $selectedRoomsString]) }}" class="btn btn-outline-secondary px-3" title="Reset Filters"><i class="fas fa-undo me-1"></i> Reset</a>
+                                    <button type="submit" class="btn myBtn shadow-sm px-4"><i class="fas fa-filter me-1"></i> Apply Filters</button>
                                 </div>
                             </div>
                         </form>
@@ -119,15 +147,13 @@
                                             </div>
                                             @php
                                                 $nextSelectedRooms = $selectedRoomsString ? $selectedRoomsString . ',' . $room->id : $room->id;
-                                                $chooseUrl = route('transaction.reservation.chooseRoom', [
-                                                    'customer' => $customer->id,
-                                                    'count_person' => request()->input('count_person'),
-                                                    'check_in' => request()->input('check_in'),
-                                                    'check_out' => request()->input('check_out'),
-                                                    'selected_rooms' => $nextSelectedRooms,
-                                                    'sort_name' => request()->input('sort_name'),
-                                                    'sort_type' => request()->input('sort_type')
-                                                ]);
+                                                $chooseUrl = route('transaction.reservation.chooseRoom', array_merge(
+                                                    request()->except(['selected_rooms', 'page']),
+                                                    [
+                                                        'customer' => $customer->id,
+                                                        'selected_rooms' => $nextSelectedRooms
+                                                    ]
+                                                ));
                                             @endphp
                                             <a href="{{ $chooseUrl }}"
                                                 class="btn myBtn shadow-sm border w-100 m-2">Choose</a>
@@ -143,14 +169,7 @@
                         </div>
                         <div class="row">
                             <div class="col-lg-12">
-                                {{ $rooms->onEachSide(1)->appends([
-                                    'count_person' => request()->input('count_person'),
-                                    'check_in' => request()->input('check_in'),
-                                    'check_out' => request()->input('check_out'),
-                                    'sort_name' => request()->input('sort_name'),
-                                    'sort_type' => request()->input('sort_type'),
-                                    'selected_rooms' => $selectedRoomsString,
-                                ])->links('template.paginationlinks') }}
+                                {{ $rooms->onEachSide(1)->appends(request()->all())->links('template.paginationlinks') }}
                             </div>
                         </div>
                     </div>

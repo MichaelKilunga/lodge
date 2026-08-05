@@ -107,6 +107,7 @@ class TransactionRoomReservationController extends Controller
 
         $selectedRooms = \App\Models\Room::with('type')->whereIn('id', $selectedRoomIds)->get();
         $currentCapacity = $selectedRooms->sum('capacity');
+        $types = \App\Models\Type::all();
 
         return view('transaction.reservation.chooseRoom', [
             'customer' => $customer,
@@ -117,6 +118,7 @@ class TransactionRoomReservationController extends Controller
             'selectedRooms' => $selectedRooms,
             'currentCapacity' => $currentCapacity,
             'selectedRoomsString' => $request->input('selected_rooms', ''),
+            'types' => $types,
         ]);
     }
 
@@ -294,9 +296,11 @@ class TransactionRoomReservationController extends Controller
 
     private function getOccupiedRoomID($stayFrom, $stayUntil)
     {
-        return Transaction::where([['check_in', '<=', $stayFrom], ['check_out', '>=', $stayUntil]])
-            ->orWhere([['check_in', '>=', $stayFrom], ['check_in', '<=', $stayUntil]])
-            ->orWhere([['check_out', '>=', $stayFrom], ['check_out', '<=', $stayUntil]])
+        return Transaction::where('status', '!=', 'Canceled')
+            ->where(function ($query) use ($stayFrom, $stayUntil) {
+                $query->where('check_in', '<', $stayUntil)
+                      ->where('check_out', '>', $stayFrom);
+            })
             ->pluck('room_id');
     }
 }

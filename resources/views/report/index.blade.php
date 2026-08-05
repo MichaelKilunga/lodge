@@ -108,7 +108,7 @@
                                         {{ $t->status }}
                                     </span>
                                 </td>
-                                <td>TZS {{ number_format(optional($t->payment)->total ?? 0, 2) }}</td>
+                                <td>TZS {{ number_format($t->getTotalPayment(), 2) }}</td>
                             </tr>
                             @empty
                             <tr>

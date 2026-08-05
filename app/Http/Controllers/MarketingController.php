@@ -73,7 +73,7 @@ class MarketingController extends Controller
             ->whereBetween('created_at', [$from, $to])
             ->get();
         $totalBookings = $transactions->count();
-        $totalRevenue = $transactions->sum(fn ($t) => optional($t->payment)->total ?? 0);
+        $totalRevenue = $transactions->sum(fn ($t) => $t->getTotalPayment());
 
         // Conversion rate
         $conversionRate = $totalVisits > 0 ? round(($totalBookings / $totalVisits) * 100, 2) : 0;

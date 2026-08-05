@@ -37,14 +37,18 @@ class DashboardController extends Controller
             ));
         }
 
-        $transactions = Transaction::with('user', 'room', 'customer')
+        $transactions = Transaction::with('user', 'room', 'customer', 'payment')
             ->where([['check_in', '<=', Carbon::now()], ['check_out', '>=', Carbon::now()]])
             ->orderBy('check_out', 'ASC')
             ->orderBy('id', 'DESC')
             ->get();
 
-        return view('dashboard.index', [
-            'transactions' => $transactions,
-        ]);
+        $todayRevenue = \App\Models\Payment::whereDate('created_at', Carbon::today())->sum('price');
+        $totalRevenue = \App\Models\Payment::sum('price');
+        $completedBookingsCount = Transaction::whereIn('status', ['Done', 'Completed'])->count();
+
+        return view('dashboard.index', compact(
+            'transactions', 'todayRevenue', 'totalRevenue', 'completedBookingsCount'
+        ));
     }
 }

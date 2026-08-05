@@ -17,8 +17,8 @@
             </div>
         </div>
         <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 mb-3">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
+            <div class="col">
                 <div class="card card-stats h-100">
                     <div class="card-body text-center">
                         <div class="stats-number">{{ count($transactions) }}</div>
@@ -29,20 +29,33 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card card-stats card-stats-success h-100">
                     <div class="card-body text-center">
-                        <div class="stats-number">
-                            {{-- TODO: get completed today bookings --}} 0
+                        <div class="stats-number" style="font-size:1.15rem;">
+                            {{ Helper::convertToRupiah($todayRevenue) }}
                         </div>
                         <div class="stats-label">
-                            <i class="fas fa-check-circle me-2"></i>
-                            Completed Bookings
+                            <i class="fas fa-coins me-2"></i>
+                            Today's Revenue
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 mb-3">
+            <div class="col">
+                <div class="card card-stats h-100" style="border-top: 3px solid #6366f1;">
+                    <div class="card-body text-center">
+                        <div class="stats-number text-primary" style="font-size:1.15rem;">
+                            {{ Helper::convertToRupiah($totalRevenue) }}
+                        </div>
+                        <div class="stats-label">
+                            <i class="fas fa-wallet me-2"></i>
+                            Total Revenue
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
                 <div class="card card-stats card-stats-warning h-100">
                     <div class="card-body text-center">
                         <div class="stats-number">
@@ -55,7 +68,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card card-stats card-stats-danger h-100">
                     <div class="card-body text-center">
                         <div class="stats-number">

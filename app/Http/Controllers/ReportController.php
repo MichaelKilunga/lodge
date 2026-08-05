@@ -28,14 +28,16 @@ class ReportController extends Controller
                 break;
         }
 
-        $transactions = Transaction::with(['room.type', 'customer'])
+        $transactions = Transaction::with(['room.type', 'customer', 'payment'])
             ->whereBetween('created_at', [$from, $to])
             ->latest()
             ->get();
 
-        $totalRevenue = $transactions->sum(function ($t) {
-            return optional($t->payment)->total ?? 0;
+        $transactionRevenue = $transactions->sum(function ($t) {
+            return $t->getTotalPayment();
         });
+        $periodPayments = \App\Models\Payment::whereBetween('created_at', [$from, $to])->sum('price');
+        $totalRevenue = max($transactionRevenue, $periodPayments);
 
         $totalBookings = $transactions->count();
 
