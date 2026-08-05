@@ -261,13 +261,13 @@
         <!-- Mobile Header -->
         @include('template.include._mobile-header')
 
-        <div class="d-flex vh-100" id="wrapper">
+        <div class="d-flex min-vh-100" id="wrapper">
             <!-- Desktop Sidebar -->
             @include('template.include._sidebar')
 
             <!-- Page Content -->
-            <div id="page-content-wrapper" class="flex-fill">
-                <div class="p-3 h-100">
+            <div id="page-content-wrapper" class="flex-grow-1 min-w-0" style="min-width: 0;">
+                <div class="p-3 p-md-4">
                     @yield('content')
                 </div>
             </div>

@@ -8,32 +8,16 @@ class NotificationsController extends Controller
     {
         auth()->user()->unreadNotifications->markAsRead();
 
-        return redirect()->back()->with('success', 'All notifications marked as read.');
-    }
-
-    public function markAsRead($id)
-    {
-        $notification = auth()->user()->notifications()->find($id);
-
-        if ($notification) {
-            $notification->markAsRead();
-            return redirect()->back()->with('success', 'Notification marked as read.');
-        }
-
-        return redirect()->back()->with('failed', 'Notification not found.');
+        return redirect()->back();
     }
 
     public function routeTo($id)
     {
-        $notification = auth()->user()->notifications()->find($id);
-
+        $notification = auth()->user()->Notifications->find($id);
         if ($notification) {
             $notification->markAsRead();
-            $targetUrl = $notification->data['url'] ?? $notification->data['link'] ?? route('notification.index');
-            return redirect($targetUrl);
         }
 
-        return redirect()->route('notification.index')->with('failed', 'Notification not found.');
+        return redirect($notification->data['url']);
     }
 }
-

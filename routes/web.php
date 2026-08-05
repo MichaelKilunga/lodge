@@ -102,8 +102,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/mark-all-as-read', [NotificationsController::class, 'markAllAsRead'])->name('notification.markAllAsRead');
 
-    Route::get('/notification-read/{id}', [NotificationsController::class, 'markAsRead'])->name('notification.markAsRead');
-
     Route::get('/notification-to/{id}', [NotificationsController::class, 'routeTo'])->name('notification.routeTo');
 
     Route::post('/transaction/{transaction}/cancel', [TransactionController::class, 'cancel'])->name('transaction.cancel');

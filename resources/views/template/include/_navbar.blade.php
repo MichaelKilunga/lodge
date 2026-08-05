@@ -31,77 +31,67 @@
                 </div>
 
                 <!-- Notifications -->
-                @php $headerUnreadCount = auth()->user()->unreadNotifications->count(); @endphp
                 <div class="dropdown me-3" id="refreshThisDropdown">
-                    <div class="dropdown-toggle btn btn-outline-secondary position-relative d-flex align-items-center justify-content-center"
+                    <div class="dropdown-toggle btn btn-outline-secondary position-relative"
                          id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"
-                         style="border-radius: 10px; width: 40px; height: 40px; padding: 0;">
-                        <i class="fas fa-bell fs-5"></i>
-                        @if ($headerUnreadCount > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-light p-1" style="font-size: 0.7rem; min-width: 18px; min-height: 18px; line-height: 10px;">
-                                {{ $headerUnreadCount > 99 ? '99+' : $headerUnreadCount }}
+                         style="border-radius: 8px; padding: 0.5rem 0.75rem;">
+                        <i class="fas fa-bell"></i>
+                        @if (auth()->user()->unreadNotifications->count() > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ auth()->user()->unreadNotifications->count() }}
+                                <span class="visually-hidden">unread messages</span>
                             </span>
                         @endif
                     </div>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 p-0" aria-labelledby="dropdownMenuButton2" style="width: 360px; overflow: hidden;">
-                        <li class="dropdown-header bg-light py-3 px-3 border-bottom d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="fw-bold text-dark fs-6">Notifications</span>
-                                @if ($headerUnreadCount > 0)
-                                    <span class="badge bg-primary-soft text-primary ms-1" style="background-color: rgba(69, 87, 187, 0.1);">{{ $headerUnreadCount }} unread</span>
-                                @endif
-                            </div>
-                            @if ($headerUnreadCount > 0)
-                                <a href="{{ route('notification.markAllAsRead') }}" class="text-decoration-none text-muted small hover-primary" title="Mark all as read">
-                                    <i class="fas fa-check-double me-1"></i>Mark read
-                                </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="dropdownMenuButton2" style="width: 320px;">
+                        <li class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Notifications</span>
+                            @if (auth()->user()->unreadNotifications->count() > 0)
+                                <span class="badge bg-primary">{{ auth()->user()->unreadNotifications->count() }} new</span>
                             @endif
                         </li>
+                        <li><hr class="dropdown-divider"></li>
 
-                        <div style="max-height: 340px; overflow-y: auto;">
+                        <div style="max-height: 300px; overflow-y: auto;">
                             @forelse (auth()->user()->unreadNotifications->take(5) as $notification)
-                                @php
-                                    $isReservation = str_contains(strtolower($notification->data['message'] ?? ''), 'reservated') || str_contains(strtolower($notification->data['message'] ?? ''), 'reservation');
-                                @endphp
-                                <li class="border-bottom">
-                                    <div class="dropdown-item py-3 px-3 d-flex align-items-start position-relative hover-bg-light">
-                                        <div class="flex-shrink-0 me-3">
-                                            <div class="{{ $isReservation ? 'bg-success-subtle text-success' : 'bg-primary-subtle text-primary' }} rounded-circle d-flex align-items-center justify-content-center"
-                                                 style="width: 38px; height: 38px; background-color: {{ $isReservation ? 'rgba(40, 167, 69, 0.12)' : 'rgba(69, 87, 187, 0.12)' }};">
-                                                <i class="fas {{ $isReservation ? 'fa-key' : 'fa-bell' }}" style="font-size: 0.9rem; color: {{ $isReservation ? '#28a745' : '#4557bb' }};"></i>
+                                <li>
+                                    <a class="dropdown-item py-3 border-bottom"
+                                       href="{{ route('notification.routeTo', ['id' => $notification->id]) }}">
+                                        <div class="d-flex">
+                                            <div class="flex-shrink-0">
+                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="fa fa-bell text-white" style="font-size: 0.75rem;"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <p class="mb-1 fw-medium">{{ $notification->data['message'] ?? 'New notification' }}</p>
+                                                <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
                                             </div>
                                         </div>
-                                        <div class="flex-grow-1 min-w-0 me-2">
-                                            <a href="{{ route('notification.routeTo', ['id' => $notification->id]) }}" class="text-decoration-none text-dark d-block">
-                                                <p class="mb-1 fw-semibold text-break" style="font-size: 0.875rem; line-height: 1.35;">{{ $notification->data['message'] ?? 'New notification' }}</p>
-                                                <small class="text-muted" style="font-size: 0.75rem;"><i class="far fa-clock me-1"></i>{{ $notification->created_at->diffForHumans() }}</small>
-                                            </a>
-                                        </div>
-                                        <div class="flex-shrink-0 ms-1">
-                                            <a href="{{ route('notification.markAsRead', ['id' => $notification->id]) }}" class="btn btn-sm btn-light text-muted rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;" title="Dismiss">
-                                                <i class="fas fa-times" style="font-size: 0.75rem;"></i>
-                                            </a>
-                                        </div>
-                                    </div>
+                                    </a>
                                 </li>
                             @empty
                                 <li>
-                                    <div class="dropdown-item-text text-center py-5">
-                                        <div class="mb-3 text-muted opacity-50">
-                                            <i class="fas fa-bell-slash fa-3x"></i>
-                                        </div>
-                                        <p class="text-muted mb-0 fw-medium">No unread notifications</p>
-                                        <small class="text-muted">You are all caught up!</small>
+                                    <div class="dropdown-item-text text-center py-4">
+                                        <i class="fas fa-bell-slash text-muted mb-2" style="font-size: 2rem;"></i>
+                                        <p class="text-muted mb-0">No new notifications</p>
                                     </div>
                                 </li>
                             @endforelse
                         </div>
 
-                        <li class="bg-light py-2 px-3 border-top text-center">
-                            <a href="{{ route('notification.index') }}" class="btn btn-sm btn-primary w-100 fw-medium shadow-sm">
-                                View Notification Center <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
-                        </li>
+                        @if (auth()->user()->unreadNotifications->count() > 0)
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="d-flex justify-content-between px-3 py-2">
+                                <a href="{{ route('notification.markAllAsRead') }}" class="btn btn-sm btn-outline-primary">
+                                    Mark all read
+                                </a>
+                                <a href="{{ route('notification.index') }}" class="btn btn-sm btn-primary">
+                                    View All
+                                </a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
 
