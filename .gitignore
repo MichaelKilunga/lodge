@@ -17,7 +17,7 @@ yarn-error.log
 /public/js/app.js.LICENSE.txt
 /public/hot
 
-/public/build
+# /public/build
 /public/img/branding
 .idea/
 manifest.json
