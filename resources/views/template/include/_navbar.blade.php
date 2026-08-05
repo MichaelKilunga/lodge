@@ -1,72 +1,66 @@
-<nav class="navbar navbar-expand navbar-lh px-3 fixed-top" style="height: 65px">
-    <div class="container-fluid">
-        <!-- Menu Toggle -->
-        <div id="menu-toggle" class="btn btn-outline-secondary d-flex justify-content-center align-items-center me-3"
-            style="width: 2.5rem; height: 2.5rem; border-radius: 8px;">
-            <i class="fa fa-bars"></i>
-        </div>
+<header class="topbar-header d-none d-lg-block bg-white border-bottom shadow-sm sticky-top" style="z-index: 1020;">
+    <div class="container-fluid px-4 py-2.5">
+        <div class="d-flex align-items-center justify-content-between">
 
-        <!-- Brand -->
-        <div class="navbar-brand fw-bold text-gradient me-auto">
-            <i class="fas fa-hotel me-2"></i>
-            Hotel Admin
-        </div>
+            <!-- Left: Sidebar Toggle & App Title / Quick Search -->
+            <div class="d-flex align-items-center gap-3">
+                <button id="sidebar-toggle" class="btn btn-light btn-sm border-0 rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 38px; height: 38px;" title="Toggle Sidebar">
+                    <i class="fas fa-bars text-secondary"></i>
+                </button>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <div class="ms-auto d-flex align-items-center">
-
-                <!-- Quick Actions (New) -->
-                <div class="btn-group me-3" role="group">
-                    <button type="button" class="btn btn-hotel-primary btn-sm" data-bs-toggle="tooltip" title="New Reservation">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Search">
-                        <i class="fas fa-search"></i>
-                    </button>
+                <div class="d-flex align-items-center">
+                    <span class="fw-bold fs-5 text-dark me-2">{{ $global_settings['hotel_name'] ?? 'Bella Vista Lodge' }}</span>
+                    <span class="badge bg-primary-subtle text-primary rounded-pill small px-2 py-1">Admin Panel</span>
                 </div>
+            </div>
 
-                <!-- Notifications -->
-                <div class="dropdown me-3" id="refreshThisDropdown">
-                    <div class="dropdown-toggle btn btn-outline-secondary position-relative"
+            <!-- Right: Quick Action, Notification Bell, User Avatar Dropdown -->
+            <div class="d-flex align-items-center gap-3">
+                <!-- Quick New Reservation Action -->
+                <a href="{{ route('transaction.reservation.createIdentity') }}" class="btn btn-primary btn-sm rounded-pill px-3 fw-medium d-flex align-items-center shadow-sm">
+                    <i class="fas fa-plus me-1.5 small"></i> New Reservation
+                </a>
+
+                <!-- Desktop Notification Bell Dropdown -->
+                <div class="dropdown me-1" id="refreshThisDropdown">
+                    <button class="btn btn-light position-relative border-0 rounded-circle d-flex align-items-center justify-content-center shadow-none bg-light-subtle"
                          id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"
-                         style="border-radius: 8px; padding: 0.5rem 0.75rem;">
-                        <i class="fas fa-bell"></i>
+                         style="width: 40px; height: 40px; cursor: pointer;" title="Notifications">
+                        <i class="fas fa-bell fs-5 text-secondary"></i>
                         @if (auth()->user()->unreadNotifications->count() > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm border border-2 border-white" style="font-size: 0.65rem; padding: 0.25em 0.5em;">
                                 {{ auth()->user()->unreadNotifications->count() }}
-                                <span class="visually-hidden">unread messages</span>
+                                <span class="visually-hidden">unread notifications</span>
                             </span>
                         @endif
-                    </div>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="dropdownMenuButton2" style="width: 320px;">
-                        <li class="dropdown-header d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">Notifications</span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2" aria-labelledby="dropdownMenuButton2" style="width: 350px; overflow: hidden;">
+                        <li class="dropdown-header d-flex justify-content-between align-items-center bg-light py-3 px-3 border-bottom">
+                            <span class="fw-bold text-dark fs-6"><i class="fas fa-bell text-primary me-2"></i>Notifications</span>
                             @if (auth()->user()->unreadNotifications->count() > 0)
-                                <span class="badge bg-primary">{{ auth()->user()->unreadNotifications->count() }} new</span>
+                                <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1">{{ auth()->user()->unreadNotifications->count() }} unread</span>
                             @endif
                         </li>
-                        <li><hr class="dropdown-divider"></li>
 
-                        <div style="max-height: 300px; overflow-y: auto;">
+                        <div style="max-height: 320px; overflow-y: auto;">
                             @forelse (auth()->user()->unreadNotifications->take(5) as $notification)
                                 <li>
-                                    <a class="dropdown-item py-3 border-bottom"
+                                    <a class="dropdown-item py-3 px-3 border-bottom text-wrap"
                                        href="{{ route('notification.routeTo', ['id' => $notification->id]) }}">
-                                        <div class="d-flex">
-                                            <div class="flex-shrink-0">
-                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                                                     style="width: 32px; height: 32px;">
-                                                    <i class="fa fa-bell text-white" style="font-size: 0.75rem;"></i>
+                                        <div class="d-flex align-items-start">
+                                            <div class="flex-shrink-0 mt-1">
+                                                <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center"
+                                                     style="width: 36px; height: 36px;">
+                                                    <i class="fas fa-calendar-check" style="font-size: 0.875rem;"></i>
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1 ms-3">
-                                                <p class="mb-1 fw-medium">{{ $notification->data['message'] ?? 'New notification' }}</p>
-                                                <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                                <p class="mb-1 text-dark small fw-medium lh-sm">{{ $notification->data['message'] ?? 'New notification' }}</p>
+                                                <small class="text-muted" style="font-size: 0.75rem;">
+                                                    <i class="far fa-clock me-1"></i>{{ $notification->created_at->diffForHumans() }}
+                                                </small>
                                             </div>
                                         </div>
                                     </a>
@@ -74,86 +68,79 @@
                             @empty
                                 <li>
                                     <div class="dropdown-item-text text-center py-4">
-                                        <i class="fas fa-bell-slash text-muted mb-2" style="font-size: 2rem;"></i>
-                                        <p class="text-muted mb-0">No new notifications</p>
+                                        <div class="bg-light rounded-circle d-inline-flex p-3 mb-2">
+                                            <i class="fas fa-bell-slash text-muted fs-4"></i>
+                                        </div>
+                                        <p class="text-muted mb-0 small">No unread notifications</p>
                                     </div>
                                 </li>
                             @endforelse
                         </div>
 
-                        @if (auth()->user()->unreadNotifications->count() > 0)
-                            <li><hr class="dropdown-divider"></li>
-                            <li class="d-flex justify-content-between px-3 py-2">
-                                <a href="{{ route('notification.markAllAsRead') }}" class="btn btn-sm btn-outline-primary">
-                                    Mark all read
+                        <li class="bg-light border-top p-2 d-flex justify-content-between align-items-center">
+                            @if (auth()->user()->unreadNotifications->count() > 0)
+                                <a href="{{ route('notification.markAllAsRead') }}" class="btn btn-sm btn-link text-decoration-none text-muted small px-2">
+                                    <i class="fas fa-check-double me-1"></i>Mark all read
                                 </a>
-                                <a href="{{ route('notification.index') }}" class="btn btn-sm btn-primary">
-                                    View All
-                                </a>
-                            </li>
-                        @endif
+                            @endif
+                            <a href="{{ route('notification.index') }}" class="btn btn-sm btn-primary ms-auto px-3 rounded-pill">
+                                View All Center <i class="fas fa-arrow-right ms-1 small"></i>
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
-                <!-- User Profile -->
+                <div class="vr text-muted opacity-25" style="height: 24px;"></div>
+
+                <!-- User Profile Dropdown -->
                 <div class="dropdown">
-                    <div class="dropdown-toggle d-flex align-items-center" id="dropdownMenuButton1"
+                    <div class="dropdown-toggle d-flex align-items-center gap-2" id="dropdownMenuButton1"
                          data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                         <img src="{{ auth()->user()->getAvatar() }}"
-                             class="rounded-circle me-2"
-                             width="32" height="32" alt="Profile">
-                        <div class="d-none d-md-block text-start">
-                            <div class="fw-medium" style="font-size: 0.875rem;">{{ auth()->user()->name }}</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">{{ auth()->user()->role }}</div>
+                             class="rounded-circle border border-2 border-primary-subtle shadow-sm"
+                             width="36" height="36" alt="Profile">
+                        <div class="d-none d-xl-block text-start">
+                            <div class="fw-semibold text-dark lh-1" style="font-size: 0.875rem;">{{ auth()->user()->name }}</div>
+                            <small class="text-muted" style="font-size: 0.725rem;">{{ auth()->user()->role_id ? auth()->user()->userRole->name : auth()->user()->role }}</small>
                         </div>
-                        <i class="fas fa-chevron-down ms-2 text-muted" style="font-size: 0.75rem;"></i>
+                        <i class="fas fa-chevron-down ms-1 text-muted" style="font-size: 0.7rem;"></i>
                     </div>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="dropdownMenuButton1">
-                        <li class="dropdown-header">
-                            <div class="d-flex align-items-center">
-                                <img src="{{ auth()->user()->getAvatar() }}"
-                                     class="rounded-circle me-3"
-                                     width="40" height="40" alt="Profile">
-                                <div>
-                                    <div class="fw-medium">{{ auth()->user()->name }}</div>
-                                    <div class="text-muted small">{{ auth()->user()->email }}</div>
-                                </div>
-                            </div>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2" aria-labelledby="dropdownMenuButton1" style="min-width: 220px;">
+                        <li class="dropdown-header py-2 px-3">
+                            <div class="fw-semibold text-dark">{{ auth()->user()->name }}</div>
+                            <div class="text-muted small text-truncate">{{ auth()->user()->email }}</div>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li><hr class="dropdown-divider my-1"></li>
                         <li>
-                            <a class="dropdown-item d-flex align-items-center"
-                               href="{{ route('user.show', ['user' => auth()->user()->id]) }}">
-                                <i class="fas fa-user me-3 text-primary"></i>
-                                View Profile
+                            <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('user.show', ['user' => auth()->user()->id]) }}">
+                                <i class="fas fa-user me-2.5 text-primary small"></i> View Profile
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item d-flex align-items-center"
-                               href="{{ route('activity-log.index') }}">
-                                <i class="fas fa-history me-3 text-info"></i>
-                                Activity Log
+                            <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('activity-log.index') }}">
+                                <i class="fas fa-history me-2.5 text-info small"></i> Activity Log
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
-                                <i class="fas fa-cog me-3 text-secondary"></i>
-                                Settings
+                            <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('setting.index') }}">
+                                <i class="fas fa-cog me-2.5 text-secondary small"></i> Settings
                             </a>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li><hr class="dropdown-divider my-1"></li>
                         <li>
-                            <form action="/logout" method="POST" class="mb-0">
+                            <a class="dropdown-item py-2 d-flex align-items-center text-danger" href="{{ route('logout') }}"
+                               onclick="event.preventDefault(); document.getElementById('navbar-logout-form').submit();">
+                                <i class="fas fa-sign-out-alt me-2.5 small"></i> Logout
+                            </a>
+                            <form id="navbar-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                 @csrf
-                                <button class="dropdown-item d-flex align-items-center text-danger" type="submit">
-                                    <i class="fas fa-sign-out-alt me-3"></i>
-                                    Logout
-                                </button>
                             </form>
                         </li>
                     </ul>
                 </div>
+
             </div>
         </div>
     </div>
-</nav>
+</header>

@@ -94,15 +94,17 @@ Route::group(['middleware' => ['auth']], function () {
     ]);
     Route::post('/user/{user}/profile-update', [UserController::class, 'updateProfile'])->name('user.updateProfile');
 
-    Route::view('/notification', 'notification.index')->name('notification.index');
+    Route::get('/notification', [NotificationsController::class, 'index'])->name('notification.index');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/mark-all-as-read', [NotificationsController::class, 'markAllAsRead'])->name('notification.markAllAsRead');
-
+    Route::post('/notification/{id}/mark-as-read', [NotificationsController::class, 'markAsRead'])->name('notification.markAsRead');
     Route::get('/notification-to/{id}', [NotificationsController::class, 'routeTo'])->name('notification.routeTo');
+    Route::delete('/notification/{id}', [NotificationsController::class, 'destroy'])->name('notification.destroy');
+    Route::post('/notification/clear-all', [NotificationsController::class, 'destroyAll'])->name('notification.destroyAll');
 
     Route::post('/transaction/{transaction}/cancel', [TransactionController::class, 'cancel'])->name('transaction.cancel');
     Route::post('/transaction/{transaction}/upload-receipt', [TransactionController::class, 'uploadReceipt'])->name('transaction.uploadReceipt');

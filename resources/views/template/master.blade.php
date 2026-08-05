@@ -267,6 +267,9 @@
 
             <!-- Page Content -->
             <div id="page-content-wrapper" class="flex-grow-1 min-w-0" style="min-width: 0;">
+                <!-- Desktop Topbar Header -->
+                @include('template.include._navbar')
+
                 <div class="p-3 p-md-4">
                     @yield('content')
                 </div>
