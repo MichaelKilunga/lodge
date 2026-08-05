@@ -62,6 +62,7 @@ Route::group(['middleware' => ['auth', 'checkRole:Super,Admin,Owner,Front Desk']
     Route::post('/post/upload-image', [PostController::class, 'uploadImage'])->name('post.upload_image')->middleware('permission:manage_blog');
     Route::resource('post', PostController::class)->middleware('permission:manage_blog');
     Route::get('/report', [ReportController::class, 'index'])->name('report.index')->middleware('permission:view_reports');
+    Route::get('/report/export', [ReportController::class, 'exportCsv'])->name('report.exportCsv')->middleware('permission:view_reports');
     
     Route::get('/marketing', [MarketingController::class, 'index'])->name('marketing.index')->middleware('permission:view_reports');
     Route::post('/marketing/report/save', [MarketingController::class, 'saveReport'])->name('marketing.report.save')->middleware('permission:view_reports');

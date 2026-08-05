@@ -21,7 +21,7 @@ class SendDailyReport extends Command
     /**
      * The console command description.
      */
-    protected $description = 'Send the daily performance report to the configured owner email.';
+    protected $description = 'Send the daily performance report to the configured owner email(s).';
 
     /**
      * Execute the console command.
@@ -30,8 +30,18 @@ class SendDailyReport extends Command
     {
         $ownerEmail = Setting::where('key', 'owner_email')->value('value');
 
-        if (empty($ownerEmail)) {
+        if (empty(trim((string)$ownerEmail))) {
             $this->error('Owner email is not configured in Settings. Aborting.');
+            return 1;
+        }
+
+        // Split by comma, semicolon, or whitespace and filter valid email addresses
+        $emails = array_values(array_filter(array_map('trim', preg_split('/[,;\s]+/', (string)$ownerEmail)), function ($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        }));
+
+        if (empty($emails)) {
+            $this->error('No valid owner email addresses found in Settings. Aborting.');
             return 1;
         }
 
@@ -54,7 +64,7 @@ class SendDailyReport extends Command
             ->count();
         $occupancyRate  = $totalRooms > 0 ? round(($occupiedRooms / $totalRooms) * 100) : 0;
 
-        Mail::to($ownerEmail)->send(new DailyReportMail(
+        Mail::to($emails)->send(new DailyReportMail(
             $totalBookings,
             $totalRevenue,
             $occupancyRate,
@@ -70,8 +80,8 @@ class SendDailyReport extends Command
             SmsService::send($adminPhone, $smsText);
         }
 
-
-        $this->info("Daily report for {$today->format('Y-m-d')} sent to {$ownerEmail}.");
+        $emailsList = implode(', ', $emails);
+        $this->info("Daily report for {$today->format('Y-m-d')} sent to {$emailsList}.");
         return 0;
     }
 }

@@ -71,8 +71,9 @@
                                     <small class="text-muted">Include country code. Leave blank to hide the WhatsApp button.</small>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Owner Email <small class="text-muted">(for daily reports)</small></label>
-                                    <input type="email" class="form-control" name="owner_email" value="{{ $settings['owner_email'] ?? '' }}">
+                                    <label class="form-label fw-semibold">Owner Email(s) <small class="text-muted">(for daily reports)</small></label>
+                                    <input type="text" class="form-control" name="owner_email" value="{{ $settings['owner_email'] ?? '' }}" placeholder="owner1@example.com, owner2@example.com">
+                                    <small class="text-muted">Comma-separate multiple email addresses to send daily reports to more than one recipient.</small>
                                 </div>
                             </div>
                         </div>
