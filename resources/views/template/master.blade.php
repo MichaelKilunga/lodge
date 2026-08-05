@@ -463,12 +463,15 @@
     @yield('footer')
 
     <script>
-        // ── Service Worker Registration ─────────────────────────────────────────
+        // ── Service Worker Registration & Live Update ───────────────────────────
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('/sw.js', { scope: '/' })
-                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
-                    .catch(err => console.warn('[PWA] SW registration failed:', err));
+                    .then(reg => {
+                        reg.update();
+                        console.log('[PWA] Service Worker registered & checked for updates:', reg.scope);
+                    })
+                    .catch(err => console.warn('[PWA] SW registration warning:', err));
             });
         }
 
