@@ -88,8 +88,19 @@ class ReportController extends Controller
         $dateToInput = $request->get('date_to');
 
         if ($period === 'custom' && $dateFromInput && $dateToInput) {
-            $from = Carbon::parse($dateFromInput)->startOfDay();
-            $to   = Carbon::parse($dateToInput)->endOfDay();
+            try {
+                $from = Carbon::parse($dateFromInput)->startOfDay();
+                $to   = Carbon::parse($dateToInput)->endOfDay();
+                if ($from->gt($to)) {
+                    $temp = $from;
+                    $from = $to->copy()->startOfDay();
+                    $to   = $temp->copy()->endOfDay();
+                }
+            } catch (\Throwable $e) {
+                $period = 'today';
+                $from = Carbon::now()->startOfDay();
+                $to   = Carbon::now()->endOfDay();
+            }
         } else {
             switch ($period) {
                 case 'yesterday':

@@ -76,13 +76,13 @@
                 {{-- Period Quick Pills --}}
                 <div class="d-flex align-items-center flex-wrap gap-2 mb-3 pb-2 border-bottom">
                     <span class="text-muted small fw-bold me-2"><i class="fas fa-clock me-1"></i>Period:</span>
-                    <a href="#" onclick="selectPeriod('today')" class="period-pill {{ $period == 'today' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">Today</a>
-                    <a href="#" onclick="selectPeriod('yesterday')" class="period-pill {{ $period == 'yesterday' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">Yesterday</a>
-                    <a href="#" onclick="selectPeriod('week')" class="period-pill {{ $period == 'week' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">This Week</a>
-                    <a href="#" onclick="selectPeriod('month')" class="period-pill {{ $period == 'month' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">This Month</a>
-                    <a href="#" onclick="selectPeriod('last_month')" class="period-pill {{ $period == 'last_month' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">Last Month</a>
-                    <a href="#" onclick="selectPeriod('year')" class="period-pill {{ $period == 'year' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">This Year</a>
-                    <a href="#" onclick="selectPeriod('custom')" class="period-pill {{ $period == 'custom' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">Custom Range</a>
+                    <a href="javascript:void(0)" onclick="selectPeriod(event, 'today')" class="period-pill {{ $period == 'today' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">Today</a>
+                    <a href="javascript:void(0)" onclick="selectPeriod(event, 'yesterday')" class="period-pill {{ $period == 'yesterday' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">Yesterday</a>
+                    <a href="javascript:void(0)" onclick="selectPeriod(event, 'week')" class="period-pill {{ $period == 'week' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">This Week</a>
+                    <a href="javascript:void(0)" onclick="selectPeriod(event, 'month')" class="period-pill {{ $period == 'month' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">This Month</a>
+                    <a href="javascript:void(0)" onclick="selectPeriod(event, 'last_month')" class="period-pill {{ $period == 'last_month' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">Last Month</a>
+                    <a href="javascript:void(0)" onclick="selectPeriod(event, 'year')" class="period-pill {{ $period == 'year' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">This Year</a>
+                    <a href="javascript:void(0)" onclick="selectPeriod(event, 'custom')" class="period-pill {{ $period == 'custom' ? 'btn-primary text-white' : 'btn-light text-secondary' }}">Custom Range</a>
                 </div>
 
                 {{-- Filter Controls --}}
@@ -401,12 +401,21 @@
 @section('footer')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    function selectPeriod(period) {
+    function selectPeriod(e, period) {
+        if (e && e.preventDefault) e.preventDefault();
         document.getElementById('periodInput').value = period;
+
+        const dateFromInput = document.querySelector('input[name="date_from"]');
+        const dateToInput = document.querySelector('input[name="date_to"]');
+
         if (period === 'custom') {
             document.getElementById('customDateFromCol').style.display = 'block';
             document.getElementById('customDateToCol').style.display = 'block';
+            if (dateFromInput) dateFromInput.disabled = false;
+            if (dateToInput) dateToInput.disabled = false;
         } else {
+            if (dateFromInput) dateFromInput.disabled = true;
+            if (dateToInput) dateToInput.disabled = true;
             document.getElementById('reportFilterForm').submit();
         }
     }
