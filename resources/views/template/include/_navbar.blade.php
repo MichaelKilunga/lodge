@@ -23,18 +23,19 @@
                 </a>
 
                 <!-- Desktop Notification Bell Dropdown -->
-                <div class="dropdown me-1" id="refreshThisDropdown">
-                    <button class="btn btn-light position-relative border-0 rounded-circle d-flex align-items-center justify-content-center shadow-none bg-light-subtle"
+                <div class="dropdown me-2 position-relative" id="refreshThisDropdown">
+                    <button class="btn btn-light border-0 rounded-circle d-flex align-items-center justify-content-center shadow-none bg-light-subtle"
                          id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false"
-                         style="width: 40px; height: 40px; cursor: pointer;" title="Notifications">
+                         style="width: 42px; height: 42px; cursor: pointer;" title="Notifications">
                         <i class="fas fa-bell fs-5 text-secondary"></i>
-                        @if (auth()->user()->unreadNotifications->count() > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm border border-2 border-white" style="font-size: 0.65rem; padding: 0.25em 0.5em;">
-                                {{ auth()->user()->unreadNotifications->count() }}
-                                <span class="visually-hidden">unread notifications</span>
-                            </span>
-                        @endif
                     </button>
+                    @if (auth()->user()->unreadNotifications->count() > 0)
+                        <span class="position-absolute badge rounded-pill bg-danger shadow-sm border border-2 border-white"
+                              style="top: -2px; right: -2px; font-size: 0.65rem; padding: 0.25em 0.5em; z-index: 5; pointer-events: none;">
+                            {{ auth()->user()->unreadNotifications->count() }}
+                            <span class="visually-hidden">unread notifications</span>
+                        </span>
+                    @endif
 
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2" aria-labelledby="dropdownMenuButton2" style="width: 350px; overflow: hidden;">
                         <li class="dropdown-header d-flex justify-content-between align-items-center bg-light py-3 px-3 border-bottom">

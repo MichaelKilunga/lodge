@@ -45,7 +45,7 @@
             <div class="col">
                 <div class="card card-stats h-100" style="border-top: 3px solid #6366f1;">
                     <div class="card-body text-center">
-                        <div class="stats-number text-primary" style="font-size:1.15rem;">
+                        <div class="stats-number text-light" style="font-size:1.15rem;">
                             {{ Helper::convertToRupiah($totalRevenue) }}
                         </div>
                         <div class="stats-label">
